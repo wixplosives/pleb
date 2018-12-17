@@ -1,0 +1,43 @@
+{
+  "name": "pusha",
+  "description": "Utility to publish lerna/yarn/workspace types of packages from ci to npm",
+  "version": "0.1.6",
+  "main": "cjs/index.js",
+  "bin": {
+    "mocha-pup": "cjs/cli.js"
+  },
+  "scripts": {
+    "clean": "rimraf ./cjs",
+    "prebuild": "yarn clean",
+    "build": "ts-build ./src --cjs",
+    "test": "mocha -r @ts-tools/node \"./test/**/*.spec.ts\" --watch-extensions ts --timeout 50000",
+    "prepack": "yarn build"
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "child_process": "^1.0.2",
+    "commander": "^2.19.0",
+    "get-monorepo-packages": "^1.1.0",
+    "pacote": "^9.2.3"
+  },
+  "devDependencies": {
+    "@ts-tools/build": "^0.1.2",
+    "@ts-tools/node": "^0.7.4",
+    "@types/chai": "^4.1.7",
+    "@types/commander": "^2.12.2",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "8",
+    "@types/semver": "^5.5.0",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.11.0",
+    "typescript": "^3.2.2"
+  },
+  "files": [
+    "cjs",
+    "src"
+  ],
+  "license": "MIT",
+  "repository": "git@github.com:wixplosives/pusha.git"
+}
