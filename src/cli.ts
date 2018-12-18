@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import program from 'commander'
-import { runPushCommand } from './publish_lerna'
+import { CheckAndPublishMonorepo } from './publish_lerna'
 
 const { version, description } = require('../package.json')
 
@@ -17,7 +17,7 @@ const {
     args
 } = program
 
-runPushCommand(args[0]).catch(printErrorAndExit)
+CheckAndPublishMonorepo(args[0]).catch(printErrorAndExit)
 
 function printErrorAndExit(message: unknown) {
     console.error(message)

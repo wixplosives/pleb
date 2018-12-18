@@ -1,10 +1,10 @@
 import * as semver from 'semver'
-import {execSync} from 'child_process'
+const childProcess = require( 'child_process')
 const getPackages = require( 'get-monorepo-packages' )
 const pacote = require('pacote')
 
 async function runPublishCommand(pathToFolder: string) {
-    return execSync('yarn publish' , {cwd: pathToFolder})
+    return childProcess.execSync('yarn publish' , {cwd: pathToFolder})
 }
 
 async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: string, version: string}) {
@@ -29,11 +29,12 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
     return 0
 }
 
-export async function runPushCommand(pathToProject: string) {
+export async function CheckAndPublishMonorepo(pathToProject: string) {
     const packages = await getPackages(pathToProject)
-
+    let retVal = -1
     for (const entry of packages) {
+        retVal = 0
         await publishIfRequired(entry.location, entry.package)
     }
-    return 0
+    return retVal
 }
