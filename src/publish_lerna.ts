@@ -34,7 +34,7 @@ export async function CheckAndPublishMonorepo(pathToProject: string)  {
     const packages = await getPackages(pathToProject)
     let retVal = false
     for (const entry of packages) {
-        console.log('Checking package: ' + entry.locatio)
+        console.log('Checking package: ' + entry.location)
         await publishIfRequired(entry.location, entry.package)
         retVal = true
     }
