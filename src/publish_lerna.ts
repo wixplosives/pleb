@@ -12,7 +12,6 @@ async function runPublishCommand(pathToFolder: string) {
     } catch (error) {
         console.log('yarn publish failed')
     }
-
     return retVal
 }
 
@@ -39,7 +38,7 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
         result = await runPublishCommand(pathToFolder)
     }
 
-    return 0
+    return result
 }
 
 export async function CheckAndPublishMonorepo(pathToProject: string)  {

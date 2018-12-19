@@ -22,11 +22,12 @@ const {
 const pathToProject = path.resolve(args[0])
 console.log('lerna-publisher starting in ' + pathToProject)
 const result = CheckAndPublishMonorepo(pathToProject).catch(printErrorAndExit)
-if (result) {
+if ( result) {
     console.log('Success')
 } else {
     console.log('Failed')
 }
+process.exit( result ? 0 : 1 )
 
 function printErrorAndExit(message: unknown) {
     console.error(message)
