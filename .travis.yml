@@ -22,5 +22,6 @@ before_install:
 deploy:
   provider: npm
   email: "alexshe@wix.com"
+  api_key: $NPM_TOKEN
   on:
     branch: master

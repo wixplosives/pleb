@@ -3,9 +3,9 @@ const childProcess = require( 'child_process')
 const getPackages = require( 'get-monorepo-packages' )
 const pacote = require('pacote')
 
-
 async function runPublishCommand(pathToFolder: string) {
-    return childProcess.execSync('yarn publish' , {cwd: pathToFolder})
+    const cmdText = 'yarn publish --ignore-scripts --non-interactive --verbose --no-git-tag-version'
+    return childProcess.execSync(cmdText , {cwd: pathToFolder})
 }
 
 async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: string, version: string}) {
