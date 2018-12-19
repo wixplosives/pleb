@@ -30,12 +30,14 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
 
     const globalVer = manifest.version
     const pkjJsonVer = pjson.version
-    console.log(pathToFolder, pkjJsonVer, globalVer )
+
     if ( pkjJsonVer !== undefined &&
         globalVer !== undefined &&
         semver.gt(pkjJsonVer, globalVer)) {
-        console.log('<<>>Do publish on:' + pathToFolder)
+        console.log('<<>>Do publish on:', pathToFolder, pkjJsonVer, '=>', globalVer)
         result = await runPublishCommand(pathToFolder)
+    } else {
+        console.log('Nothing to publish:', pathToFolder, pkjJsonVer, globalVer)
     }
 
     return result
