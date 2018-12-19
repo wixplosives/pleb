@@ -1,10 +1,10 @@
 {
-  "name": "pusha",
+  "name": "lerna-publisher",
   "description": "Utility to publish lerna/yarn/workspace types of packages from ci to npm",
-  "version": "0.1.6",
+  "version": "1.0.1",
   "main": "cjs/index.js",
   "bin": {
-    "mocha-pup": "cjs/cli.js"
+    "lerna-publisher": "cjs/cli.js"
   },
   "scripts": {
     "clean": "rimraf ./cjs",
@@ -42,5 +42,5 @@
     "src"
   ],
   "license": "MIT",
-  "repository": "git@github.com:wixplosives/pusha.git"
+  "repository": "git@github.com:wixplosives/lerna-publisher.git"
 }

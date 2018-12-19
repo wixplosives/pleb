@@ -17,6 +17,7 @@ const {
     args
 } = program
 
+console.log('Do publish on:' + pathToFolder)
 CheckAndPublishMonorepo(args[0]).catch(printErrorAndExit)
 
 function printErrorAndExit(message: unknown) {

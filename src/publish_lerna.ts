@@ -3,6 +3,7 @@ const childProcess = require( 'child_process')
 const getPackages = require( 'get-monorepo-packages' )
 const pacote = require('pacote')
 
+
 async function runPublishCommand(pathToFolder: string) {
     return childProcess.execSync('yarn publish' , {cwd: pathToFolder})
 }
@@ -20,7 +21,7 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
         if ( pkjJsonVer !== undefined &&
             globalVer !== undefined &&
             semver.gt(pkjJsonVer, globalVer)) {
-            console.log('<<<<<<<<<<<Do publish on:' + pathToFolder)
+            console.log('Do publish on:' + pathToFolder)
             await runPublishCommand(pathToFolder)
         }
     } catch (error) {
@@ -29,12 +30,11 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
     return 0
 }
 
-export async function CheckAndPublishMonorepo(pathToProject: string) {
+export async function CheckAndPublishMonorepo(pathToProject: string)  {
     const packages = await getPackages(pathToProject)
-    let retVal = -1
     for (const entry of packages) {
-        retVal = 0
+        console.log('Checking package: ' + entry.locatio)
         await publishIfRequired(entry.location, entry.package)
     }
-    return retVal
+    return packages.length() > 0
 }
