@@ -4,7 +4,7 @@ Custom publishing cli for lerna/yarn/workspces project
 
 ## Installation
 
-Install `lerna` :
+Install `lerna-publisher` :
 
 ```
 nom install lerna-publisher -g
