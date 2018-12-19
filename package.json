@@ -40,6 +40,9 @@
     "cjs",
     "src"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "repository": "git@github.com:wixplosives/lerna-publisher.git"
 }

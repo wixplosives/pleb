@@ -19,7 +19,7 @@ const {
 
 console.log('Running...')
 const result = CheckAndPublishMonorepo(args[0]).catch(printErrorAndExit)
-if (result){
+if (result) {
     console.log('Success')
 } else {
     console.log('Failed')
