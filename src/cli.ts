@@ -17,8 +17,15 @@ const {
     args
 } = program
 
-console.log('Do publish on:' + pathToFolder)
-CheckAndPublishMonorepo(args[0]).catch(printErrorAndExit)
+console.log('Running...')
+const result = CheckAndPublishMonorepo(args[0]).catch(printErrorAndExit)
+if (result){
+    console.log('Success')
+} else {
+    console.log('Failed')
+}
+
+
 
 function printErrorAndExit(message: unknown) {
     console.error(message)
