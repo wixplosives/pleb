@@ -19,15 +19,19 @@ const {
     args
 } = program
 
-const pathToProject = path.resolve(args[0])
-console.log('lerna-publisher starting in ' + pathToProject)
-const result = CheckAndPublishMonorepo(pathToProject).catch(printErrorAndExit)
-if ( result) {
-    console.log('Success')
-} else {
-    console.log('Failed')
+async function runTheCommand(){
+    const pathToProject = path.resolve(args[0])
+    console.log('lerna-publisher starting in ' + pathToProject)
+    const result = await CheckAndPublishMonorepo(pathToProject).catch(printErrorAndExit)
+    if ( result) {
+        console.log('Success')
+    } else {
+        console.log('Failed')
+    }
+    process.exit( result ? 0 : 1 )
 }
-process.exit( result ? 0 : 1 )
+
+runTheCommand()
 
 function printErrorAndExit(message: unknown) {
     console.error(message)
