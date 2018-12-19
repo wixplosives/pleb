@@ -2,6 +2,7 @@ import * as semver from 'semver'
 const childProcess = require( 'child_process')
 const getPackages = require( 'get-monorepo-packages' )
 const pacote = require('pacote')
+const chalk = require('chalk')
 
 async function runPublishCommand(pathToFolder: string) {
     const cmdText = 'yarn publish --ignore-scripts --non-interactive --verbose --no-git-tag-version'
@@ -10,7 +11,7 @@ async function runPublishCommand(pathToFolder: string) {
         childProcess.execSync(cmdText , {cwd: pathToFolder})
         retVal = true
     } catch (error) {
-        console.log('yarn publish failed')
+        console.log(chalk.red('\tyarn publish failed'))
     }
     return retVal
 }
@@ -25,7 +26,7 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
     try {
         manifest = await pacote.manifest(pkgJsonContent.name, opts)
     } catch (error) {
-        console.log('pacote cannot get version from npmjs')
+        console.log('\tpacote cannot get version from npmjs', pkgJsonContent.name, error)
     }
 
     const globalVer = manifest.version
@@ -34,10 +35,10 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
     if ( pkjJsonVer !== undefined &&
         globalVer !== undefined &&
         semver.gt(pkjJsonVer, globalVer)) {
-        console.log('<<>>Do publish on:', pathToFolder, pkjJsonVer, '=>', globalVer)
+        console.log(chalk.green('\tPublish:', pkgJsonContent.name, pkjJsonVer, '=>', globalVer))
         result = await runPublishCommand(pathToFolder)
     } else {
-        console.log('Nothing to publish:', pathToFolder, pkjJsonVer, globalVer)
+        console.log(chalk.grey('\tNothing to publish:', pkgJsonContent.name, pkjJsonVer, globalVer))
     }
 
     return result
