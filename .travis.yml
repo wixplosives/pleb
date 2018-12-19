@@ -23,5 +23,6 @@ deploy:
   provider: npm
   email: "alexshe@wix.com"
   api_key: $NPM_TOKEN
+  skip_cleanup: true
   on:
     branch: master
