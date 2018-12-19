@@ -17,6 +17,7 @@ async function runPublishCommand(pathToFolder: string) {
 }
 
 async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: string, version: string}) {
+    let result = true
     const pjson = pkgJsonContent
     const opts = {
         '//registry.npmjs.org/:token': process.env.NPM_TOKEN
@@ -35,7 +36,7 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
         globalVer !== undefined &&
         semver.gt(pkjJsonVer, globalVer)) {
         console.log('<<>>Do publish on:' + pathToFolder)
-        await runPublishCommand(pathToFolder)
+        result = await runPublishCommand(pathToFolder)
     }
 
     return 0
@@ -46,8 +47,9 @@ export async function CheckAndPublishMonorepo(pathToProject: string)  {
     let retVal = false
     for (const entry of packages) {
         console.log('Checking package: ' + entry.location)
-        await publishIfRequired(entry.location, entry.package)
-        retVal = true
+        if ( await publishIfRequired(entry.location, entry.package) ){
+            retVal = true
+        }
     }
     return retVal
 }
