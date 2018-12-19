@@ -1,19 +1,19 @@
-# Pusha
+# Lerna Publisher
 
 Custom publishing cli for lerna/yarn/workspces project
 
 ## Installation
 
-Install `pusha` as a dev dependency:
+Install `lerna-publisher` :
 
 ```
-yarn add pusha --dev
+nom install lerna-publisher -g
 ```
 
 ## Usage
 
 ```
-pusha "path/to/your/repo"
+lerna-publisher "path/to/your/repo"
 ```
 
 ## CLI Options
