@@ -14,13 +14,10 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "chalk": "^2.4.1",
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "get-monorepo-packages": "^1.1.0",
-    "pacote": "^9.2.3",
-    "sinon": "^7.2.2",
-    "ts-sinon": "^1.0.12"
+    "pacote": "^9.2.3"
   },
   "devDependencies": {
     "@ts-tools/build": "^0.1.2",
@@ -35,7 +32,9 @@
     "mocha": "^5.2.0",
     "rimraf": "^2.6.2",
     "tslint": "^5.11.0",
-    "typescript": "^3.2.2"
+    "typescript": "^3.2.2",
+    "sinon": "^7.2.2",
+    "ts-sinon": "^1.0.12"
   },
   "files": [
     "cjs",

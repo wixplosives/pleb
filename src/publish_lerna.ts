@@ -21,7 +21,7 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
         if ( pkjJsonVer !== undefined &&
             globalVer !== undefined &&
             semver.gt(pkjJsonVer, globalVer)) {
-            console.log('Do publish on:' + pathToFolder)
+            console.log('<<>>Do publish on:' + pathToFolder)
             await runPublishCommand(pathToFolder)
         }
     } catch (error) {
@@ -32,9 +32,11 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
 
 export async function CheckAndPublishMonorepo(pathToProject: string)  {
     const packages = await getPackages(pathToProject)
+    let retVal = false
     for (const entry of packages) {
         console.log('Checking package: ' + entry.locatio)
         await publishIfRequired(entry.location, entry.package)
+        retVal = true
     }
-    return packages.length() > 0
+    return retVal
 }

@@ -25,7 +25,7 @@ describe('publish lerna', () => {
         const path = join(fixturesRoot, 'proj1')
         const result = await publishLerna.CheckAndPublishMonorepo(path)
         expect(execSyncMock.called).to.equal(true)
-        expect(result).to.equal(0)
+        expect(result).to.equal(true)
         sandbox.restore()
     })
     it('dont run publish if versions match', async () => {
@@ -44,7 +44,7 @@ describe('publish lerna', () => {
         const path = join(fixturesRoot, 'proj1')
         const result = await publishLerna.CheckAndPublishMonorepo(path)
         expect(execSyncMock.called).to.equal(false)
-        expect(result).to.equal(0)
+        expect(result).to.equal(true)
         sandbox.restore()
     })
 })
