@@ -25,8 +25,6 @@ if (result){
     console.log('Failed')
 }
 
-
-
 function printErrorAndExit(message: unknown) {
     console.error(message)
     process.exit(1)
