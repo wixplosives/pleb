@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import program from 'commander'
+import path from 'path'
+
 import { CheckAndPublishMonorepo } from './publish_lerna'
 
 const { version, description } = require('../package.json')
@@ -17,8 +19,9 @@ const {
     args
 } = program
 
-console.log('Running...')
-const result = CheckAndPublishMonorepo(args[0]).catch(printErrorAndExit)
+const pathToProject = path.resolve(args[0])
+console.log('lerna-publisher starting in ' + pathToProject)
+const result = CheckAndPublishMonorepo(pathToProject).catch(printErrorAndExit)
 if (result) {
     console.log('Success')
 } else {
