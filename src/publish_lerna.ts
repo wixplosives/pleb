@@ -5,7 +5,15 @@ const pacote = require('pacote')
 
 async function runPublishCommand(pathToFolder: string) {
     const cmdText = 'yarn publish --ignore-scripts --non-interactive --verbose --no-git-tag-version'
-    return childProcess.execSync(cmdText , {cwd: pathToFolder})
+    let retVal = false
+    try {
+        childProcess.execSync(cmdText , {cwd: pathToFolder})
+        retVal = true
+    } catch (error) {
+        console.log('yarn publish failed')
+    }
+
+    return retVal
 }
 
 async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: string, version: string}) {
@@ -13,20 +21,23 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
     const opts = {
         '//registry.npmjs.org/:token': process.env.NPM_TOKEN
     }
-
+    let manifest = {version : '0.0.0'}
     try {
-        const manifest = await pacote.manifest(pkgJsonContent.name, opts)
-        const pkjJsonVer = pjson.version
-        const globalVer = manifest.version
-        if ( pkjJsonVer !== undefined &&
-            globalVer !== undefined &&
-            semver.gt(pkjJsonVer, globalVer)) {
-            console.log('<<>>Do publish on:' + pathToFolder)
-            await runPublishCommand(pathToFolder)
-        }
+        manifest = await pacote.manifest(pkgJsonContent.name, opts)
     } catch (error) {
-        return error
+        console.log('pacote cannot get version from npmjs')
     }
+
+    const globalVer = manifest.version
+    const pkjJsonVer = pjson.version
+    console.log(pathToFolder, pkjJsonVer, globalVer )
+    if ( pkjJsonVer !== undefined &&
+        globalVer !== undefined &&
+        semver.gt(pkjJsonVer, globalVer)) {
+        console.log('<<>>Do publish on:' + pathToFolder)
+        await runPublishCommand(pathToFolder)
+    }
+
     return 0
 }
 
