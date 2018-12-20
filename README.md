@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/wixplosives/lerna-publisher.svg?branch=master)](https://travis-ci.com/wixplosives/lerna-publisher)
+
 # Lerna Publisher
 
 Custom publishing cli for lerna/yarn/workspces project.
