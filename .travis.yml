@@ -19,9 +19,9 @@ before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s
   - export PATH=$HOME/.yarn/bin:$PATH
 
-before_depoloy:
+before_deploy:
   - yarn version
-  
+
 deploy:
   provider: npm
   email: "alexshe@wix.com"
