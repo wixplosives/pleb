@@ -2,7 +2,7 @@
 
 # Lerna Publisher
 
-Custom publishing cli for lerna/yarn/workspces project.
+Custom publishing cli for lerna/yarn/workspaces projects.
 
 lerna-publisher will check versions of all subpackages in monorepo and publish them to npmjs if version specified in package.json of subpackage is higher than version in npmjs.
 
@@ -14,9 +14,10 @@ npm install lerna-publisher -g
 ```
 
 ## Usage
+
 1. Commit your changes to git
 1. run ```lerna publish --skip-npm```
-1. run ```lerna-publisher "path/to/your/repo"``` - this step is usually done in CI that runs 
+1. run ```lerna-publisher path/to/your/repo``` - this step is usually done in CI that runs with different npm authentication.
 
 ## Example of Travis configuration
 
