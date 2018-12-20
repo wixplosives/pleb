@@ -21,7 +21,7 @@ npm install lerna-publisher -g
 
 ## Example of Travis configuration
 
-Add NPM_TOKEN environment varialbe in Travis Build Settings
+Add NPM_TOKEN environment variable in Travis Build Settings
 
 Add following to the end of your .travis.yml
 
