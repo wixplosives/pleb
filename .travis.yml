@@ -20,7 +20,7 @@ before_install:
   - export PATH=$HOME/.yarn/bin:$PATH
 
 before_deploy:
-  - yarn version
+  - yarn version --patch
 
 deploy:
   provider: npm
