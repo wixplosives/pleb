@@ -8,16 +8,10 @@ lerna-publisher will check versions of all subpackages in monorepo and publish t
 
 Primary motivation is to allow developer to run lerna publish command locally even if developer does not have permissions to publish to npmjs.CI will pickup tags commited by lerna and publish packages with unpublished versions.
 
-## Installation
-```
-npm install lerna-publisher -g
-```
-
 ## Usage
 
 1. Commit your changes to git
-1. run ```lerna publish --skip-npm```
-1. run ```lerna-publisher path/to/your/repo``` - this step is usually done in CI that runs with different npm authentication.
+1. run ```lerna version```
 
 ## Example of Travis configuration
 
@@ -32,7 +26,7 @@ before_deploy:
 
 deploy:
   provider: script
-  script: lerna-publisher .
+  script: lerna-publisher
   on:
     os: linux
     node: 10

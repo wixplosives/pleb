@@ -19,9 +19,19 @@ const {
     args
 } = program
 
-async function runTheCommand(){
-    const pathToProject = path.resolve(args[0])
+async function getWorkingFolder( cmdargs: string[]) {
+    let pathToProject = process.cwd()
+
+    if (arguments.length !== 0 && cmdargs[0] !== '') {
+        pathToProject = path.resolve(cmdargs[0])
+    }
+    return pathToProject
+}
+
+async function runTheCommand() {
+    const pathToProject = await getWorkingFolder(args)
     console.log('lerna-publisher starting in ' + pathToProject)
+
     const result = await CheckAndPublishMonorepo(pathToProject).catch(printErrorAndExit)
     if ( result) {
         console.log('Success')
