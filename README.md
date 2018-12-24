@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/wixplosives/lerna-publisher.svg?branch=master)](https://travis-ci.com/wixplosives/lerna-publisher)
+[![Build Status](https://travis-ci.com/wixplosives/lerna-publisher.svg?branch=master)](https://travis-ci.com/wixplosives/lerna-publisher)[![npm version](https://badge.fury.io/js/lerna-publisher.svg)](https://badge.fury.io/js/lerna-publisher)
 
 # Lerna Publisher
 
