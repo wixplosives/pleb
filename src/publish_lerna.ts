@@ -1,4 +1,4 @@
-import * as semver from 'semver'
+
 const childProcess = require( 'child_process')
 const getPackages = require( 'get-monorepo-packages' )
 const pacote = require('pacote')
@@ -22,25 +22,19 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
     const opts = {
         '//registry.npmjs.org/:token': process.env.NPM_TOKEN
     }
-    let manifest = {version : '0.0.0'}
+    const verArray = Array()
     try {
-        manifest = await pacote.manifest(pkgJsonContent.name, opts)
+        const packument = await pacote.packument(pkgJsonContent.name, opts)
+        Object.keys(packument.versions).forEach(key => {verArray.push(key)})
     } catch (error) {
-        console.log('\tpacote cannot get version from npmjs', pkgJsonContent.name, error)
+        console.log('\tpacote cannot get packument from npmjs', pkgJsonContent.name, error)
     }
-
-    const globalVer = manifest.version
     const pkjJsonVer = pjson.version
-
-    if ( pkjJsonVer !== undefined &&
-        globalVer !== undefined &&
-        semver.gt(pkjJsonVer, globalVer)) {
-        console.log(chalk.green('\tPublish:', pkgJsonContent.name, pkjJsonVer, '=>', globalVer))
+    if ( verArray.indexOf(pkjJsonVer) === -1 ) {
         result = await runPublishCommand(pathToFolder)
     } else {
-        console.log(chalk.grey('\tNothing to publish:', pkgJsonContent.name, pkjJsonVer, globalVer))
+        console.log(chalk.grey('\tNothing to publish:', pkgJsonContent.name, pkjJsonVer))
     }
-
     return result
 }
 
@@ -49,7 +43,7 @@ export async function CheckAndPublishMonorepo(pathToProject: string)  {
     let retVal = false
     for (const entry of packages) {
         console.log('Checking package: ' + entry.location)
-        if ( await publishIfRequired(entry.location, entry.package) ){
+        if ( await publishIfRequired(entry.location, entry.package) ) {
             retVal = true
         }
     }
