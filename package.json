@@ -14,10 +14,12 @@
     "prepack": "yarn build"
   },
   "dependencies": {
+    "aws-sdk": "^2.384.0",
     "chalk": "^2.4.1",
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "get-monorepo-packages": "^1.1.0",
+    "mime": "^2.4.0",
     "pacote": "^9.2.3"
   },
   "devDependencies": {

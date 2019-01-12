@@ -6,6 +6,7 @@ const childProcess = require( 'child_process' )
 const pacote = require('pacote')
 
 const publishLerna = require('../src/publish_lerna.ts')
+
 const fixturesRoot = join(__dirname, '..', 'fixtures')
 
 describe('publish lerna', () => {
