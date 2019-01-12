@@ -4,10 +4,11 @@ const path = require('path')
 const mime = require('mime')
 
 export async function walkSync(pathToFolder: string): Promise<any[]> {
+  console.log(process.cwd )
   const files = fs.readdirSync(pathToFolder)
   const output = []
   for (const file of files) {
-    const pathToFile = path.join(pathToFolder, file);
+    const pathToFile = path.join(pathToFolder, file)
     const isDirectory = fs.statSync(pathToFile).isDirectory()
     if (isDirectory) {
       output.push(...await walkSync(pathToFile))
