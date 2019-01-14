@@ -19,6 +19,7 @@
     "child_process": "^1.0.2",
     "commander": "^2.19.0",
     "get-monorepo-packages": "^1.1.0",
+    "github-api": "^3.0.0",
     "mime": "^2.4.0",
     "pacote": "^9.2.3"
   },
@@ -27,6 +28,7 @@
     "@ts-tools/node": "^0.7.4",
     "@types/chai": "^4.1.7",
     "@types/commander": "^2.12.2",
+    "@types/mime": "^2.0.0",
     "@types/mocha": "^5.2.5",
     "@types/node": "8",
     "@types/semver": "^5.5.0",
