@@ -51,10 +51,12 @@ async function  internalUploadFolder(accessKeyIdPar: string,
         Body: fileContent,
         ContentType: mimeType,
       } as AWS.S3.PutObjectRequest).promise()
+
       console.log(`Uploaded `, statistics, relativeToBaseFilePathForS3)
     }
     return true
   } catch (error) {
+      console.error(error)
       return false
   }
 }
