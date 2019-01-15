@@ -13,7 +13,7 @@ Primary motivation is to allow developer to run lerna publish command locally ev
 1. Commit your changes to git
 1. run ```lerna version```
 
-## Example of Travis configuration
+### Example of Travis configuration
 
 Add NPM_TOKEN environment variable in Travis Build Settings
 
@@ -34,11 +34,30 @@ deploy:
     tags: true
 ```
 
-## CLI Options
+### CLI Options
 
 ```
   -v, --version                       output the version number
   -h, --help                          output usage information
+```
+
+## Publish demo link for Pull Request in github
+
+You can use lerna-publisher to generate static demo sites for your pull requests.
+Environmnet variables
+
+1. TRAVIS_PULL_REQUEST - travis sets PR number here
+1. TRAVIS_BRANCH - travis sets branch name here
+1. AWS_BUCKET_NAME - name of the s3 bucket to upload you demo to 'demo.youdomain.demosites'
+1. AWS_BUCKET_LINK - static web address that points to the root of the s3 bucket 'demo.youdomain.demosites.s3-website-us-east-1.amazonaws.com'
+1. GITHUB_TOKEN='your github token'
+1. AWS_ACCESS_KEY_ID='YOURAWSSECRETKEY'
+1. AWS_SECRET_ID='Yourawssecretid'
+
+Than run:
+
+```
+  lerna-publisher deploydemo @wix/lpt-server /Users/youruser/dev/lerna-publish-test
 ```
 
 ### License

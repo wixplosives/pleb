@@ -4,7 +4,6 @@ import path from 'path'
 import mime from 'mime'
 
 export async function walkSync(pathToFolder: string): Promise<any[]> {
-  console.log(process.cwd )
   const files = fs.readdirSync(pathToFolder)
   const output = []
   for (const file of files) {
@@ -65,7 +64,7 @@ export async function uploadFolder(folderPath: string, pkgName: string, branchNa
   const accessKey = process.env.AWS_ACCESS_KEY_ID || 'not defined'
   const accessSecretID = process.env.AWS_SECRET_ID || 'not defined'
   const bucketName = process.env.AWS_BUCKET_NAME || 'not defined'
-  const s3subfolder = path.join(pkgName, branchName)
+  const s3subfolder = path.join( pkgName, branchName)
 
   return await internalUploadFolder( accessKey, accessSecretID, bucketName, s3subfolder, folderPath)
 }
