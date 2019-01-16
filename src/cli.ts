@@ -23,9 +23,10 @@ program
     .command('deploydemo [pkgName] [folder]') // sub-command name
     .description('Deploy package for demo usage') // command description
     // function to execute when command is uses
-    .action( ( pkgName: string, folder: string) => {
+    // .option('--aws-bucket-name <string>', 'aws bucket name to publish to.')
+    .action( ( pkgName: string, folder: string  ) => {
         console.log( pkgName, folder )
-        runDeployCommand(folder, pkgName)
+        runDeployCommand(folder, pkgName )
     })
 
 program
@@ -56,7 +57,7 @@ export async function getRepoAndOrg( githubLink: string ) {
     return parts
 }
 
-export async function runDeployCommand(folder: string, pkgname: string) {
+export async function runDeployCommand(folder: string, pkgname: string ) {
     console.log('Deploy ' , pkgname , 'from' , folder)
     let prNum = 0
     const varValue = process.env.TRAVIS_PULL_REQUEST
@@ -73,10 +74,9 @@ export async function runDeployCommand(folder: string, pkgname: string) {
     const pkgToDeploy = packages.find((element: { package: { name: string, version: string }, location: string}) => {
             return element.package.name === pkgname
       })
-
     const bucketName = process.env.AWS_BUCKET_NAME || ''
-    const branchName = process.env.TRAVIS_BRANCH || ''
     const bucketLink = `http://${bucketName}.s3-website-us-east-1.amazonaws.com`
+    const branchName = process.env.TRAVIS_BRANCH || ''
     const githubToken = process.env.GITHUB_TOKEN || ''
     const githubSlug = process.env.TRAVIS_REPO_SLUG || ''
     const slugParts = githubSlug.split('/')
@@ -93,7 +93,7 @@ export async function runDeployCommand(folder: string, pkgname: string) {
 
         const linkToPublish = 'http://' + path.join( bucketLink,
                                         pkgToDeploy.package.name, branchName )
-        console.debug('Link to publish',linkToPublish)
+        console.debug('Link to publish', linkToPublish)
         result = await postLinkToPRTest(textToPublish, linkToPublish,
                                         githubToken, org, repo,
                                         prNum)

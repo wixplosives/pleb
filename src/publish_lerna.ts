@@ -9,8 +9,8 @@ async function runPublishCommand(pathToFolder: string) {
     const cmdText = 'yarn publish --ignore-scripts --non-interactive --verbose --no-git-tag-version'
     let retVal = false
     try {
-        childProcess.execSync(cmdSetRegistry , {cwd: pathToFolder})
-        childProcess.execSync(cmdText , {cwd: pathToFolder})
+        childProcess.execSync(cmdSetRegistry , {cwd: pathToFolder, stdio: 'inherit'})
+        childProcess.execSync(cmdText , {cwd: pathToFolder, stdio: 'inherit'})
         retVal = true
     } catch (error) {
         console.log(chalk.red('\tyarn publish failed'))
@@ -20,7 +20,6 @@ async function runPublishCommand(pathToFolder: string) {
 
 async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: string, version: string}) {
     let result = true
-    const pjson = pkgJsonContent
     const opts = {
         '//registry.npmjs.org/:token': process.env.NPM_TOKEN
     }
@@ -31,11 +30,13 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
     } catch (error) {
         console.log('\tpacote cannot get packument from npmjs', pkgJsonContent.name, error)
     }
-    const pkjJsonVer = pjson.version
-    if ( verArray.indexOf(pkjJsonVer) === -1 ) {
+
+    if ( verArray.indexOf(pkgJsonContent.version) === -1 ) {
         result = await runPublishCommand(pathToFolder)
+        const resultString = result ? chalk.green('success') : chalk.red('failure')
+        console.log(chalk.grey( pkgJsonContent.name,  pkgJsonContent.version, '\tPublish '), resultString)
     } else {
-        console.log(chalk.grey('\tNothing to publish:', pkgJsonContent.name, pkjJsonVer))
+        console.log(chalk.grey( pkgJsonContent.name,  pkgJsonContent.version, '\tNothing to publish:'))
     }
     return result
 }
