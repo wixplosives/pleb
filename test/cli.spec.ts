@@ -8,6 +8,10 @@ describe('lerna-publisher', () => {
     it('runs nothing', async () => {
         const newpath = join('mypath','another_path')
         expect(newpath).to.equal('mypath/another_path')
+        const bucketName = 'bucket.demo.com'
+        const bucketLink = `http://${bucketName}.s3-website-us-east-1.amazonaws.com`
+        expect(bucketLink).to.equal(`http://bucket.demo.com.s3-website-us-east-1.amazonaws.com`)
+
     })
     xit('Run deploy', async () => {
         const path = join(fixturesRoot, 'proj_to_deploy')

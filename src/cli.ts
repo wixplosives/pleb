@@ -74,7 +74,7 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
             return element.package.name === pkgname
       })
     const bucketName = process.env.AWS_BUCKET_NAME || ''
-    const bucketLink = `http://${bucketName}.s3-website-us-east-1.amazonaws.com`
+    const bucketLink = `http://${bucketName}.s3-website-us-east-1.amazonaws.com/`
     const branchName = process.env.TRAVIS_BRANCH || ''
     const githubToken = process.env.GITHUB_TOKEN || ''
     const githubSlug = process.env.TRAVIS_REPO_SLUG || ''
@@ -90,8 +90,7 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
         const cureentToime = new Date()
         const textToPublish = 'Demo server. Deployed at ' + cureentToime.toString()
 
-        const linkToPublish = 'http://' + path.join( bucketLink,
-                                        pkgToDeploy.package.name, branchName )
+        const linkToPublish = bucketLink + path.join(pkgToDeploy.package.name, branchName )
         console.debug('Link to publish', linkToPublish)
         result = await postLinkToPRTest(textToPublish, linkToPublish,
                                         githubToken, org, repo,
