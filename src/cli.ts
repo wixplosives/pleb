@@ -70,7 +70,6 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
     }
     const pathToProject = await getWorkingFolder(folder)
     const packages = getPackages(pathToProject)
-
     const pkgToDeploy = packages.find((element: { package: { name: string, version: string }, location: string}) => {
             return element.package.name === pkgname
       })
