@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import program from 'commander'
 import path from 'path'
-
 import { CheckAndPublishMonorepo } from './publish_lerna'
 import { uploadFolder } from './aws'
 import { postLinkToPRTest } from './github'
-
 const getPackages = require( 'get-monorepo-packages' )
 const { version, description } = require('../package.json')
+
+const chalk = require('chalk')
 
 process.on('unhandledRejection', printErrorAndExit)
 
@@ -86,7 +86,7 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
     console.log('Deploy package from folder: ' + pkgToDeploy.location )
     const pathToPublish = path.join(pkgToDeploy.location, 'dist')
     result = await uploadFolder(pathToPublish, pkgToDeploy.package.name, branchName)
-    console.debug('Upload folder to s3 result: ', result ? 'SUCCESS' : 'FAIL')
+    console.debug('Upload folder to s3 result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
     if ( result ) {
         const cureentToime = new Date()
         const textToPublish = 'Demo server. Deployed at ' + cureentToime.toString()
@@ -97,7 +97,7 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
         result = await postLinkToPRTest(textToPublish, linkToPublish,
                                         githubToken, org, repo,
                                         prNum)
-        console.debug('Post link to PR result: ', result ? 'SUCCESS' : 'FAIL')
+        console.debug('Post link to PR result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
     }
     console.log('Exiting', result ? 0 : 1)
     process.exit( result ? 0 : 1 )
@@ -113,6 +113,7 @@ async function runPublishCommand(folder: string) {
     } else {
         console.log('Failed')
     }
+    console.log('Exiting', result ? 0 : 1)
     process.exit( result ? 0 : 1 )
 }
 

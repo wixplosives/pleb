@@ -13,7 +13,7 @@ async function runPublishCommand(pathToFolder: string) {
         childProcess.execSync(cmdText , {cwd: pathToFolder, stdio: 'inherit'})
         retVal = true
     } catch (error) {
-        console.log(chalk.red('\tyarn publish failed'))
+        console.log(chalk.red('\tyarn publish failed'), error)
     }
     return retVal
 }
@@ -33,10 +33,10 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
 
     if ( verArray.indexOf(pkgJsonContent.version) === -1 ) {
         result = await runPublishCommand(pathToFolder)
-        const resultString = result ? chalk.green('success') : chalk.red('failure')
+        const resultString = result ? chalk.green('SUCCESS') : chalk.red('FAILED')
         console.log(chalk.grey( pkgJsonContent.name,  pkgJsonContent.version, '\tPublish '), resultString)
     } else {
-        console.log(chalk.grey( pkgJsonContent.name,  pkgJsonContent.version, '\tNothing to publish:'))
+        console.log(chalk.grey( pkgJsonContent.name,  pkgJsonContent.version, '\tNothing to publish'))
     }
     return result
 }
