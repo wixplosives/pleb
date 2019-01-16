@@ -29,6 +29,7 @@ async function  internalUploadFolder(accessKeyIdPar: string,
       signatureVersion: 'v4',
       accessKeyId: accessKeyIdPar,
       secretAccessKey: secretAccessKeyPar,
+      region: 'us-east-1',
     })
 
     const filesPaths = await walkSync(localFolder)

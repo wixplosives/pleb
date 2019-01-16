@@ -83,7 +83,7 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
     const repo = slugParts[1]
     const org = slugParts[0]
 
-    console.log('Deploy package from folder: ' + pkgToDeploy.location )
+    console.log('Deploy package from folder: ', pkgToDeploy.location, 'to', bucketName )
     const pathToPublish = path.join(pkgToDeploy.location, 'dist')
     result = await uploadFolder(pathToPublish, pkgToDeploy.package.name, branchName)
     console.debug('Upload folder to s3 result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
