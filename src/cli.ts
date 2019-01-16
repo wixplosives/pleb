@@ -74,9 +74,9 @@ export async function runDeployCommand(folder: string, pkgname: string) {
             return element.package.name === pkgname
       })
 
-    // const bucketName = process.env.AWS_BUCKET_NAME || ''
-    const bucketLink = process.env.AWS_BUCKET_LINK || ''
+    const bucketName = process.env.AWS_BUCKET_NAME || ''
     const branchName = process.env.TRAVIS_BRANCH || ''
+    const bucketLink = `http://${bucketName}.s3-website-us-east-1.amazonaws.com`
     const githubToken = process.env.GITHUB_TOKEN || ''
     const githubSlug = process.env.TRAVIS_REPO_SLUG || ''
     const slugParts = githubSlug.split('/')
