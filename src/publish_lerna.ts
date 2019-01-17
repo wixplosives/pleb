@@ -5,11 +5,9 @@ const pacote = require('pacote')
 const chalk = require('chalk')
 
 async function runPublishCommand(pathToFolder: string) {
-    const cmdSetRegistry = 'npm config set registry https://registry.npmjs.org/'
-    const cmdText = 'yarn publish --ignore-scripts --non-interactive --verbose --no-git-tag-version'
+    const cmdText = 'yarn publish --non-interactive --no-git-tag-version --registry https://registry.npmjs.org/'
     let retVal = false
     try {
-        childProcess.execSync(cmdSetRegistry , {cwd: pathToFolder, stdio: 'inherit'})
         childProcess.execSync(cmdText , {cwd: pathToFolder, stdio: 'inherit'})
         retVal = true
     } catch (error) {
