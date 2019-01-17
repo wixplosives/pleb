@@ -7,7 +7,7 @@
     "lerna-publisher": "cjs/cli.js"
   },
   "scripts": {
-    "clean": "rimraf ./cjs",
+    "clean": "rimraf ./cjs; rimraf dist",
     "prebuild": "yarn clean",
     "build": "ts-build ./src --cjs",
     "test": "mocha -r @ts-tools/node \"./test/**/*.spec.ts\" --watch-extensions ts --timeout 50000",
