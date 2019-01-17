@@ -5,11 +5,10 @@ const pacote = require('pacote')
 const chalk = require('chalk')
 
 async function runPublishCommand(pathToFolder: string) {
+    console.log('Run yarn publish command at ', pathToFolder)
     const cmdPublishText = 'yarn publish --non-interactive --no-git-tag-version --registry https://registry.npmjs.org/'
-    const cmdPackText = 'yarn pack --non-interactive'
     let retVal = false
     try {
-        childProcess.execSync(cmdPackText , {cwd: pathToFolder, stdio: 'inherit'})
         childProcess.execSync(cmdPublishText , {cwd: pathToFolder, stdio: 'inherit'})
         retVal = true
     } catch (error) {

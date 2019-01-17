@@ -100,7 +100,7 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
             console.debug('Post link to PR result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
         }
     } catch (error) {
-        console.error(chalk.red('\tDeploy failed'), error)
+        console.error(chalk.red('\tD failed'), error)
     }
     console.log('Exiting', result ? 0 : 1)
     process.exit( result ? 0 : 1 )
