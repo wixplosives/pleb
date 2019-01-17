@@ -8,6 +8,7 @@ const getPackages = require( 'get-monorepo-packages' )
 const { version, description } = require('../package.json')
 
 const chalk = require('chalk')
+const childProcess = require( 'child_process')
 
 process.on('unhandledRejection', printErrorAndExit)
 
@@ -35,10 +36,6 @@ program
     .usage('[options]')
     .option('--no-colors', 'turn off colors (default: env detected)')
     .parse(process.argv)
-
-// const {
-//     args
-// } = program
 
 async function getWorkingFolder( pathToFolder: string) {
     let pathToProject = process.cwd()
@@ -73,6 +70,7 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
     const pkgToDeploy = packages.find((element: { package: { name: string, version: string }, location: string}) => {
             return element.package.name === pkgname
       })
+
     const bucketName = process.env.AWS_BUCKET_NAME || ''
     const bucketLink = `http://${bucketName}.s3-website-us-east-1.amazonaws.com/`
     const branchName = process.env.TRAVIS_BRANCH || ''
@@ -83,19 +81,26 @@ export async function runDeployCommand(folder: string, pkgname: string ) {
     const org = slugParts[0]
 
     console.log('Deploy package from folder: ', pkgToDeploy.location, 'to', bucketName )
-    const pathToPublish = path.join(pkgToDeploy.location, 'dist')
-    result = await uploadFolder(pathToPublish, pkgToDeploy.package.name, branchName)
-    console.debug('Upload folder to s3 result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
-    if ( result ) {
-        const cureentToime = new Date()
-        const textToPublish = 'Demo server. Deployed at ' + cureentToime.toString()
+    // pack it before deploying demo server
+    const cmdPackText = 'yarn pack --non-interactive'
+    try {
+        childProcess.execSync(cmdPackText , {cwd: pkgToDeploy.location, stdio: 'inherit'})
+        const pathToPublish = path.join(pkgToDeploy.location, 'dist')
+        result = await uploadFolder(pathToPublish, pkgToDeploy.package.name, branchName)
+        console.debug('Upload folder to s3 result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
+        if ( result ) {
+            const cureentToime = new Date()
+            const textToPublish = 'Demo server. Deployed at ' + cureentToime.toString()
 
-        const linkToPublish = bucketLink + path.join(pkgToDeploy.package.name, branchName )
-        console.debug('Link to publish', linkToPublish)
-        result = await postLinkToPRTest(textToPublish, linkToPublish,
-                                        githubToken, org, repo,
-                                        prNum)
-        console.debug('Post link to PR result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
+            const linkToPublish = bucketLink + path.join(pkgToDeploy.package.name, branchName )
+            console.debug('Link to publish', linkToPublish)
+            result = await postLinkToPRTest(textToPublish, linkToPublish,
+                                            githubToken, org, repo,
+                                            prNum)
+            console.debug('Post link to PR result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
+        }
+    } catch (error) {
+        console.error(chalk.red('\tDeploy failed'), error)
     }
     console.log('Exiting', result ? 0 : 1)
     process.exit( result ? 0 : 1 )
