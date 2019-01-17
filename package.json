@@ -1,7 +1,7 @@
 {
   "name": "lerna-publisher",
   "description": "Utility to publish lerna/yarn/workspace types of packages from ci to npm",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "main": "cjs/index.js",
   "bin": {
     "lerna-publisher": "cjs/cli.js"
