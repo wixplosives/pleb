@@ -12,7 +12,9 @@ Primary motivation is to allow developer to run lerna publish command locally ev
 
 lerna-publisher will assume you already have built version of your package in the folder where lerna publisher runs.
 To make sure you have built your package, add following to your pacakge.json scripts key.
+
 ```"prepack": "yarn build"``` 
+
 You need to have line like this in every pacakge.json of every package you want to publish to npm.
 
 ## Usage
