@@ -12,7 +12,7 @@ async function runPublishCommand(pathToFolder: string) {
         childProcess.execSync(cmdPublishText , {cwd: pathToFolder, stdio: 'inherit'})
         retVal = true
     } catch (error) {
-        console.log(chalk.red('\tyarn publish failed'), error)
+        console.log(chalk.red('\tyarn publish failed'), pathToFolder )
     }
     return retVal
 }
@@ -25,17 +25,20 @@ async function publishIfRequired(pathToFolder: string, pkgJsonContent: {name: st
     const verArray = Array()
     try {
         const packument = await pacote.packument(pkgJsonContent.name, opts)
+        console.log('\tpacote got versions for ',pkgJsonContent.name, Object.keys(packument.versions))
         Object.keys(packument.versions).forEach(key => {verArray.push(key)})
     } catch (error) {
-        console.log('\tpacote cannot get packument from npmjs', pkgJsonContent.name, error)
+        console.error(chalk.red('\tpacote cannot get packument from npmjs', pkgJsonContent.name))
     }
 
     if ( verArray.indexOf(pkgJsonContent.version) === -1 ) {
         result = await runPublishCommand(pathToFolder)
         const resultString = result ? chalk.green('SUCCESS') : chalk.red('FAILED')
-        console.log(chalk.grey( pkgJsonContent.name,  pkgJsonContent.version, '\tPublish '), resultString)
+        console.log(chalk.green( pkgJsonContent.name,  pkgJsonContent.version, '\tPublish '), resultString)
     } else {
-        console.log(chalk.grey( pkgJsonContent.name,  pkgJsonContent.version, '\tNothing to publish'))
+        console.log(chalk.yellow( pkgJsonContent.name,
+                                pkgJsonContent.version,
+                                '\tNothing to publish (version is already published)'))
     }
     return result
 }
@@ -44,10 +47,11 @@ export async function CheckAndPublishMonorepo(pathToProject: string)  {
     const packages = await getPackages(pathToProject)
     let retVal = false
     for (const entry of packages) {
-        console.log('Checking package: ' + entry.location)
+        console.log(chalk.green('<<<<<<<<<<<<<<<<<<<<< Checking package: ', entry.location))
         if ( await publishIfRequired(entry.location, entry.package) ) {
             retVal = true
         }
+        console.log(chalk.green('>>>>>>>>>>>>>>>>>>>>> Done: ', entry.location))
     }
     return retVal
 }
