@@ -1,126 +1,80 @@
 #!/usr/bin/env node
-import program from 'commander'
-import path from 'path'
-import { CheckAndPublishMonorepo } from './publish_lerna'
-import { uploadFolder } from './aws'
-import { postLinkToPRTest } from './github'
-const getPackages = require( 'get-monorepo-packages' )
-const { version, description } = require('../package.json')
+import path from 'path';
+import program from 'commander';
+import { publish } from './publish';
+import { deploy } from './deploy';
+const { version, description } = require('../package.json');
 
-const chalk = require('chalk')
-const childProcess = require( 'child_process')
-
-process.on('unhandledRejection', printErrorAndExit)
+const {
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ID,
+    AWS_BUCKET_NAME,
+    GITHUB_TOKEN,
+    TRAVIS_PULL_REQUEST,
+    TRAVIS_REPO_SLUG,
+    NPM_TOKEN
+} = process.env;
+process.on('unhandledRejection', printErrorAndExit);
 
 program
     .command('publish [folder]') // sub-command name
     .description('publish all unpublish pacakges') // command description
     // function to execute when command is uses
-    .action( (folder: string) => {
-        runPublishCommand(folder)
-    })
+    .action(async (folder: string) => {
+        if (!NPM_TOKEN) {
+            console.log('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
+            return;
+        }
+        try {
+            const directoryPath = path.resolve(folder);
+            console.log('lerna-publisher starting in ' + directoryPath);
+            await publish(directoryPath);
+        } catch (e) {
+            printErrorAndExit(e);
+        }
+    });
 
 program
     .command('deploydemo [pkgName] [folder]') // sub-command name
     .description('Deploy package for demo usage') // command description
     // function to execute when command is uses
     // .option('--aws-bucket-name <string>', 'aws bucket name to publish to.')
-    .action( ( pkgName: string, folder: string  ) => {
-        console.log( pkgName, folder )
-        runDeployCommand(folder, pkgName )
-    })
+    .action(async (pkgName: string, folder: string) => {
+        if (TRAVIS_PULL_REQUEST === 'false' || TRAVIS_PULL_REQUEST === undefined) {
+            console.log('Not a PR. Not deploying.');
+            return;
+        }
+        try {
+            if (!AWS_ACCESS_KEY_ID) {
+                throw new Error('process.env.AWS_ACCESS_KEY_ID is empty or not defined. Not deploying.');
+            } else if (!AWS_SECRET_ID) {
+                throw new Error('process.env.AWS_SECRET_ID is empty or not defined. Not deploying.');
+            } else if (!AWS_BUCKET_NAME) {
+                throw new Error('process.env.AWS_BUCKET_NAME is empty or not defined. Not deploying.');
+            } else if (!GITHUB_TOKEN) {
+                throw new Error('process.env.GITHUB_TOKEN is empty or not defined. Not deploying.');
+            } else if (!TRAVIS_PULL_REQUEST) {
+                throw new Error('process.env.TRAVIS_PULL_REQUEST is empty or not defined. Not deploying.');
+            } else if (!TRAVIS_REPO_SLUG) {
+                throw new Error('process.env.TRAVIS_REPO_SLUG is empty or not defined. Not deploying.');
+            }
+
+            const prNum = parseInt(TRAVIS_PULL_REQUEST, 10) || 0;
+            const directoryPath = path.resolve(folder);
+            console.log(`Deploying demo for ${pkgName} at ${directoryPath}`);
+            await deploy(directoryPath, pkgName, prNum);
+        } catch (e) {
+            printErrorAndExit(e);
+        }
+    });
 
 program
     .version(version, '-v, --version')
     .description(description)
     .usage('[options]')
-    .option('--no-colors', 'turn off colors (default: env detected)')
-    .parse(process.argv)
-
-async function getWorkingFolder( pathToFolder: string) {
-    let pathToProject = process.cwd()
-
-    if ( pathToFolder !== '' && pathToFolder !== undefined) {
-        pathToProject = path.resolve(pathToFolder)
-    }
-    return pathToProject
-}
-
-export async function getRepoAndOrg( githubLink: string ) {
-    // git@github.com:wixplosives/lerna-publisher.git
-    let parts = githubLink.split(':')
-    parts = parts[1].split('.')
-    parts = parts[0].split('/')
-    return parts
-}
-
-export async function runDeployCommand(folder: string, pkgname: string ) {
-    console.log('Deploy ' , pkgname , 'from' , folder)
-    let prNum = 0
-    const varValue = process.env.TRAVIS_PULL_REQUEST
-    let result = true
-    if ( varValue === 'false' || varValue === undefined ) {
-        console.log('Not a pull request.Nothing to deploy.')
-        process.exit( 0 )
-    } else {
-        prNum = parseInt(varValue, 10)
-    }
-    const pathToProject = await getWorkingFolder(folder)
-    const packages = getPackages(pathToProject)
-    const pkgToDeploy = packages.find((element: { package: { name: string, version: string }, location: string}) => {
-            return element.package.name === pkgname
-      })
-
-    const bucketName = process.env.AWS_BUCKET_NAME || ''
-    const bucketLink = `http://${bucketName}.s3-website-us-east-1.amazonaws.com/`
-    const branchName = process.env.TRAVIS_PULL_REQUEST_BRANCH || ''
-    const githubToken = process.env.GITHUB_TOKEN || ''
-    const githubSlug = process.env.TRAVIS_REPO_SLUG || ''
-    const slugParts = githubSlug.split('/')
-    const repo = slugParts[1]
-    const org = slugParts[0]
-    const relativePathInBucket =  path.join(pkgToDeploy.package.name, branchName )
-    console.log('Deploy package from folder: ', pkgToDeploy.location, 'to', bucketName, relativePathInBucket )
-    // pack it before deploying demo server
-    const cmdPackText = 'yarn pack --non-interactive'
-    try {
-        childProcess.execSync(cmdPackText , {cwd: pkgToDeploy.location, stdio: 'inherit'})
-        const pathToPublish = path.join(pkgToDeploy.location, 'dist')
-        result = await uploadFolder(pathToPublish, pkgToDeploy.package.name, branchName)
-        console.debug('Upload folder to s3 result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
-        if ( result ) {
-            const cureentToime = new Date()
-            const textToPublish = 'Demo server. Deployed at ' + cureentToime.toString()
-
-            const linkToPublish = bucketLink + relativePathInBucket
-            console.debug('Link to publish', linkToPublish)
-            result = await postLinkToPRTest(textToPublish, linkToPublish,
-                                            githubToken, org, repo,
-                                            prNum)
-            console.debug('Post link to PR result: ', result ? chalk.green('SUCCESS') : chalk.red('FAILED'))
-        }
-    } catch (error) {
-        console.error(chalk.red('\tD failed'), error)
-    }
-    console.log('Exiting', result ? 0 : 1)
-    process.exit( result ? 0 : 1 )
-}
-
-async function runPublishCommand(folder: string) {
-    const pathToProject = await getWorkingFolder(folder)
-    console.log('lerna-publisher starting in ' + pathToProject)
-
-    const result = await CheckAndPublishMonorepo(pathToProject).catch(printErrorAndExit)
-    if ( result) {
-        console.log('Success')
-    } else {
-        console.log('Failed')
-    }
-    console.log('Exiting', result ? 0 : 1)
-    process.exit( result ? 0 : 1 )
-}
+    .parse(process.argv);
 
 function printErrorAndExit(message: unknown) {
-    console.error(message)
-    process.exit(1)
+    console.error(message);
+    process.exit(1);
 }
