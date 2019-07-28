@@ -11,6 +11,10 @@ const pacoteOptions = {
 export async function publish(directoryPath: string): Promise<void> {
     const packages = await getPackages(directoryPath);
     for (const entry of packages) {
+        if (entry.package.private) {
+            console.log(chalk.yellow(`package ${entry.package.name} is private. skipping.`));
+            continue;
+        }
         console.log(chalk.green('<<<<<<<<<<<<<<<<<<<<< Checking package: ', entry.location));
         await publishIfRequired(entry.location, entry.package);
         console.log(chalk.green('>>>>>>>>>>>>>>>>>>>>> Done: ', entry.location));
