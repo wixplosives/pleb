@@ -26,7 +26,7 @@ program
             return;
         }
         try {
-            const directoryPath = path.resolve(folder);
+            const directoryPath = path.resolve(folder || '');
             console.log('lerna-publisher starting in ' + directoryPath);
             await publish(directoryPath);
         } catch (e) {
@@ -60,7 +60,7 @@ program
             }
 
             const prNum = parseInt(TRAVIS_PULL_REQUEST, 10) || 0;
-            const directoryPath = path.resolve(folder);
+            const directoryPath = path.resolve(folder || '');
             console.log(`Deploying demo for ${pkgName} at ${directoryPath}`);
             await deploy(directoryPath, pkgName, prNum);
         } catch (e) {
