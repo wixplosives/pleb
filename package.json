@@ -7,45 +7,46 @@
     "lerna-publisher": "cjs/cli.js"
   },
   "scripts": {
-    "clean": "rimraf ./cjs; rimraf dist",
+    "clean": "rimraf ./cjs ./dist",
     "prebuild": "yarn clean",
-    "build": "ts-build ./src --cjs",
-    "test": "mocha -r @ts-tools/node/r \"./test/**/*.spec.ts\" --watch-extensions ts --timeout 10000",
-    "prepack": "yarn build"
+    "build": "tsc -p tsconfig.build.json",
+    "pretest": "yarn typecheck && yarn lint",
+    "test": "mocha \"./test/**/*.spec.ts\"",
+    "lint": "tslint -p tsconfig.json",
+    "prepack": "yarn build",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "aws-sdk": "^2.501.0",
+    "aws-sdk": "^2.553.0",
     "chalk": "^2.4.2",
-    "commander": "^2.20.0",
+    "commander": "^3.0.2",
     "get-monorepo-packages": "^1.2.0",
-    "github-api": "^3.2.2",
+    "github-api": "^3.3.0",
     "glob": "^7.1.4",
     "mime": "^2.4.4",
-    "pacote": "^9.5.4"
+    "pacote": "^9.5.8"
   },
   "devDependencies": {
-    "@ts-tools/build": "^0.1.14",
-    "@ts-tools/node": "^0.9.8",
-    "@types/chai": "^4.1.7",
-    "@types/chai-as-promised": "^7.1.0",
+    "@ts-tools/node": "^1.1.1",
+    "@types/chai": "^4.2.3",
+    "@types/chai-as-promised": "^7.1.2",
     "@types/glob": "^7.1.1",
     "@types/mime": "^2.0.1",
     "@types/mocha": "^5.2.7",
     "@types/node": "10",
-    "@types/semver": "^6.0.1",
-    "@types/sinon": "^7.0.13",
+    "@types/semver": "^6.0.2",
+    "@types/sinon": "^7.5.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^6.2.0",
-    "rimraf": "^2.6.3",
-    "sinon": "^7.3.2",
-    "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
+    "mocha": "^6.2.2",
+    "rimraf": "^3.0.0",
+    "sinon": "^7.5.0",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.4"
   },
   "files": [
     "cjs",
-    "src",
-    "!src/tsconfig.json"
+    "src"
   ],
   "publishConfig": {
     "access": "public"
