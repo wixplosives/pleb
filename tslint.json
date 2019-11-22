@@ -19,6 +19,7 @@
             "single",
             "jsx-double"
         ],
+        "object-literal-key-quotes": false,
         "trailing-comma": false,
         "variable-name": [
             true,
