@@ -2,8 +2,8 @@ import childProcess from 'child_process';
 import chalk from 'chalk';
 const getPackages = require('get-monorepo-packages');
 const pacote = require('pacote');
-
 const cmdPublishText = 'npm publish --registry https://registry.npmjs.org/';
+const cmdPublishTextNext = 'npm publish --tag next --registry https://registry.npmjs.org/';
 const pacoteOptions = {
     '//registry.npmjs.org/:token': process.env.NPM_TOKEN
 };
@@ -45,5 +45,25 @@ async function publishIfRequired(directoryPath: string, pkgJsonContent: { name: 
                 '\tNothing to publish (version is already published)'
             )
         );
+    }
+}
+
+async function patchPkgJsonVersion(packLocation: string, version: string, customText: string): Promise<void> {
+    console.log(chalk.green('<<<<<<<<<<<<<<<<<<<<< Patching version for package: ', packLocation));
+    const cmdVersionText = `npm version ${version}-${customText}`;
+    childProcess.execSync(cmdVersionText, { cwd: packLocation, stdio: 'inherit' });
+}
+
+export async function publishSnpashot(directoryPath: string, shortSha: string): Promise<void> {
+    const packages = await getPackages(directoryPath);
+    for (const entry of packages) {
+        if (entry.package.private) {
+            console.log(chalk.yellow(`package ${entry.package.name} is private. skipping.`));
+            continue;
+        }
+        await patchPkgJsonVersion(entry.location, entry.package.version, shortSha);
+        console.log(chalk.green('<<<<<<<<<<<<<<<<<<<<< Publishing snapshot for package: ', entry.location));
+        childProcess.execSync(cmdPublishTextNext, { cwd: entry.location, stdio: 'inherit' });
+        console.log(chalk.green('>>>>>>>>>>>>>>>>>>>>> Done: ', entry.location));
     }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import path from 'path';
 import program from 'commander';
-import { publish } from './publish';
+import { publish, publishSnpashot } from './publish';
 import { deploy } from './deploy';
 const { version, description } = require('../package.json');
 
@@ -29,6 +29,25 @@ program
             const directoryPath = path.resolve(folder || '');
             console.log('lerna-publisher starting in ' + directoryPath);
             await publish(directoryPath);
+        } catch (e) {
+            printErrorAndExit(e);
+        }
+    });
+
+program
+    .command('publishSnapshot [folder]') // sub-command name
+    .description('publish all unpublish pacakges') // command description
+    // function to execute when command is uses
+    .action(async (folder: string) => {
+        if (!NPM_TOKEN) {
+            console.log('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
+            return;
+        }
+        try {
+            const directoryPath = path.resolve(folder || '');
+            console.log('lerna-publisher starting in ' + directoryPath);
+            const shortSha  = String(process.env.GITHUB_SHA);
+            await publishSnpashot(directoryPath, shortSha);
         } catch (e) {
             printErrorAndExit(e);
         }
