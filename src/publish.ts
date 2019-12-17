@@ -50,7 +50,7 @@ async function publishIfRequired(directoryPath: string, pkgJsonContent: { name: 
 
 async function patchPkgJsonVersion(packLocation: string, version: string, customText: string): Promise<void> {
     console.log(chalk.green('<<<<<<<<<<<<<<<<<<<<< Patching version for package: ', packLocation));
-    const additionalTag = customText.substring(0, 8);
+    const additionalTag = customText.substring(0, 7);
     const cmdVersionText = `npm version ${version}-${additionalTag}`;
     childProcess.execSync(cmdVersionText, { cwd: packLocation, stdio: 'inherit' });
 }
