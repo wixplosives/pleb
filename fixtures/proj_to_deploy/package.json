@@ -1,0 +1,8 @@
+{
+  "name": "proj_to_deploy",
+  "workspaces": [
+    "packages/*"
+  ],
+  "license": "MIT",
+  "private": true
+}

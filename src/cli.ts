@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import path from 'path';
 import program from 'commander';
-import { publish, publishSnpashot } from './publish';
+import { publish, publishSnapshot } from './publish';
 import { deploy } from './deploy';
 const { version, description } = require('../package.json');
 
@@ -46,8 +46,8 @@ program
         try {
             const directoryPath = path.resolve(folder || '');
             console.log('lerna-publisher starting in ' + directoryPath);
-            const shortSha  = String(process.env.GITHUB_SHA);
-            await publishSnpashot(directoryPath, shortSha);
+            const shortSha = String(process.env.GITHUB_SHA);
+            await publishSnapshot(directoryPath, shortSha);
         } catch (e) {
             printErrorAndExit(e);
         }
