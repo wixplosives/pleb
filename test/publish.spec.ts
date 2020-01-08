@@ -45,15 +45,17 @@ describe('publish', () => {
         expect(execSyncMock.called).to.equal(false);
     });
 
-    it('publish if pacakge was never published', async () => {
+    it('publish if package was never published', async () => {
         const packoteManifestMock = sandbox.stub(pacote, 'packument');
-        packoteManifestMock.callsFake(function fake(): {} {
-            throw Error('No such pacakge');
+        packoteManifestMock.callsFake(() => {
+            const error = new Error('No such package');
+            (error as Error & { statusCode: number }).statusCode = 404;
+            throw error;
         });
 
         const execSyncMock = sandbox.stub(childProcess, 'execSync');
-        execSyncMock.callsFake(function fake(...args: []): any {
-            return args.length === 0;
+        execSyncMock.callsFake((command: string) => {
+            return Buffer.from(command);
         });
 
         const path = join(fixturesRoot, 'proj1');

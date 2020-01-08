@@ -11,16 +11,16 @@ Primary motivation is to allow developer to run lerna publish command locally ev
 # Prepack
 
 lerna-publisher will assume you already have built version of your package in the folder where lerna publisher runs.
-To make sure you have built your package, add following to your pacakge.json scripts key.
+To make sure you have built your package, add following to your package.json scripts key.
 
-```"prepack": "yarn build"``` 
+`"prepack": "yarn build"`
 
-You need to have line like this in every pacakge.json of every package you want to publish to npm.
+You need to have line like this in every package.json of every package you want to publish to npm.
 
 ## Usage
 
 1. Commit your changes to git
-1. run ```lerna version```
+1. run `lerna version`
 
 ### Example of Travis configuration
 

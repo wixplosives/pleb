@@ -18,7 +18,7 @@ process.on('unhandledRejection', printErrorAndExit);
 
 program
     .command('publish [folder]') // sub-command name
-    .description('publish all unpublish pacakges') // command description
+    .description('publish all unpublish packages') // command description
     // function to execute when command is uses
     .action(async (folder: string) => {
         if (!NPM_TOKEN) {
@@ -36,7 +36,7 @@ program
 
 program
     .command('publishSnapshot [folder]') // sub-command name
-    .description('publish all unpublish pacakges') // command description
+    .description('publish all unpublished packages') // command description
     // function to execute when command is uses
     .action(async (folder: string) => {
         if (!NPM_TOKEN) {
@@ -46,8 +46,8 @@ program
         try {
             const directoryPath = path.resolve(folder || '');
             console.log('lerna-publisher starting in ' + directoryPath);
-            const shortSha = String(process.env.GITHUB_SHA);
-            await publishSnapshot(directoryPath, shortSha);
+            const commitHash = String(process.env.GITHUB_SHA);
+            await publishSnapshot(directoryPath, commitHash);
         } catch (e) {
             printErrorAndExit(e);
         }
@@ -55,7 +55,7 @@ program
 
 program
     .command('deploydemo [pkgName] [folder]') // sub-command name
-    .description('Deploy package for demo usage') // command description
+    .description('deploy package for demo usage') // command description
     // function to execute when command is uses
     // .option('--aws-bucket-name <string>', 'aws bucket name to publish to.')
     .action(async (pkgName: string, folder: string) => {
