@@ -3,13 +3,14 @@ import childProcess from 'child_process';
 
 import { uploadFolder } from './aws';
 import { postLinkToPRTest } from './github';
-const getPackages = require('get-monorepo-packages');
+import { resolvePackages } from './resolve-packages';
 
 export async function deploy(directoryPath: string, packageName: string, prNum: number) {
-    const packages = getPackages(directoryPath);
-    const pkgToDeploy = packages.find((element: { package: { name: string; version: string }; location: string }) => {
-        return element.package.name === packageName;
-    });
+    const packages = resolvePackages(directoryPath);
+    const pkgToDeploy = packages.find(({ packageJson }) => packageJson.name === packageName);
+    if (!pkgToDeploy) {
+        throw new Error(`cannot find package ${packageName}`);
+    }
     const bucketName = process.env.AWS_BUCKET_NAME;
     const bucketLink = `http://${bucketName}.s3-website-us-east-1.amazonaws.com/`;
     const branchName = process.env.TRAVIS_PULL_REQUEST_BRANCH || '';
@@ -18,15 +19,15 @@ export async function deploy(directoryPath: string, packageName: string, prNum: 
     const slugParts = githubSlug.split('/');
     const repo = slugParts[1];
     const org = slugParts[0];
-    const relativePathInBucket = path.join(pkgToDeploy.package.name, branchName);
+    const relativePathInBucket = path.join(pkgToDeploy.packageJson.name!, branchName);
 
-    console.log('Deploy package from folder: ', pkgToDeploy.location, 'to', bucketName, relativePathInBucket);
+    console.log('Deploy package from folder: ', pkgToDeploy.directoryPath, 'to', bucketName, relativePathInBucket);
     // pack it before deploying demo server
 
-    childProcess.execSync('npm pack', { cwd: pkgToDeploy.location, stdio: 'inherit' });
+    childProcess.execSync('npm pack', { cwd: pkgToDeploy.directoryPath, stdio: 'inherit' });
 
-    const pathToPublish = path.join(pkgToDeploy.location, 'dist');
-    await uploadFolder(pathToPublish, pkgToDeploy.package.name, branchName);
+    const pathToPublish = path.join(pkgToDeploy.directoryPath, 'dist');
+    await uploadFolder(pathToPublish, pkgToDeploy.packageJson.name!, branchName);
     console.log('Uploaded folder to s3.');
     const cureentToime = new Date();
     const textToPublish = 'Demo server. Deployed at ' + cureentToime.toString();
