@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "aws-sdk": "^2.599.0",
+    "aws-sdk": "^2.602.0",
     "chalk": "^3.0.0",
     "commander": "^4.1.0",
     "find-up": "^4.1.0",
