@@ -1,29 +1,19 @@
 import fs from 'fs';
 import childProcess from 'child_process';
-import { green, yellow, red } from 'chalk';
 import pacote from 'pacote';
 import { resolvePackages, INpmPackage } from './resolve-packages';
+import { log, logWarn, logError } from './log';
 
 const registry = `https://registry.npmjs.org/`;
 const cmdPublishText = `npm publish --registry ${registry}`;
 const cmdPublishTextNext = `npm publish --tag next --registry ${registry}`;
 
-const log = (message: string) => console.log(`${green('#')} ${message}`);
-const logWarn = (message: string) => console.log(`${yellow('#')} ${message}`);
-const logError = (message: string) => console.log(red(`# ${message}`));
-
 export async function publish(contextPath: string): Promise<void> {
     const packages = resolvePackages(contextPath);
-    for (const { directoryPath, packageJson, packageJsonPath } of packages) {
+    for (const { directoryPath, packageJson } of packages) {
         const { name: packageName, version: packageVersion } = packageJson;
-        if (packageName === undefined) {
-            logWarn(`${packageJsonPath}: no "name" field. skipping.`);
-            continue;
-        } else if (packageJson.private) {
+        if (packageJson.private) {
             logWarn(`${packageName}: private. skipping.`);
-            continue;
-        } else if (packageVersion === undefined) {
-            logWarn(`${packageName}: no "version" field. skipping.`);
             continue;
         }
         await publishIfRequired(packageName, packageVersion, directoryPath);
@@ -51,14 +41,8 @@ export function publishSnapshot(contextPath: string, commitHash: string): void {
     const packageToVersion = new Map<string, string>();
     for (const npmPackage of packages) {
         const { name: packageName, version: packageVersion, private: isPrivate } = npmPackage.packageJson;
-        if (packageName === undefined) {
-            logWarn(`${npmPackage.packageJsonPath}: no "name" field. skipping.`);
-            continue;
-        } else if (isPrivate) {
+        if (isPrivate) {
             logWarn(`${packageName}: private. skipping.`);
-            continue;
-        } else if (packageVersion === undefined) {
-            logWarn(`${packageName}: no "version" field. skipping.`);
             continue;
         }
         validPackages.push(npmPackage);
@@ -67,7 +51,7 @@ export function publishSnapshot(contextPath: string, commitHash: string): void {
 
     for (const { packageJson, packageJsonPath, directoryPath } of validPackages) {
         const { name: packageName, dependencies, devDependencies } = packageJson;
-        packageJson.version = packageToVersion.get(packageName!);
+        packageJson.version = packageToVersion.get(packageName)!;
         if (dependencies) {
             overrideVersions(dependencies, packageToVersion);
         }

@@ -2,13 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import findUp from 'find-up';
 import glob from 'glob';
+import { logWarn } from './log';
 
 const PACKAGE_JSON = 'package.json';
 const isValidPackageJson = (value: unknown): value is IPackageJson => typeof value === 'object' && value !== null;
 
 export interface IPackageJson {
-    name?: string;
-    version?: string;
+    name: string;
+    version: string;
     scripts?: Record<string, string>;
     workspaces?: string | string[];
     dependencies?: Record<string, string>;
@@ -40,7 +41,7 @@ export function resolvePackages(basePath: string): INpmPackage[] {
     const { workspaces } = packageJson;
 
     if (workspaces === undefined) {
-        return [{ directoryPath, packageJson, packageJsonPath }];
+        return packageJson.name ? [{ directoryPath, packageJson, packageJsonPath } as INpmPackage] : [];
     } else if (typeof workspaces === 'string') {
         return resolveWorkspacePackages(directoryPath, [workspaces]);
     } else if (Array.isArray(workspaces)) {
@@ -62,9 +63,19 @@ export function resolveWorkspacePackages(basePath: string, workspaces: string[])
         const packageJsonGlob = path.posix.join(packageDirGlob, PACKAGE_JSON);
 
         for (const packageJsonPath of glob.sync(packageJsonGlob, globOptions).map(path.normalize)) {
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as IPackageJson;
+            if (!isValidPackageJson(packageJson)) {
+                throw new Error(`${packageJsonPath} is not a valid json object.`);
+            } else if (typeof packageJson.name !== 'string') {
+                logWarn(`${packageJsonPath}: no valid "name" field. skipping.`);
+                continue;
+            } else if (typeof packageJson.version !== 'string') {
+                logWarn(`${packageJsonPath}: no valid "version" field. skipping.`);
+                continue;
+            }
             foundPackages.push({
                 packageJsonPath,
-                packageJson: JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as IPackageJson,
+                packageJson,
                 directoryPath: path.dirname(packageJsonPath)
             });
         }
