@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "aws-sdk": "^2.602.0",
+    "aws-sdk": "^2.606.0",
     "chalk": "^3.0.0",
     "commander": "^4.1.0",
     "find-up": "^4.1.0",
@@ -41,9 +41,9 @@
     "chai-as-promised": "^7.1.1",
     "mocha": "^7.0.0",
     "rimraf": "^3.0.0",
-    "sinon": "^8.0.4",
+    "sinon": "^8.1.0",
     "tslint": "^5.20.1",
-    "typescript": "~3.7.4"
+    "typescript": "~3.7.5"
   },
   "files": [
     "cjs",
