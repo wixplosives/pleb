@@ -13,7 +13,7 @@ const logWarn = (message: string) => console.log(`${yellow('#')} ${message}`);
 const logError = (message: string) => console.log(red(`# ${message}`));
 
 export async function publish(contextPath: string): Promise<void> {
-    const packages = await resolvePackages(contextPath);
+    const packages = resolvePackages(contextPath);
     for (const { directoryPath, packageJson, packageJsonPath } of packages) {
         const { name: packageName, version: packageVersion } = packageJson;
         if (packageName === undefined) {
@@ -45,7 +45,7 @@ async function publishIfRequired(packageName: string, packageVersion: string, pa
     }
 }
 
-export async function publishSnapshot(contextPath: string, commitHash: string): Promise<void> {
+export function publishSnapshot(contextPath: string, commitHash: string): void {
     const packages = resolvePackages(contextPath);
     const validPackages: INpmPackage[] = [];
     const packageToVersion = new Map<string, string>();

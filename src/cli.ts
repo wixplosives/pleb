@@ -1,8 +1,11 @@
 #!/usr/bin/env node
+
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import path from 'path';
 import program from 'commander';
 import { publish, publishSnapshot } from './publish';
 import { deploy } from './deploy';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version, description } = require('../package.json');
 
 const {
@@ -38,7 +41,7 @@ program
     .command('publishSnapshot [folder]') // sub-command name
     .description('publish all unpublished packages') // command description
     // function to execute when command is uses
-    .action(async (folder: string) => {
+    .action((folder: string) => {
         if (!NPM_TOKEN) {
             console.log('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
             return;
@@ -47,7 +50,7 @@ program
             const directoryPath = path.resolve(folder || '');
             console.log('lerna-publisher starting in ' + directoryPath);
             const commitHash = String(process.env.GITHUB_SHA);
-            await publishSnapshot(directoryPath, commitHash);
+            publishSnapshot(directoryPath, commitHash);
         } catch (e) {
             printErrorAndExit(e);
         }

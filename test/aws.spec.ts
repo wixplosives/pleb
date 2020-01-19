@@ -10,13 +10,13 @@ const fixturesRoot = join(__dirname, '..', 'fixtures');
 chai.use(chaiAsPromised);
 
 class FakeAwsS3 {
-    public called: boolean = false;
+    public called = false;
 
     public putObject() {
         return {
             promise: () => {
                 this.called = true;
-                Promise.resolve(true);
+                return Promise.resolve(true);
             }
         };
     }

@@ -1,6 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const GitHub = require('github-api');
 
-export async function addMessageToPRBody(body: string, text: string): Promise<string> {
+export function addMessageToPRBody(body: string, text: string): string {
     const spearator = '\n---Demo Link---\n';
     let cleanBody = body;
     const parts = body.split(spearator);
@@ -24,7 +25,7 @@ export async function postLinkToPRTest(
         const gh = new GitHub({ token: authToken });
         const repoObj = await gh.getRepo(org, repo);
         const pullReguest = await repoObj.getPullRequest(prNumber);
-        const newBody = await addMessageToPRBody(pullReguest.data.body, `:frog: [${textToPublish}](${linkToPublish})`);
+        const newBody = addMessageToPRBody(pullReguest.data.body, `:frog: [${textToPublish}](${linkToPublish})`);
         console.log('Update PR:', org, repo, prNumber, newBody);
         await repoObj.updatePullRequest(prNumber, { body: newBody });
     } catch (e) {

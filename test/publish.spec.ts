@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { join } from 'path';
 import sinon from 'sinon';
 import childProcess from 'child_process';
-const pacote = require('pacote');
+import pacote from 'pacote';
 
 import { publish } from '../src/publish';
 
@@ -15,13 +15,17 @@ describe('publish', () => {
 
     it('run publish if version wont match', async () => {
         const packoteManifestMock = sandbox.stub(pacote, 'packument');
-        packoteManifestMock.callsFake(function fake(): {} {
-            return { versions: { '0.0.1': { name: 'foo', version: '0.0.1' } } };
+        packoteManifestMock.callsFake(() => {
+            return Promise.resolve({
+                name: 'foo',
+                'dist-tags': { latest: '0.1.1' },
+                versions: { '0.0.1': { name: 'foo', version: '0.0.1' } as pacote.PackageVersion }
+            });
         });
 
         const execSyncMock = sandbox.stub(childProcess, 'execSync');
-        execSyncMock.callsFake(function fake(...args: []): any {
-            return args.length === 0;
+        execSyncMock.callsFake(() => {
+            return Buffer.from(``);
         });
 
         const path = join(fixturesRoot, 'proj1');
@@ -31,13 +35,17 @@ describe('publish', () => {
 
     it('dont run publish if already published', async () => {
         const packoteManifestMock = sandbox.stub(pacote, 'packument');
-        packoteManifestMock.callsFake(function fake(): {} {
-            return { versions: { '1.0.0': { name: 'foo', version: '1.0.0' } } };
+        packoteManifestMock.callsFake(() => {
+            return Promise.resolve({
+                name: 'foo',
+                'dist-tags': { latest: '1.0.0' },
+                versions: { '1.0.0': { name: 'foo', version: '1.0.0' } as pacote.PackageVersion }
+            });
         });
 
         const execSyncMock = sandbox.stub(childProcess, 'execSync');
-        execSyncMock.callsFake(function fake(...args: []): any {
-            return args.length === 0;
+        execSyncMock.callsFake(() => {
+            return Buffer.from(``);
         });
 
         const path = join(fixturesRoot, 'proj1');
@@ -54,7 +62,7 @@ describe('publish', () => {
         });
 
         const execSyncMock = sandbox.stub(childProcess, 'execSync');
-        execSyncMock.callsFake((command: string) => {
+        execSyncMock.callsFake(command => {
             return Buffer.from(command);
         });
 
