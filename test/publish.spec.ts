@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import childProcess from 'child_process';
 import pacote from 'pacote';
 
-import { publish } from '../src/publish';
+import { publish } from '../src';
 
 const fixturesRoot = join(__dirname, '..', 'fixtures');
 

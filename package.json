@@ -3,6 +3,7 @@
   "description": "Utility to publish lerna/yarn/workspace types of packages from ci to npm",
   "version": "1.2.1",
   "main": "cjs/index.js",
+  "types": "cjs/index.d.ts",
   "bin": {
     "lerna-publisher": "cjs/cli.js"
   },
@@ -17,13 +18,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "aws-sdk": "^2.606.0",
     "chalk": "^3.0.0",
     "commander": "^4.1.0",
     "find-up": "^4.1.0",
-    "github-api": "^3.3.0",
     "glob": "^7.1.6",
-    "mime": "^2.4.4",
     "pacote": "^10.3.0"
   },
   "devDependencies": {

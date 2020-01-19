@@ -1,7 +1,7 @@
 import fs from 'fs';
+import path from 'path';
 import findUp from 'find-up';
 import glob from 'glob';
-import path from 'path';
 
 const PACKAGE_JSON = 'package.json';
 const isValidPackageJson = (value: unknown): value is IPackageJson => typeof value === 'object' && value !== null;
