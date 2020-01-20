@@ -12,8 +12,8 @@ before_install:
 
 deploy:
   provider: npm
+  edge: true
   email: alexshe@wix.com
   api-token: "$NPM_TOKEN"
-  cleanup: false
   on:
     branch: master
