@@ -11,9 +11,8 @@ const { NPM_TOKEN } = process.env;
 process.on('unhandledRejection', printErrorAndExit);
 
 program
-    .command('publish [folder]') // sub-command name
-    .description('publish all unpublish packages') // command description
-    // function to execute when command is uses
+    .command('publish [folder]')
+    .description('publish all unpublish packages')
     .action(async (folder: string) => {
         if (!NPM_TOKEN) {
             console.log('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
@@ -29,9 +28,8 @@ program
     });
 
 program
-    .command('publishSnapshot [folder]') // sub-command name
-    .description('publish all unpublished packages') // command description
-    // function to execute when command is uses
+    .command('publishSnapshot [folder]')
+    .description('publish all unpublished packages')
     .action((folder: string) => {
         if (!NPM_TOKEN) {
             console.log('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
