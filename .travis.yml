@@ -13,7 +13,7 @@ before_install:
 deploy:
   provider: npm
   email: alexshe@wix.com
-  api-token: "$NPM_TOKEN"
-  cleanup: false
+  api_key: "$NPM_TOKEN"
+  skip_cleanup: true
   on:
     branch: master
