@@ -1,11 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import util from 'util';
 import findUp from 'find-up';
-import glob from 'glob';
+import globCb from 'glob';
 import { logWarn } from './log';
 
+const glob = util.promisify(globCb);
+
 const PACKAGE_JSON = 'package.json';
-const isValidPackageJson = (value: unknown): value is IPackageJson => typeof value === 'object' && value !== null;
+const isObject = (value: unknown): value is IPackageJson => typeof value === 'object' && value !== null;
 
 export interface IPackageJson {
     name: string;
@@ -24,8 +27,8 @@ export interface INpmPackage {
     packageJson: IPackageJson;
 }
 
-export function resolvePackages(basePath: string): INpmPackage[] {
-    const packageJsonPath = findUp.sync(PACKAGE_JSON, { cwd: basePath });
+export async function resolvePackages(basePath: string): Promise<INpmPackage[]> {
+    const packageJsonPath = await findUp(PACKAGE_JSON, { cwd: basePath });
 
     if (typeof packageJsonPath !== 'string') {
         throw new Error(`Cannot find ${PACKAGE_JSON} for ${basePath}`);
@@ -33,15 +36,18 @@ export function resolvePackages(basePath: string): INpmPackage[] {
 
     const directoryPath = path.dirname(packageJsonPath);
 
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    if (!isValidPackageJson(packageJson)) {
+    const packageJson = JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf8'));
+    if (!isObject(packageJson)) {
         throw new Error(`${packageJsonPath} is not a valid json object.`);
     }
 
     const { workspaces } = packageJson;
 
     if (workspaces === undefined) {
-        return packageJson.name ? [{ directoryPath, packageJson, packageJsonPath } as INpmPackage] : [];
+        if (typeof packageJson.name !== 'string') {
+            throw new Error(`${packageJsonPath}: no valid "name" field.`);
+        }
+        return [{ directoryPath, packageJson, packageJsonPath }];
     } else if (typeof workspaces === 'string') {
         return resolveWorkspacePackages(directoryPath, [workspaces]);
     } else if (Array.isArray(workspaces)) {
@@ -51,21 +57,23 @@ export function resolvePackages(basePath: string): INpmPackage[] {
     }
 }
 
-export function resolveWorkspacePackages(basePath: string, workspaces: string[]): INpmPackage[] {
+export async function resolveWorkspacePackages(basePath: string, workspaces: string[]): Promise<INpmPackage[]> {
     const foundPackages: INpmPackage[] = [];
 
-    const globOptions: glob.IOptions = {
+    const globOptions: globCb.IOptions = {
         cwd: basePath,
         absolute: true
     };
 
     for (const packageDirGlob of workspaces) {
         const packageJsonGlob = path.posix.join(packageDirGlob, PACKAGE_JSON);
+        const packageJsonPaths = await glob(packageJsonGlob, globOptions);
+        for (const packageJsonPath of packageJsonPaths.map(path.normalize)) {
+            const packageJson = JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf8')) as IPackageJson;
 
-        for (const packageJsonPath of glob.sync(packageJsonGlob, globOptions).map(path.normalize)) {
-            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as IPackageJson;
-            if (!isValidPackageJson(packageJson)) {
-                throw new Error(`${packageJsonPath} is not a valid json object.`);
+            if (!isObject(packageJson)) {
+                logWarn(`${packageJsonPath}: no valid json object.`);
+                continue;
             } else if (typeof packageJson.name !== 'string') {
                 logWarn(`${packageJsonPath}: no valid "name" field. skipping.`);
                 continue;

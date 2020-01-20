@@ -4,6 +4,8 @@
 import path from 'path';
 import program from 'commander';
 import { publish, publishSnapshot } from './publish';
+import { log, logError } from './log';
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version, description } = require('../package.json');
 
@@ -15,12 +17,12 @@ program
     .description('publish all unpublish packages')
     .action(async (folder: string) => {
         if (!NPM_TOKEN) {
-            console.log('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
+            logError('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
             return;
         }
         try {
             const directoryPath = path.resolve(folder || '');
-            console.log('lerna-publisher starting in ' + directoryPath);
+            log('lerna-publisher starting in ' + directoryPath);
             await publish(directoryPath);
         } catch (e) {
             printErrorAndExit(e);
@@ -30,16 +32,16 @@ program
 program
     .command('publishSnapshot [folder]')
     .description('publish all unpublished packages')
-    .action((folder: string) => {
+    .action(async (folder: string) => {
         if (!NPM_TOKEN) {
-            console.log('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
+            logError('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
             return;
         }
         try {
             const directoryPath = path.resolve(folder || '');
-            console.log('lerna-publisher starting in ' + directoryPath);
+            log('lerna-publisher starting in ' + directoryPath);
             const commitHash = String(process.env.GITHUB_SHA);
-            publishSnapshot(directoryPath, commitHash);
+            await publishSnapshot(directoryPath, commitHash);
         } catch (e) {
             printErrorAndExit(e);
         }
@@ -52,6 +54,6 @@ program
     .parse(process.argv);
 
 function printErrorAndExit(message: unknown) {
-    console.error(message);
+    logError(message);
     process.exit(1);
 }

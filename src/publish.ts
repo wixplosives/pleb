@@ -9,7 +9,7 @@ const cmdPublishText = `npm publish --registry ${registry}`;
 const cmdPublishTextNext = `npm publish --tag next --registry ${registry}`;
 
 export async function publish(contextPath: string): Promise<void> {
-    const packages = resolvePackages(contextPath);
+    const packages = await resolvePackages(contextPath);
     for (const { directoryPath, packageJson } of packages) {
         const { name: packageName, version: packageVersion } = packageJson;
         if (packageJson.private) {
@@ -35,8 +35,8 @@ async function publishIfRequired(packageName: string, packageVersion: string, pa
     }
 }
 
-export function publishSnapshot(contextPath: string, commitHash: string): void {
-    const packages = resolvePackages(contextPath);
+export async function publishSnapshot(contextPath: string, commitHash: string): Promise<void> {
+    const packages = await resolvePackages(contextPath);
     const validPackages: INpmPackage[] = [];
     const packageToVersion = new Map<string, string>();
     for (const npmPackage of packages) {
