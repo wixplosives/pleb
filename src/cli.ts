@@ -3,8 +3,9 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import path from 'path';
 import program from 'commander';
-import { publish, publishSnapshot } from './publish';
+import { publishPackage, publishSnapshot } from './publish';
 import { log, logError } from './log';
+import { resolvePackages } from './resolve-packages';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version, description } = require('../package.json');
@@ -15,15 +16,14 @@ process.on('unhandledRejection', printErrorAndExit);
 program
     .command('publish [folder]')
     .description('publish all unpublish packages')
-    .action(async (folder: string) => {
-        if (!NPM_TOKEN) {
-            logError('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
-            return;
-        }
+    .option('--dry', 'dry run (no actual publishing)', false)
+    .action(async (folder: string, { dry }) => {
         try {
             const directoryPath = path.resolve(folder || '');
-            log('lerna-publisher starting in ' + directoryPath);
-            await publish(directoryPath);
+            const packages = await resolvePackages(directoryPath);
+            for (const npmPackage of packages) {
+                await publishPackage({ npmPackage, dry });
+            }
         } catch (e) {
             printErrorAndExit(e);
         }

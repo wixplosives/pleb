@@ -1,8 +1,0 @@
-{
-  "name": "proj1",
-  "workspaces": [
-    "packages/*"
-  ],
-  "license": "MIT",
-  "private": true
-}

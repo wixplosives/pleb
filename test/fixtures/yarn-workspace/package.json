@@ -1,5 +1,5 @@
 {
-  "name": "proj_to_deploy",
+  "name": "yarn-workspace",
   "workspaces": [
     "packages/*"
   ],

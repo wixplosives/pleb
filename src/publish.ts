@@ -1,32 +1,44 @@
 import fs from 'fs';
-import childProcess from 'child_process';
+import childProcess, { spawnSync } from 'child_process';
 import pacote from 'pacote';
 import { resolvePackages, INpmPackage } from './resolve-packages';
 import { log, logWarn, logError } from './log';
 
 const registry = `https://registry.npmjs.org/`;
-const cmdPublishText = `npm publish --registry ${registry}`;
 const cmdPublishTextNext = `npm publish --tag next --registry ${registry}`;
 
-export async function publish(contextPath: string): Promise<void> {
-    const packages = await resolvePackages(contextPath);
-    for (const { directoryPath, packageJson } of packages) {
-        const { name: packageName, version: packageVersion } = packageJson;
-        if (packageJson.private) {
-            logWarn(`${packageName}: private. skipping.`);
-            continue;
-        }
-        await publishIfRequired(packageName, packageVersion, directoryPath);
-        log(`${packageName}: done.`);
-    }
+export interface IPublishOptions {
+    npmPackage: INpmPackage;
+    /** @default false */
+    dry?: boolean;
+    /** @default 'latest' */
+    tag?: string;
 }
 
-async function publishIfRequired(packageName: string, packageVersion: string, packagePath: string) {
+export async function publishPackage({ npmPackage, tag = 'latest', dry = false }: IPublishOptions): Promise<void> {
+    const { directoryPath, packageJson } = npmPackage;
+    const { name: packageName, version: packageVersion } = packageJson;
+    if (packageJson.private) {
+        logWarn(`${packageName}: private. skipping.`);
+        return;
+    }
     try {
         const versions = await fetchPackageVersions(packageName);
         if (!versions.includes(packageVersion)) {
-            log(`${packageName}: ${cmdPublishText}`);
-            childProcess.execSync(cmdPublishText, { cwd: packagePath, stdio: 'inherit' });
+            const npmArgs = ['publish', '--registry', registry];
+            if (dry) {
+                npmArgs.push('--dry-run');
+            }
+            if (tag !== 'latest') {
+                npmArgs.push('--tag', tag);
+            }
+            log(`${packageName}: npm ${npmArgs.join(' ')}`);
+            spawnSync('npm', npmArgs, {
+                cwd: directoryPath,
+                stdio: 'inherit',
+                shell: true
+            });
+            log(`${packageName}: done.`);
         } else {
             logWarn(`${packageName}: ${packageVersion} is already published. skipping.`);
         }

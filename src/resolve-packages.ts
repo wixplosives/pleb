@@ -45,7 +45,8 @@ export async function resolvePackages(basePath: string): Promise<INpmPackage[]> 
 
     if (workspaces === undefined) {
         if (typeof packageJson.name !== 'string') {
-            throw new Error(`${packageJsonPath}: no valid "name" field.`);
+            logWarn(`${packageJsonPath}: no valid "name" field. skipping.`);
+            return [];
         }
         return [{ directoryPath, packageJson, packageJsonPath }];
     } else if (typeof workspaces === 'string') {
