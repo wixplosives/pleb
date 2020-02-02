@@ -17,12 +17,13 @@ program
     .command('publish [folder]')
     .description('publish all unpublish packages')
     .option('--dry', 'dry run (no actual publishing)', false)
-    .action(async (folder: string, { dry }) => {
+    .option('--distDir <name>', 'subdirectory to publish', '.')
+    .action(async (folder: string, { dry, distDir }) => {
         try {
             const directoryPath = path.resolve(folder || '');
             const packages = await resolvePackages(directoryPath);
             for (const npmPackage of packages) {
-                await publishPackage({ npmPackage, dry });
+                await publishPackage({ npmPackage, dry, distDir });
             }
         } catch (e) {
             printErrorAndExit(e);

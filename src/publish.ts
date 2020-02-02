@@ -1,11 +1,22 @@
 import fs from 'fs';
-import childProcess, { spawnSync } from 'child_process';
+import path from 'path';
+import childProcess from 'child_process';
 import pacote from 'pacote';
-import { resolvePackages, INpmPackage } from './resolve-packages';
+import { resolvePackages, INpmPackage, IPackageJson } from './resolve-packages';
 import { log, logWarn, logError } from './log';
 
 const registry = `https://registry.npmjs.org/`;
 const cmdPublishTextNext = `npm publish --tag next --registry ${registry}`;
+
+const spawnSyncLogged = (
+    command: string,
+    args: string[],
+    options: childProcess.SpawnSyncOptions,
+    label = options.cwd || process.cwd()
+) => {
+    log(`${label}: ${command} ${args.join(' ')}`);
+    return childProcess.spawnSync(command, args, options);
+};
 
 export interface IPublishOptions {
     npmPackage: INpmPackage;
@@ -13,15 +24,25 @@ export interface IPublishOptions {
     dry?: boolean;
     /** @default 'latest' */
     tag?: string;
+    /** @default '.' */
+    distDir?: string;
 }
 
-export async function publishPackage({ npmPackage, tag = 'latest', dry = false }: IPublishOptions): Promise<void> {
+export async function publishPackage({
+    npmPackage,
+    tag = 'latest',
+    dry = false,
+    distDir = '.'
+}: IPublishOptions): Promise<void> {
     const { directoryPath, packageJson } = npmPackage;
-    const { name: packageName, version: packageVersion } = packageJson;
+    const { name: packageName, version: packageVersion, scripts = {} } = packageJson;
     if (packageJson.private) {
         logWarn(`${packageName}: private. skipping.`);
         return;
     }
+    const distDirectoryPath = path.join(directoryPath, distDir);
+    const filesToRestore = new Map<string, string>();
+
     try {
         const versions = await fetchPackageVersions(packageName);
         if (!versions.includes(packageVersion)) {
@@ -32,18 +53,54 @@ export async function publishPackage({ npmPackage, tag = 'latest', dry = false }
             if (tag !== 'latest') {
                 npmArgs.push('--tag', tag);
             }
-            log(`${packageName}: npm ${npmArgs.join(' ')}`);
-            spawnSync('npm', npmArgs, {
+            const rootSpawnOptions: childProcess.SpawnSyncOptions = {
                 cwd: directoryPath,
                 stdio: 'inherit',
                 shell: true
-            });
+            };
+
+            if (distDirectoryPath === directoryPath) {
+                spawnSyncLogged('npm', npmArgs, rootSpawnOptions, packageName);
+            } else {
+                if (typeof scripts.prepare === 'string') {
+                    spawnSyncLogged('npm', ['run', 'prepare'], rootSpawnOptions, packageName);
+                }
+                if (typeof scripts.prepublishOnly === 'string') {
+                    spawnSyncLogged('npm', ['run', 'prepublishOnly'], rootSpawnOptions, packageName);
+                }
+                if (typeof scripts.prepack === 'string') {
+                    spawnSyncLogged('npm', ['run', 'prepack'], rootSpawnOptions, packageName);
+                }
+
+                const distPackageJsonPath = path.join(distDirectoryPath, 'package.json');
+                const distSpawnOptions: childProcess.SpawnSyncOptions = {
+                    cwd: distDirectoryPath,
+                    stdio: 'inherit',
+                    shell: true
+                };
+
+                const distPackageJsonContents = fs.readFileSync(distPackageJsonPath, 'utf8');
+                const distPackageJson = JSON.parse(distPackageJsonContents) as IPackageJson;
+                if (distPackageJson.scripts) {
+                    delete distPackageJson.scripts.prepare;
+                    delete distPackageJson.scripts.prepublishOnly;
+                    delete distPackageJson.scripts.prepack;
+                    filesToRestore.set(distPackageJsonPath, distPackageJsonContents);
+                    fs.writeFileSync(distPackageJsonPath, JSON.stringify(distPackageJson, null, 2));
+                }
+                spawnSyncLogged('npm', npmArgs, distSpawnOptions, packageName);
+            }
             log(`${packageName}: done.`);
         } else {
             logWarn(`${packageName}: ${packageVersion} is already published. skipping.`);
         }
     } catch (error) {
         logError(`${packageName}: error while publishing: ${error?.stack || error}.`);
+    } finally {
+        for (const [filePath, fileContents] of filesToRestore) {
+            fs.writeFileSync(filePath, fileContents);
+        }
+        filesToRestore.clear();
     }
 }
 
