@@ -17,14 +17,14 @@ process.on('unhandledRejection', printErrorAndExit);
 program
     .command('publish [folder]')
     .description('publish all unpublish packages')
-    .option('--dry', 'dry run (no actual publishing)', false)
+    .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--distDir <name>', 'subdirectory to publish', '.')
-    .action(async (folder: string, { dry, distDir }) => {
+    .action(async (folder: string, { dryRun, distDir }) => {
         try {
             const directoryPath = path.resolve(folder || '');
             const packages = await resolvePackages(directoryPath);
             for (const npmPackage of packages) {
-                await publishPackage({ npmPackage, dry, distDir });
+                await publishPackage({ npmPackage, dryRun, distDir });
             }
         } catch (e) {
             printErrorAndExit(e);
@@ -34,9 +34,9 @@ program
 program
     .command('publishSnapshot [folder]')
     .description('publish all unpublished packages')
-    .option('--dry', 'dry run (no actual publishing)', false)
+    .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--distDir <name>', 'subdirectory to publish', '.')
-    .action(async (folder: string, { dry, distDir }) => {
+    .action(async (folder: string, { dryRun, distDir }) => {
         try {
             const directoryPath = path.resolve(folder || '');
             const commitHash = currentGitCommitHash();
@@ -45,7 +45,7 @@ program
                 const filesToRestore = await overridePackageJsons(packages, commitHash);
                 try {
                     for (const npmPackage of packages) {
-                        await publishPackage({ npmPackage, dry, distDir, tag: 'next' });
+                        await publishPackage({ npmPackage, dryRun, distDir, tag: 'next' });
                     }
                 } finally {
                     for (const [filePath, fileContents] of filesToRestore) {

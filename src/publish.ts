@@ -20,7 +20,7 @@ const spawnSyncLogged = (
 export interface IPublishOptions {
     npmPackage: INpmPackage;
     /** @default false */
-    dry?: boolean;
+    dryRun?: boolean;
     /** @default 'latest' */
     tag?: string;
     /** @default '.' */
@@ -30,7 +30,7 @@ export interface IPublishOptions {
 export async function publishPackage({
     npmPackage,
     tag = 'latest',
-    dry = false,
+    dryRun = false,
     distDir = '.'
 }: IPublishOptions): Promise<void> {
     const { directoryPath, packageJson } = npmPackage;
@@ -46,7 +46,7 @@ export async function publishPackage({
         const versions = await fetchPackageVersions(packageName);
         if (!versions.includes(packageVersion)) {
             const publishArgs = ['publish', '--registry', registry];
-            if (dry) {
+            if (dryRun) {
                 publishArgs.push('--dry-run');
             }
             if (tag !== 'latest') {

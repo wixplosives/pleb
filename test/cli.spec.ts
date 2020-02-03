@@ -7,7 +7,7 @@ const fixturesRoot = join(__dirname, 'fixtures');
 const cliEntryPath = require.resolve('../src/cli.ts');
 
 const runCli = async (cliArgs: string[] = []) =>
-    spawnAsync('node', ['-r', '@ts-tools/node/r', cliEntryPath, ...cliArgs, '--dry'], {
+    spawnAsync('node', ['-r', '@ts-tools/node/r', cliEntryPath, ...cliArgs, '--dry-run'], {
         pipeStreams: true
     });
 
