@@ -18,8 +18,8 @@ describe('cli', () => {
 
             const { output, exitCode } = await runCli(['publish', newPackagePath]);
 
-            expect(output).to.include('lerna-publisher-new-package: package was never published.');
-            expect(output).to.include('lerna-publisher-new-package: done.');
+            expect(output).to.include('pleb-new-package: package was never published.');
+            expect(output).to.include('pleb-new-package: done.');
             expect(exitCode).to.equal(0);
         });
 
@@ -46,9 +46,9 @@ describe('cli', () => {
 
             const { output, exitCode } = await runCli(['publish', distDirFixturePath, '--contents', 'npm']);
 
-            expect(output).to.include('lerna-publisher-new-package: package was never published.');
+            expect(output).to.include('pleb-new-package: package was never published.');
             expect(output).to.include('total files:   2');
-            expect(output).to.include('lerna-publisher-new-package: done.');
+            expect(output).to.include('pleb-new-package: done.');
             expect(exitCode).to.equal(0);
         });
     });

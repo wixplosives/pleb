@@ -1,11 +1,11 @@
 {
-  "name": "lerna-publisher",
-  "description": "Utility to publish lerna/yarn/workspace types of packages from ci to npm",
+  "name": "pleb",
+  "description": "a casual publisher",
   "version": "1.2.1",
   "main": "cjs/index.js",
   "types": "cjs/index.d.ts",
   "bin": {
-    "lerna-publisher": "cjs/cli.js"
+    "pleb": "cjs/cli.js"
   },
   "scripts": {
     "clean": "rimraf ./cjs ./dist",
@@ -57,5 +57,5 @@
     "access": "public"
   },
   "license": "MIT",
-  "repository": "git@github.com:wixplosives/lerna-publisher.git"
+  "repository": "git@github.com:wixplosives/pleb.git"
 }
