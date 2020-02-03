@@ -1,7 +1,5 @@
 # pleb
 
-a casual publisher.
-
 [![Build Status](https://travis-ci.com/wixplosives/pleb.svg?branch=master)](https://travis-ci.com/wixplosives/pleb)[![npm version](https://badge.fury.io/js/pleb.svg)](https://badge.fury.io/js/pleb)
 
 Custom publishing cli for lerna/yarn/workspaces projects.
