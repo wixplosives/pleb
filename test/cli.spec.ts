@@ -28,7 +28,7 @@ describe('cli', () => {
 
             const { output, exitCode } = await runCli(['publish', alreadyPublishedPackagePath]);
 
-            expect(output).to.include('lerna-publisher: 1.0.0 is already published. skipping');
+            expect(output).to.include('pleb: 1.3.0 is already published. skipping');
             expect(exitCode).to.equal(0);
         });
 
