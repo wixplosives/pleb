@@ -153,7 +153,7 @@ async function fetchPackageVersions(packageName: string): Promise<string[]> {
             '//registry.npmjs.org/:token': process.env.NPM_TOKEN
         });
         const versions = Object.keys(packument.versions);
-        log(`${packageName}: published versions - ${versions.join(', ')}`);
+        log(`${packageName}: got ${versions.length} published versions.`);
         return versions;
     } catch (error) {
         if (error?.statusCode === 404) {
