@@ -24,6 +24,7 @@ export interface IPackageJson {
 export interface INpmPackage {
     directoryPath: string;
     packageJsonPath: string;
+    packageJsonContent: string;
     packageJson: IPackageJson;
 }
 
@@ -36,7 +37,8 @@ export async function resolvePackages(basePath: string): Promise<INpmPackage[]> 
 
     const directoryPath = path.dirname(packageJsonPath);
 
-    const packageJson = JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf8'));
+    const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
+    const packageJson = JSON.parse(packageJsonContent);
     if (!isObject(packageJson)) {
         throw new Error(`${packageJsonPath} is not a valid json object.`);
     }
@@ -48,7 +50,7 @@ export async function resolvePackages(basePath: string): Promise<INpmPackage[]> 
             logWarn(`${packageJsonPath}: no valid "name" field. skipping.`);
             return [];
         }
-        return [{ directoryPath, packageJson, packageJsonPath }];
+        return [{ directoryPath, packageJson, packageJsonPath, packageJsonContent }];
     } else if (typeof workspaces === 'string') {
         return resolveWorkspacePackages(directoryPath, [workspaces]);
     } else if (Array.isArray(workspaces)) {
@@ -70,7 +72,8 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
         const packageJsonGlob = path.posix.join(packageDirGlob, PACKAGE_JSON);
         const packageJsonPaths = await glob(packageJsonGlob, globOptions);
         for (const packageJsonPath of packageJsonPaths.map(path.normalize)) {
-            const packageJson = JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf8')) as IPackageJson;
+            const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
+            const packageJson = JSON.parse(packageJsonContent) as IPackageJson;
 
             if (!isObject(packageJson)) {
                 logWarn(`${packageJsonPath}: no valid json object.`);
@@ -85,7 +88,8 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
             foundPackages.push({
                 packageJsonPath,
                 packageJson,
-                directoryPath: path.dirname(packageJsonPath)
+                directoryPath: path.dirname(packageJsonPath),
+                packageJsonContent
             });
         }
     }

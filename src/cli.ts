@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import fs from 'fs';
 import path from 'path';
 import program from 'commander';
-import { publishPackage, publishSnapshot } from './publish';
-import { log, logError } from './log';
+import { publishPackage, overridePackageJsons } from './publish';
+import { logError } from './log';
 import { resolvePackages } from './resolve-packages';
+import { spawnSync } from 'child_process';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version, description } = require('../package.json');
 
-const { NPM_TOKEN } = process.env;
 process.on('unhandledRejection', printErrorAndExit);
 
 program
@@ -33,16 +34,28 @@ program
 program
     .command('publishSnapshot [folder]')
     .description('publish all unpublished packages')
-    .action(async (folder: string) => {
-        if (!NPM_TOKEN) {
-            logError('process.env.NPM_TOKEN is empty or not defined. Not publishing.');
-            return;
-        }
+    .option('--dry', 'dry run (no actual publishing)', false)
+    .option('--distDir <name>', 'subdirectory to publish', '.')
+    .action(async (folder: string, { dry, distDir }) => {
         try {
             const directoryPath = path.resolve(folder || '');
-            log('lerna-publisher starting in ' + directoryPath);
-            const commitHash = String(process.env.GITHUB_SHA);
-            await publishSnapshot(directoryPath, commitHash);
+            const commitHash = currentGitCommitHash();
+            const packages = await resolvePackages(directoryPath);
+            if (commitHash) {
+                const filesToRestore = await overridePackageJsons(packages, commitHash);
+                try {
+                    for (const npmPackage of packages) {
+                        await publishPackage({ npmPackage, dry, distDir, tag: 'next' });
+                    }
+                } finally {
+                    for (const [filePath, fileContents] of filesToRestore) {
+                        await fs.promises.writeFile(filePath, fileContents);
+                    }
+                    filesToRestore.clear();
+                }
+            } else {
+                throw new Error(`cannot determine git commit hash for ${directoryPath}`);
+            }
         } catch (e) {
             printErrorAndExit(e);
         }
@@ -53,6 +66,11 @@ program
     .description(description)
     .usage('[options]')
     .parse(process.argv);
+
+function currentGitCommitHash() {
+    const { stdout, status } = spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' });
+    return status === 0 ? stdout.trim() : undefined;
+}
 
 function printErrorAndExit(message: unknown) {
     logError(message);

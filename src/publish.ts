@@ -2,11 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import childProcess from 'child_process';
 import pacote from 'pacote';
-import { resolvePackages, INpmPackage, IPackageJson } from './resolve-packages';
+import { INpmPackage, IPackageJson } from './resolve-packages';
 import { log, logWarn, logError } from './log';
 
 const registry = `https://registry.npmjs.org/`;
-const cmdPublishTextNext = `npm publish --tag next --registry ${registry}`;
 
 const spawnSyncLogged = (
     command: string,
@@ -46,12 +45,12 @@ export async function publishPackage({
     try {
         const versions = await fetchPackageVersions(packageName);
         if (!versions.includes(packageVersion)) {
-            const npmArgs = ['publish', '--registry', registry];
+            const publishArgs = ['publish', '--registry', registry];
             if (dry) {
-                npmArgs.push('--dry-run');
+                publishArgs.push('--dry-run');
             }
             if (tag !== 'latest') {
-                npmArgs.push('--tag', tag);
+                publishArgs.push('--tag', tag);
             }
             const rootSpawnOptions: childProcess.SpawnSyncOptions = {
                 cwd: directoryPath,
@@ -60,7 +59,7 @@ export async function publishPackage({
             };
 
             if (distDirectoryPath === directoryPath) {
-                spawnSyncLogged('npm', npmArgs, rootSpawnOptions, packageName);
+                spawnSyncLogged('npm', publishArgs, rootSpawnOptions, packageName);
             } else {
                 if (typeof scripts.prepare === 'string') {
                     spawnSyncLogged('npm', ['run', 'prepare'], rootSpawnOptions, packageName);
@@ -88,7 +87,7 @@ export async function publishPackage({
                     filesToRestore.set(distPackageJsonPath, distPackageJsonContents);
                     fs.writeFileSync(distPackageJsonPath, JSON.stringify(distPackageJson, null, 2));
                 }
-                spawnSyncLogged('npm', npmArgs, distSpawnOptions, packageName);
+                spawnSyncLogged('npm', publishArgs, distSpawnOptions, packageName);
             }
             log(`${packageName}: done.`);
         } else {
@@ -104,21 +103,16 @@ export async function publishPackage({
     }
 }
 
-export async function publishSnapshot(contextPath: string, commitHash: string): Promise<void> {
-    const packages = await resolvePackages(contextPath);
-    const validPackages: INpmPackage[] = [];
+export async function overridePackageJsons(packages: INpmPackage[], commitHash: string): Promise<Map<string, string>> {
+    const filesToRestore = new Map<string, string>();
+
     const packageToVersion = new Map<string, string>();
     for (const npmPackage of packages) {
-        const { name: packageName, version: packageVersion, private: isPrivate } = npmPackage.packageJson;
-        if (isPrivate) {
-            logWarn(`${packageName}: private. skipping.`);
-            continue;
-        }
-        validPackages.push(npmPackage);
+        const { name: packageName, version: packageVersion } = npmPackage.packageJson;
         packageToVersion.set(packageName, `${packageVersion}-${commitHash.slice(0, 7)}`);
     }
 
-    for (const { packageJson, packageJsonPath, directoryPath } of validPackages) {
+    for (const { packageJson, packageJsonPath, packageJsonContent } of packages) {
         const { name: packageName, dependencies, devDependencies } = packageJson;
         packageJson.version = packageToVersion.get(packageName)!;
         if (dependencies) {
@@ -130,11 +124,10 @@ export async function publishSnapshot(contextPath: string, commitHash: string): 
         }
 
         log(`${packageName}: updating versions in package.json`);
-        fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-        log(`${packageName}: ${cmdPublishTextNext}`);
-        childProcess.execSync(cmdPublishTextNext, { cwd: directoryPath, stdio: 'inherit' });
-        log(`${packageName}: done`);
+        filesToRestore.set(packageJsonPath, packageJsonContent);
+        await fs.promises.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
     }
+    return filesToRestore;
 }
 
 function overrideVersions(dependencies: Record<string, string>, packageToVersion: Map<string, string>) {
