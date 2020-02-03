@@ -18,13 +18,13 @@ program
     .command('publish [folder]')
     .description('publish all unpublish packages')
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
-    .option('--distDir <name>', 'subdirectory to publish', '.')
-    .action(async (folder: string, { dryRun, distDir }) => {
+    .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
+    .action(async (folder: string, { dryRun, contents }) => {
         try {
             const directoryPath = path.resolve(folder || '');
             const packages = await resolvePackages(directoryPath);
             for (const npmPackage of packages) {
-                await publishPackage({ npmPackage, dryRun, distDir });
+                await publishPackage({ npmPackage, dryRun, distDir: contents });
             }
         } catch (e) {
             printErrorAndExit(e);
@@ -35,8 +35,8 @@ program
     .command('publishSnapshot [folder]')
     .description('publish all unpublished packages')
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
-    .option('--distDir <name>', 'subdirectory to publish', '.')
-    .action(async (folder: string, { dryRun, distDir }) => {
+    .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
+    .action(async (folder: string, { dryRun, contents }) => {
         try {
             const directoryPath = path.resolve(folder || '');
             const commitHash = currentGitCommitHash();
@@ -45,7 +45,7 @@ program
                 const filesToRestore = await overridePackageJsons(packages, commitHash);
                 try {
                     for (const npmPackage of packages) {
-                        await publishPackage({ npmPackage, dryRun, distDir, tag: 'next' });
+                        await publishPackage({ npmPackage, dryRun, distDir: contents, tag: 'next' });
                     }
                 } finally {
                     for (const [filePath, fileContents] of filesToRestore) {

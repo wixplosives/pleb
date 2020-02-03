@@ -44,7 +44,7 @@ describe('cli', () => {
         it('allows publishing a custom dist dir', async () => {
             const distDirFixturePath = join(fixturesRoot, 'dist-dir');
 
-            const { output, exitCode } = await runCli(['publish', distDirFixturePath, '--distDir', 'npm']);
+            const { output, exitCode } = await runCli(['publish', distDirFixturePath, '--contents', 'npm']);
 
             expect(output).to.include('lerna-publisher-new-package: package was never published.');
             expect(output).to.include('total files:   2');
