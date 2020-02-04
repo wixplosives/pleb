@@ -13,7 +13,7 @@ Primary motivation is to allow developer to run lerna publish command locally ev
 **pleb** will assume you already have built version of your package in the folder where lerna publisher runs.
 To make sure you have built your package, add following to your package.json scripts key.
 
-`"prepack": "yarn build"`
+`"prepack": "npm run build"`
 
 You need to have line like this in every package.json of every package you want to publish to npm.
 
