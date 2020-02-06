@@ -4,6 +4,7 @@ import util from 'util';
 import findUp from 'find-up';
 import globCb from 'glob';
 import { logWarn } from './log';
+import { flattenTree } from './flatten-tree';
 
 const glob = util.promisify(globCb);
 
@@ -61,7 +62,7 @@ export async function resolvePackages(basePath: string): Promise<INpmPackage[]> 
 }
 
 export async function resolveWorkspacePackages(basePath: string, workspaces: string[]): Promise<INpmPackage[]> {
-    const foundPackages: INpmPackage[] = [];
+    const packageMap = new Map<string, INpmPackage>();
 
     const globOptions: globCb.IOptions = {
         cwd: basePath,
@@ -84,8 +85,16 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
             } else if (typeof packageJson.version !== 'string') {
                 logWarn(`${packageJsonPath}: no valid "version" field. skipping.`);
                 continue;
+            } else if (packageMap.has(packageJson.name)) {
+                logWarn(
+                    `${packageJsonPath}: duplicate package name. "${packageJson.name}" is already used at ${
+                        packageMap.get(packageJson.name)!.packageJsonPath
+                    }`
+                );
+                continue;
             }
-            foundPackages.push({
+
+            packageMap.set(packageJson.name, {
                 packageJsonPath,
                 packageJson,
                 directoryPath: path.dirname(packageJsonPath),
@@ -93,5 +102,41 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
             });
         }
     }
-    return foundPackages;
+
+    const packages = Array.from(packageMap.values());
+    const packageToDeepDeps = new Map<INpmPackage, Set<INpmPackage>>(
+        packages.map(npmPackage => [
+            npmPackage,
+            flattenTree(npmPackage, p => Array.from(getDirectDepPackages(p, packageMap)))
+        ])
+    );
+
+    packages.sort((package1, package2) => {
+        if (packageToDeepDeps.get(package2)!.has(package1)) {
+            return -1;
+        } else if (packageToDeepDeps.get(package1)!.has(package2)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
+
+    return packages;
+}
+
+function getDirectDepPackages(npmPackage: INpmPackage, packages: Map<string, INpmPackage>) {
+    const depPackages = new Set<INpmPackage>();
+    for (const depName of getPackageDependencyNames(npmPackage)) {
+        const depPackage = packages.get(depName);
+        if (depPackage && depPackage !== npmPackage) {
+            depPackages.add(depPackage);
+        }
+    }
+    return depPackages;
+}
+
+function getPackageDependencyNames({
+    packageJson: { dependencies = {}, devDependencies = {}, peerDependencies = {} }
+}: INpmPackage) {
+    return new Set([...Object.keys(dependencies), ...Object.keys(devDependencies), ...Object.keys(peerDependencies)]);
 }

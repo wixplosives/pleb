@@ -41,7 +41,7 @@ describe('cli', () => {
             expect(exitCode).to.equal(0);
         });
 
-        it('allows publishing a custom dist dir', async () => {
+        it('allows specifying a custom dist directory', async () => {
             const distDirFixturePath = join(fixturesRoot, 'dist-dir');
 
             const { output, exitCode } = await runCli(['publish', distDirFixturePath, '--contents', 'npm']);
@@ -49,6 +49,17 @@ describe('cli', () => {
             expect(output).to.include('pleb-new-package: package was never published.');
             expect(output).to.include('total files:   2');
             expect(output).to.include('pleb-new-package: done.');
+            expect(exitCode).to.equal(0);
+        });
+
+        it('publishes workspace packages in correct order (deps first)', async () => {
+            const distDirFixturePath = join(fixturesRoot, 'yarn-workspace');
+
+            const { output, exitCode } = await runCli(['publish', distDirFixturePath]);
+
+            expect(output).to.include('pleb-workspace-a: done.');
+            expect(output).to.include('pleb-workspace-b: done.');
+            expect(output.indexOf('pleb-workspace-b: done.')).to.be.lessThan(output.indexOf('pleb-workspace-a: done.'));
             expect(exitCode).to.equal(0);
         });
     });

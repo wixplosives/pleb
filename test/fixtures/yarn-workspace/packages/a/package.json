@@ -1,4 +1,7 @@
 {
-  "name": "a",
-  "version": "1.0.0"
+  "name": "pleb-workspace-a",
+  "version": "1.0.0",
+  "dependencies": {
+    "pleb-workspace-b": "^1.0.0"
+  }
 }
