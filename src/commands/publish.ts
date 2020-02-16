@@ -1,21 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import childProcess from 'child_process';
-import pacote from 'pacote';
-import { INpmPackage, IPackageJson } from './resolve-packages';
-import { log, logWarn, logError } from './log';
-
-const registry = `https://registry.npmjs.org/`;
-
-const spawnSyncLogged = (
-    command: string,
-    args: string[],
-    options: childProcess.SpawnSyncOptions,
-    label = options.cwd || process.cwd()
-) => {
-    log(`${label}: ${command} ${args.join(' ')}`);
-    return childProcess.spawnSync(command, args, options);
-};
+import { INpmPackage, IPackageJson } from '../utils/packages';
+import { log, logWarn, logError } from '../utils/log';
+import { spawnSyncLogged } from '../utils/process';
+import { fetchPackageVersions, officialNpmRegistry } from '../utils/npm';
 
 export interface IPublishOptions {
     npmPackage: INpmPackage;
@@ -25,13 +14,19 @@ export interface IPublishOptions {
     tag?: string;
     /** @default '.' */
     distDir?: string;
+    /** @default 'https://registry.npmjs.org/' */
+    registry?: string;
+    /** @default undefined */
+    token?: string;
 }
 
 export async function publishPackage({
     npmPackage,
     tag = 'latest',
     dryRun = false,
-    distDir = '.'
+    distDir = '.',
+    registry = officialNpmRegistry,
+    token
 }: IPublishOptions): Promise<void> {
     const { directoryPath, packageJson } = npmPackage;
     const { name: packageName, version: packageVersion, scripts = {} } = packageJson;
@@ -43,7 +38,7 @@ export async function publishPackage({
     const filesToRestore = new Map<string, string>();
 
     try {
-        const versions = await fetchPackageVersions(packageName);
+        const versions = await fetchPackageVersions(packageName, registry, token);
         if (!versions.includes(packageVersion)) {
             const publishArgs = ['publish', '--registry', registry];
             if (dryRun) {
@@ -135,25 +130,6 @@ function overrideVersions(dependencies: Record<string, string>, packageToVersion
         const snapshotVersion = packageToVersion.get(depName);
         if (snapshotVersion !== undefined) {
             dependencies[depName] = snapshotVersion;
-        }
-    }
-}
-
-async function fetchPackageVersions(packageName: string): Promise<string[]> {
-    try {
-        log(`${packageName}: fetching versions...`);
-        const packument = await pacote.packument(packageName, {
-            '//registry.npmjs.org/:token': process.env.NPM_TOKEN
-        });
-        const versions = Object.keys(packument.versions);
-        log(`${packageName}: got ${versions.length} published versions.`);
-        return versions;
-    } catch (error) {
-        if (error?.statusCode === 404) {
-            logWarn(`${packageName}: package was never published.`);
-            return [];
-        } else {
-            throw error;
         }
     }
 }

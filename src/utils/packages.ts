@@ -3,8 +3,8 @@ import path from 'path';
 import util from 'util';
 import findUp from 'find-up';
 import globCb from 'glob';
-import { logWarn } from './log';
 import { flattenTree } from './flatten-tree';
+import { logWarn } from './log';
 
 const glob = util.promisify(globCb);
 
