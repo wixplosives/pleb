@@ -1,6 +1,6 @@
 # pleb
 
-[![Build Status](https://travis-ci.com/wixplosives/pleb.svg?branch=master)](https://travis-ci.com/wixplosives/pleb)
+[![Build Status](https://github.com/wixplosives/pleb/workflows/tests/badge.svg)](https://github.com/wixplosives/pleb/actions)
 [![npm version](https://badge.fury.io/js/pleb.svg)](https://badge.fury.io/js/pleb)
 
 Custom publishing cli for lerna/yarn/workspaces projects.
