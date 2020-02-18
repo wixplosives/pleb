@@ -17,7 +17,7 @@ process.on('unhandledRejection', printErrorAndExit);
 
 program
     .command('publish [folder]')
-    .description('publish all unpublish packages')
+    .description('publish unpublished packages')
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
     .action(async (folder: string, { dryRun, contents }) => {
@@ -37,7 +37,7 @@ program
 
 program
     .command('publishSnapshot [folder]')
-    .description('publish all unpublished packages')
+    .description('publish a snapshot of the packages (based on git commit hash)')
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
     .action(async (folder: string, { dryRun, contents }) => {
