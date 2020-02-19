@@ -8,7 +8,10 @@ export function spawnSyncLogged(
     label = options.cwd || process.cwd()
 ) {
     log(`${label}: ${command} ${args.join(' ')}`);
-    return spawnSync(command, args, options);
+    const { status } = spawnSync(command, args, options);
+    if (status !== 0) {
+        throw new Error(`non-zero exit code returned ${status}`);
+    }
 }
 
 export function printErrorAndExit(message: unknown) {
