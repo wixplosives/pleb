@@ -13,7 +13,7 @@ process.on('unhandledRejection', printErrorAndExit);
 process.on('uncaughtException', printErrorAndExit);
 
 program
-    .command('publish [target path]')
+    .command('publish [target]')
     .description('publish unpublished packages')
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')

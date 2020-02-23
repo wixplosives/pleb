@@ -3,30 +3,62 @@
 [![Build Status](https://github.com/wixplosives/pleb/workflows/tests/badge.svg)](https://github.com/wixplosives/pleb/actions)
 [![npm version](https://badge.fury.io/js/pleb.svg)](https://badge.fury.io/js/pleb)
 
-Custom publishing cli for lerna/yarn/workspaces projects.
+CLI to automate several npm package tasks.
 
-**pleb** checks versions of all subpackages in a mono-repo and publishes them to npmjs if version specified in package.json of subpackage is higher than version in npmjs.
+## Features
 
-Primary motivation is to allow developer to run lerna publish command locally even if developer does not have permissions to publish to npmjs.CI will pickup tags commited by lerna and publish packages with unpublished versions.
+-   Works locally and in CI. `npx pleb [command]` in mind.
+-   Supports both single package and yarn workspace setups.
+-   Skips already-published versions when publishing.
+-   Loads and uses user's npm authentication.
 
-## Prepack
+## Commands
 
-**pleb** will assume you already have built version of your package in the folder where lerna publisher runs.
-To make sure you have built your package, add following to your package.json scripts key.
+### `publish`
 
-`"prepack": "npm run build"`
+Publish unpublished packages.
 
-You need to have line like this in every package.json of every package you want to publish to npm.
+**pleb** assumes packages have already been built when publishing. If on-demand building is required, a "prepack" script can be used to build right before packing the package: `"prepack": "npm run build"`
 
-## Expected Flow
+### `snapshot`
 
-1. Bump versions using `lerna version` or a similar tool.
-2. Commit changes to git.
-3. `pleb` detects unpublished versions in CI, and publishes them to npm.
+Publish a snapshot of the packages (based on git commit hash)
 
-### Travis Integration
+The snapshot version (e.g. `2.0.0-cc10763`) is combined from the current version in `package.json`, and the first seven characters of the current git commit hash.
 
-Inject `NPM_TOKEN` as secure environment variable in Travis repository settings.
+## Integration
+
+### GitHub Actions
+
+Inject `NPM_TOKEN` as a secret in GitHub's repository settings.
+
+Save the following as `npm.yml`:
+
+```yml
+name: npm
+on:
+    push:
+        branches: [master]
+jobs:
+    npm:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Use Node.js 12
+              uses: actions/setup-node@v1
+              with:
+                  node_version: 12
+                  registry-url: 'https://registry.npmjs.org/'
+            - run: npm i -g yarn@1
+            - run: yarn
+            - run: npx pleb publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+### Travis CI
+
+Inject `NPM_TOKEN` as a secure environment variable in Travis repository settings.
 
 Add following to the end of `.travis.yml`:
 
