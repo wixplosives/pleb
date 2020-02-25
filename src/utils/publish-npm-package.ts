@@ -111,19 +111,18 @@ export async function overridePackageJsons(packages: INpmPackage[], commitHash: 
 
     for (const { packageJson, packageJsonPath, packageJsonContent } of packages) {
         const { name: packageName, dependencies, devDependencies } = packageJson;
-        const newPackageJson: IPackageJson = { ...packageJson };
-        newPackageJson.version = packageToVersion.get(packageName)!;
+        packageJson.version = packageToVersion.get(packageName)!;
         if (dependencies) {
-            newPackageJson.dependencies = mapRecord(dependencies, getVersionRequest);
+            packageJson.dependencies = mapRecord(dependencies, getVersionRequest);
         }
         if (devDependencies) {
-            newPackageJson.devDependencies = mapRecord(devDependencies, getVersionRequest);
+            packageJson.devDependencies = mapRecord(devDependencies, getVersionRequest);
         }
 
         log(`${packageName}: updating versions in package.json`);
         filesToRestore.set(packageJsonPath, packageJsonContent);
 
-        await fs.promises.writeFile(packageJsonPath, JSON.stringify(newPackageJson, null, 2));
+        await fs.promises.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
     }
     return filesToRestore;
 }
