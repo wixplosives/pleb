@@ -29,7 +29,18 @@ export interface INpmPackage {
     packageJson: IPackageJson;
 }
 
-export async function resolvePackages(basePath: string): Promise<INpmPackage[]> {
+export interface SinglePackageContext {
+    type: 'single';
+    npmPackage: INpmPackage;
+}
+
+export interface YarnWorkspaceContext {
+    type: 'workspace';
+    rootPackage: INpmPackage;
+    packages: INpmPackage[];
+}
+
+export async function resolveDirectoryContext(basePath: string): Promise<SinglePackageContext | YarnWorkspaceContext> {
     const packageJsonPath = await findUp(PACKAGE_JSON, { cwd: basePath });
 
     if (typeof packageJsonPath !== 'string') {
@@ -46,16 +57,23 @@ export async function resolvePackages(basePath: string): Promise<INpmPackage[]> 
 
     const { workspaces } = packageJson;
 
+    const rootPackage: INpmPackage = { directoryPath, packageJson, packageJsonPath, packageJsonContent };
     if (workspaces === undefined) {
         if (typeof packageJson.name !== 'string') {
-            logWarn(`${packageJsonPath}: no valid "name" field. skipping.`);
-            return [];
+            throw new Error(`${packageJsonPath}: no valid "name" field. skipping.`);
         }
-        return [{ directoryPath, packageJson, packageJsonPath, packageJsonContent }];
+        return {
+            type: 'single',
+            npmPackage: rootPackage
+        };
     } else if (typeof workspaces === 'string') {
-        return resolveWorkspacePackages(directoryPath, [workspaces]);
+        return {
+            type: 'workspace',
+            rootPackage,
+            packages: await resolveWorkspacePackages(directoryPath, [workspaces])
+        };
     } else if (Array.isArray(workspaces)) {
-        return resolveWorkspacePackages(directoryPath, workspaces);
+        return { type: 'workspace', rootPackage, packages: await resolveWorkspacePackages(directoryPath, workspaces) };
     } else {
         throw new Error(`"workspaces" key has unknown type: ${typeof workspaces}`);
     }
@@ -122,6 +140,9 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
     });
 
     return packages;
+}
+export function packagesFromResolvedContext(directoryContext: SinglePackageContext | YarnWorkspaceContext) {
+    return directoryContext.type === 'single' ? [directoryContext.npmPackage] : directoryContext.packages;
 }
 
 function getDirectDepPackages(npmPackage: INpmPackage, packages: Map<string, INpmPackage>) {

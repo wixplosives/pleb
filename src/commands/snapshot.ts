@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { publishNpmPackage, overridePackageJsons } from '../utils/publish-npm-package';
-import { resolvePackages } from '../utils/packages';
+import { resolveDirectoryContext, packagesFromResolvedContext } from '../utils/packages';
 import { loadNpmConfig, uriToIdentifier, officialNpmRegistry } from '../utils/npm';
 import { currentGitCommitHash } from '../utils/git';
 
@@ -11,7 +11,8 @@ export interface SnapshotOptions {
 }
 
 export async function snapshot({ directoryPath, dryRun, contents }: SnapshotOptions) {
-    const packages = await resolvePackages(directoryPath);
+    const directoryContext = await resolveDirectoryContext(directoryPath);
+    const packages = packagesFromResolvedContext(directoryContext);
     const commitHash = currentGitCommitHash();
     if (!commitHash) {
         throw new Error(`cannot determine git commit hash for ${directoryPath}`);

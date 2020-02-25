@@ -1,5 +1,5 @@
 import { publishNpmPackage } from '../utils/publish-npm-package';
-import { resolvePackages } from '../utils/packages';
+import { resolveDirectoryContext, packagesFromResolvedContext } from '../utils/packages';
 import { loadNpmConfig, uriToIdentifier, officialNpmRegistry } from '../utils/npm';
 
 export interface PublishOptions {
@@ -8,7 +8,8 @@ export interface PublishOptions {
     contents?: string;
 }
 export async function publish({ directoryPath, dryRun, contents }: PublishOptions) {
-    const packages = await resolvePackages(directoryPath);
+    const directoryContext = await resolveDirectoryContext(directoryPath);
+    const packages = packagesFromResolvedContext(directoryContext);
     const npmConfig = loadNpmConfig();
     const registryKey = uriToIdentifier(officialNpmRegistry);
     const token = npmConfig[`${registryKey}:_authToken`];
