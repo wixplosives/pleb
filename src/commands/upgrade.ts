@@ -45,6 +45,7 @@ export async function upgrade({ directoryPath, registryUrl = officialNpmRegistry
             packageNameToVersion.set(packageJson.name, packageJson.version);
         }
     }
+
     const getVersionRequest = (packageName: string, currentRequest: string): string => {
         const latestVersion = packageNameToVersion.get(packageName);
         if (latestVersion !== undefined) {

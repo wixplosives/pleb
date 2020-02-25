@@ -43,6 +43,7 @@ program
 
 program
     .command('upgrade [target]')
+    .description('upgrade dependencies and devDependencies of all packages')
     .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
     .action(async (targetPath: string, { dryRun }) => {
         try {
