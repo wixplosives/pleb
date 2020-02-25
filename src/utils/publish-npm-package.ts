@@ -5,6 +5,7 @@ import { INpmPackage, IPackageJson } from './packages';
 import { log, logWarn, logError } from './log';
 import { spawnSyncLogged } from './process';
 import { fetchPackageVersions, officialNpmRegistry } from './npm';
+import { mapRecord } from './map-record';
 
 export interface IPublishNpmPackageOptions {
     npmPackage: INpmPackage;
@@ -101,35 +102,28 @@ export async function publishNpmPackage({
 export async function overridePackageJsons(packages: INpmPackage[], commitHash: string): Promise<Map<string, string>> {
     const filesToRestore = new Map<string, string>();
 
-    const packageToVersion = new Map<string, string>();
-    for (const npmPackage of packages) {
-        const { name: packageName, version: packageVersion } = npmPackage.packageJson;
-        packageToVersion.set(packageName, `${packageVersion}-${commitHash.slice(0, 7)}`);
-    }
+    const packageToVersion = new Map<string, string>(
+        packages.map(({ packageJson }) => [packageJson.name, `${packageJson.version}-${commitHash.slice(0, 7)}`])
+    );
+
+    const getVersionRequest = (packageName: string, currentRequest: string) =>
+        packageToVersion.get(packageName) ?? currentRequest;
 
     for (const { packageJson, packageJsonPath, packageJsonContent } of packages) {
         const { name: packageName, dependencies, devDependencies } = packageJson;
-        packageJson.version = packageToVersion.get(packageName)!;
+        const newPackageJson: IPackageJson = { ...packageJson };
+        newPackageJson.version = packageToVersion.get(packageName)!;
         if (dependencies) {
-            overrideVersions(dependencies, packageToVersion);
+            newPackageJson.dependencies = mapRecord(dependencies, getVersionRequest);
         }
-
         if (devDependencies) {
-            overrideVersions(devDependencies, packageToVersion);
+            newPackageJson.devDependencies = mapRecord(devDependencies, getVersionRequest);
         }
 
         log(`${packageName}: updating versions in package.json`);
         filesToRestore.set(packageJsonPath, packageJsonContent);
-        await fs.promises.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+
+        await fs.promises.writeFile(packageJsonPath, JSON.stringify(newPackageJson, null, 2));
     }
     return filesToRestore;
-}
-
-function overrideVersions(dependencies: Record<string, string>, packageToVersion: Map<string, string>) {
-    for (const depName of Object.keys(dependencies)) {
-        const snapshotVersion = packageToVersion.get(depName);
-        if (snapshotVersion !== undefined) {
-            dependencies[depName] = snapshotVersion;
-        }
-    }
 }
