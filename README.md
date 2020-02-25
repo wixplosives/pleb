@@ -26,6 +26,11 @@ Publish a snapshot of the packages (based on git commit hash)
 
 The snapshot version (e.g. `2.0.0-cc10763`) is combined from the current version in `package.json`, and the first seven characters of the current git commit hash.
 
+### `upgrade`
+
+Upgrade `dependencies` and `devDependencies` of all packages.
+Checks the registry for `latest` version of each package, and updates `package.json` files with the new request.
+
 ## Integration
 
 ### GitHub Actions

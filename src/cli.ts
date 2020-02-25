@@ -5,6 +5,7 @@ import program from 'commander';
 import { printErrorAndExit } from './utils/process';
 import { publish } from './commands/publish';
 import { snapshot } from './commands/snapshot';
+import { upgrade } from './commands/upgrade';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version, description } = require('../package.json');
@@ -35,6 +36,19 @@ program
         try {
             const directoryPath = path.resolve(targetPath || '');
             await snapshot({ directoryPath, dryRun, contents });
+        } catch (e) {
+            printErrorAndExit(e);
+        }
+    });
+
+program
+    .command('upgrade [target]')
+    .description('upgrade dependencies and devDependencies of all packages')
+    .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
+    .action(async (targetPath: string, { dryRun }) => {
+        try {
+            const directoryPath = path.resolve(targetPath || '');
+            await upgrade({ directoryPath, dryRun });
         } catch (e) {
             printErrorAndExit(e);
         }

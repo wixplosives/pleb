@@ -2,9 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import url from 'url';
 import os from 'os';
+import https from 'https';
 import pacote from 'pacote';
+import PromiseQueue from 'p-queue';
 import { parseIni } from './ini';
 import { log, logWarn } from './log';
+import { createCliProgressBar } from './cli-progress-bar';
+import { fetchText } from './http';
 
 export const officialNpmRegistry = `https://registry.npmjs.org/`;
 
@@ -64,4 +68,45 @@ export async function fetchPackageVersions(packageName: string, registry: string
             throw error;
         }
     }
+}
+
+export async function fetchLatestPackageVersions(
+    packageNames: Set<string>,
+    agent: https.Agent,
+    token: string | undefined,
+    registryUrl: string
+): Promise<Map<string, string>> {
+    const cliProgress = createCliProgressBar();
+    const packageNameToVersion = new Map<string, string>();
+    const fetchQueue = new PromiseQueue({ concurrency: 8 });
+    const fetchPromises: Promise<void>[] = [];
+    for (const packageName of packageNames) {
+        const fetchPromise = fetchQueue.add(async () => {
+            try {
+                const options: https.RequestOptions = { agent };
+                if (token) {
+                    options.headers = { authorization: `Bearer ${token}` };
+                }
+                const responseText = await fetchText(`${registryUrl}-/package/${packageName}/dist-tags`, options);
+                const distTags: unknown = JSON.parse(responseText);
+                if (typeof distTags !== 'object' || distTags === null) {
+                    throw new Error(`expected an object response, but got ${distTags}`);
+                }
+                const { latest } = distTags as Record<string, string | undefined>;
+                if (typeof latest !== 'string') {
+                    throw new Error(`expected latest to be a string, but got ${latest}`);
+                }
+                packageNameToVersion.set(packageName, latest);
+            } catch (e) {
+                // eslint-disable-next-line no-console
+                console.error(e.message || e);
+            }
+            cliProgress.update((packageNames.size - fetchQueue.size) / packageNames.size);
+        });
+        fetchPromises.push(fetchPromise);
+    }
+
+    await Promise.all(fetchPromises);
+    cliProgress.done();
+    return packageNameToVersion;
 }
