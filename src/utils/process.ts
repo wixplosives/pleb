@@ -16,5 +16,5 @@ export function spawnSyncLogged(
 
 export function printErrorAndExit(message: unknown) {
     logError(message);
-    process.exit(1);
+    process.exitCode = 1;
 }
