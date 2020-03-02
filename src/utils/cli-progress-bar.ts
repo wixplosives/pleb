@@ -1,4 +1,5 @@
 import readline from 'readline';
+
 const { stdout } = process;
 
 export interface CliProgressBarOptions {

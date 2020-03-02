@@ -1,7 +1,8 @@
 import fs from 'fs';
 import { publishNpmPackage, overridePackageJsons } from '../utils/publish-npm-package';
-import { resolveDirectoryContext, packagesFromResolvedContext } from '../utils/packages';
-import { loadNpmConfig, uriToIdentifier, officialNpmRegistry } from '../utils/npm';
+import { resolveDirectoryContext, packagesFromResolvedContext } from '../utils/directory-context';
+import { uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
+import { loadNpmConfig } from '../utils/npm-config';
 import { currentGitCommitHash } from '../utils/git';
 
 export interface SnapshotOptions {
@@ -10,7 +11,7 @@ export interface SnapshotOptions {
     contents: string;
 }
 
-export async function snapshot({ directoryPath, dryRun, contents }: SnapshotOptions) {
+export async function snapshot({ directoryPath, dryRun, contents }: SnapshotOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = packagesFromResolvedContext(directoryContext);
     const commitHash = currentGitCommitHash();
@@ -18,7 +19,7 @@ export async function snapshot({ directoryPath, dryRun, contents }: SnapshotOpti
         throw new Error(`cannot determine git commit hash for ${directoryPath}`);
     }
     const npmConfig = loadNpmConfig();
-    const registryKey = uriToIdentifier(officialNpmRegistry);
+    const registryKey = uriToIdentifier(officialNpmRegistryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
     const filesToRestore = await overridePackageJsons(packages, commitHash);
     const failedPublishes = new Set<string>();
@@ -30,7 +31,7 @@ export async function snapshot({ directoryPath, dryRun, contents }: SnapshotOpti
                 npmPackage,
                 dryRun,
                 distDir: contents,
-                registry: officialNpmRegistry,
+                registry: officialNpmRegistryUrl,
                 token
             });
         } catch {

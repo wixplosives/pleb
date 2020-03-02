@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import childProcess from 'child_process';
-import { INpmPackage, IPackageJson } from './packages';
 import { log, logWarn, logError } from './log';
 import { spawnSyncLogged } from './process';
-import { fetchPackageVersions, officialNpmRegistry } from './npm';
-import { mapRecord } from './map-record';
+import { fetchPackageVersions, officialNpmRegistryUrl } from './npm-registry';
+import { INpmPackage, IPackageJson } from './npm-package';
+import { mapRecord, isString } from './language-helpers';
 
 export interface IPublishNpmPackageOptions {
     npmPackage: INpmPackage;
@@ -26,7 +26,7 @@ export async function publishNpmPackage({
     tag = 'latest',
     dryRun = false,
     distDir = '.',
-    registry = officialNpmRegistry,
+    registry = officialNpmRegistryUrl,
     token
 }: IPublishNpmPackageOptions): Promise<void> {
     const { directoryPath, packageJson } = npmPackage;
@@ -57,13 +57,13 @@ export async function publishNpmPackage({
             if (distDirectoryPath === directoryPath) {
                 spawnSyncLogged('npm', publishArgs, rootSpawnOptions, packageName);
             } else {
-                if (typeof scripts.prepare === 'string') {
+                if (isString(scripts.prepare)) {
                     spawnSyncLogged('npm', ['run', 'prepare'], rootSpawnOptions, packageName);
                 }
-                if (typeof scripts.prepublishOnly === 'string') {
+                if (isString(scripts.prepublishOnly)) {
                     spawnSyncLogged('npm', ['run', 'prepublishOnly'], rootSpawnOptions, packageName);
                 }
-                if (typeof scripts.prepack === 'string') {
+                if (isString(scripts.prepack)) {
                     spawnSyncLogged('npm', ['run', 'prepack'], rootSpawnOptions, packageName);
                 }
 

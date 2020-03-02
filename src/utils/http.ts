@@ -2,7 +2,7 @@ import http from 'http';
 import https from 'https';
 import { once } from 'events';
 
-export async function fetchText(url: string, options: http.RequestOptions | https.RequestOptions = {}) {
+export async function fetchText(url: string, options: https.RequestOptions = {}) {
     const request = url.startsWith('https://') ? https.get(url, options) : http.get(url, options);
     const [response] = (await once(request, 'response')) as [http.IncomingMessage];
     const { statusCode, headers } = response;

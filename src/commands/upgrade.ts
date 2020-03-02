@@ -1,12 +1,10 @@
 /* eslint-disable no-console */
 import fs from 'fs';
 import https from 'https';
-
-import { resolveDirectoryContext } from '../utils/packages';
-import { fetchLatestPackageVersions, loadNpmConfig, uriToIdentifier } from '../utils/npm';
-import { mapRecord } from '../utils/map-record';
-
-export const officialNpmRegistryUrl = 'https://registry.npmjs.org/';
+import { resolveDirectoryContext } from '../utils/directory-context';
+import { fetchLatestPackageVersions, uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
+import { loadNpmConfig } from '../utils/npm-config';
+import { mapRecord, isString } from '../utils/language-helpers';
 
 export interface UpgradeOptions {
     directoryPath: string;
@@ -14,7 +12,11 @@ export interface UpgradeOptions {
     dryRun?: boolean;
 }
 
-export async function upgrade({ directoryPath, registryUrl = officialNpmRegistryUrl, dryRun }: UpgradeOptions) {
+export async function upgrade({
+    directoryPath,
+    registryUrl = officialNpmRegistryUrl,
+    dryRun
+}: UpgradeOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages =
         directoryContext.type === 'workspace'
@@ -41,7 +43,7 @@ export async function upgrade({ directoryPath, registryUrl = officialNpmRegistry
     agent.destroy();
 
     for (const { packageJson } of packages) {
-        if (typeof packageJson.version === 'string') {
+        if (isString(packageJson.version)) {
             packageNameToVersion.set(packageJson.name, packageJson.version);
         }
     }
