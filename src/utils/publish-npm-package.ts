@@ -16,7 +16,7 @@ export interface IPublishNpmPackageOptions {
     /** @default '.' */
     distDir?: string;
     /** @default 'https://registry.npmjs.org/' */
-    registry?: string;
+    registryUrl?: string;
     /** @default undefined */
     token?: string;
 }
@@ -26,7 +26,7 @@ export async function publishNpmPackage({
     tag = 'latest',
     dryRun = false,
     distDir = '.',
-    registry = officialNpmRegistryUrl,
+    registryUrl = officialNpmRegistryUrl,
     token
 }: IPublishNpmPackageOptions): Promise<void> {
     const { directoryPath, packageJson } = npmPackage;
@@ -39,9 +39,9 @@ export async function publishNpmPackage({
     const filesToRestore = new Map<string, string>();
 
     try {
-        const versions = await fetchPackageVersions(packageName, registry, token);
+        const versions = await fetchPackageVersions(packageName, registryUrl, token);
         if (!versions.includes(packageVersion)) {
-            const publishArgs = ['publish', '--registry', registry];
+            const publishArgs = ['publish', '--registry', registryUrl];
             if (dryRun) {
                 publishArgs.push('--dry-run');
             }

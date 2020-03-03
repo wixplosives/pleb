@@ -4,22 +4,30 @@ import { resolveDirectoryContext, packagesFromResolvedContext } from '../utils/d
 import { uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadNpmConfig } from '../utils/npm-config';
 import { currentGitCommitHash } from '../utils/git';
+import { ensurePostfixSlash } from '../utils/http';
 
 export interface SnapshotOptions {
     directoryPath: string;
     dryRun?: boolean;
     contents: string;
+    registryUrl?: string;
 }
 
-export async function snapshot({ directoryPath, dryRun, contents }: SnapshotOptions): Promise<void> {
+export async function snapshot({
+    directoryPath,
+    dryRun,
+    contents,
+    registryUrl: forcedRegistry
+}: SnapshotOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = packagesFromResolvedContext(directoryContext);
     const commitHash = currentGitCommitHash();
     if (!commitHash) {
         throw new Error(`cannot determine git commit hash for ${directoryPath}`);
     }
-    const npmConfig = loadNpmConfig();
-    const registryKey = uriToIdentifier(officialNpmRegistryUrl);
+    const npmConfig = await loadNpmConfig(directoryPath);
+    const registryUrl = ensurePostfixSlash(forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl);
+    const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
     const filesToRestore = await overridePackageJsons(packages, commitHash);
     const failedPublishes = new Set<string>();
@@ -31,7 +39,7 @@ export async function snapshot({ directoryPath, dryRun, contents }: SnapshotOpti
                 npmPackage,
                 dryRun,
                 distDir: contents,
-                registry: officialNpmRegistryUrl,
+                registryUrl,
                 token
             });
         } catch {

@@ -18,10 +18,10 @@ program
     .description('publish unpublished packages')
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
-    .action(async (targetPath: string, { dryRun, contents }) => {
+    .option('--registry <url>', 'npm registry to use')
+    .action(async (targetPath: string, { dryRun, contents, registry }) => {
         try {
-            const directoryPath = path.resolve(targetPath || '');
-            await publish({ directoryPath, dryRun, contents });
+            await publish({ directoryPath: path.resolve(targetPath || ''), dryRun, contents, registryUrl: registry });
         } catch (e) {
             printErrorAndExit(e);
         }
@@ -32,10 +32,10 @@ program
     .description('publish a snapshot of the packages (based on git commit hash)')
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
-    .action(async (targetPath: string, { dryRun, contents }) => {
+    .option('--registry <url>', 'npm registry to use')
+    .action(async (targetPath: string, { dryRun, contents, registry }) => {
         try {
-            const directoryPath = path.resolve(targetPath || '');
-            await snapshot({ directoryPath, dryRun, contents });
+            await snapshot({ directoryPath: path.resolve(targetPath || ''), dryRun, contents, registryUrl: registry });
         } catch (e) {
             printErrorAndExit(e);
         }
@@ -45,10 +45,10 @@ program
     .command('upgrade [target]')
     .description('upgrade dependencies and devDependencies of all packages')
     .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
-    .action(async (targetPath: string, { dryRun }) => {
+    .option('--registry <url>', 'npm registry to use')
+    .action(async (targetPath: string, { dryRun, registry }) => {
         try {
-            const directoryPath = path.resolve(targetPath || '');
-            await upgrade({ directoryPath, dryRun });
+            await upgrade({ directoryPath: path.resolve(targetPath || ''), dryRun, registryUrl: registry });
         } catch (e) {
             printErrorAndExit(e);
         }

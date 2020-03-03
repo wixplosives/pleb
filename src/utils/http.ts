@@ -3,7 +3,7 @@ import https from 'https';
 import { once } from 'events';
 
 export async function fetchText(url: string, options: https.RequestOptions = {}) {
-    const request = url.startsWith('https://') ? https.get(url, options) : http.get(url, options);
+    const request = isSecureUrl(url) ? https.get(url, options) : http.get(url, options);
     const [response] = (await once(request, 'response')) as [http.IncomingMessage];
     const { statusCode, headers } = response;
     if (statusCode !== 200) {
@@ -33,4 +33,12 @@ export function isTextualContentType(contentType: string) {
         contentType.startsWith('application/javascript') ||
         contentType.startsWith('application/json')
     );
+}
+
+export function ensurePostfixSlash(url: string): string {
+    return url.endsWith('/') ? url : `${url}/`;
+}
+
+export function isSecureUrl(url: string): boolean {
+    return url.startsWith('https://');
 }

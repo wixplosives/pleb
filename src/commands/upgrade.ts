@@ -1,29 +1,29 @@
 /* eslint-disable no-console */
 import fs from 'fs';
+import http from 'http';
 import https from 'https';
 import { resolveDirectoryContext } from '../utils/directory-context';
 import { fetchLatestPackageVersions, uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadNpmConfig } from '../utils/npm-config';
 import { mapRecord, isString } from '../utils/language-helpers';
+import { ensurePostfixSlash, isSecureUrl } from '../utils/http';
 
 export interface UpgradeOptions {
     directoryPath: string;
-    registryUrl?: string;
     dryRun?: boolean;
+    registryUrl?: string;
 }
 
-export async function upgrade({
-    directoryPath,
-    registryUrl = officialNpmRegistryUrl,
-    dryRun
-}: UpgradeOptions): Promise<void> {
+export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryRun }: UpgradeOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages =
         directoryContext.type === 'workspace'
             ? [directoryContext.rootPackage, ...directoryContext.packages]
             : [directoryContext.npmPackage];
-    const npmConfig = loadNpmConfig();
-    const registryKey = uriToIdentifier(officialNpmRegistryUrl);
+
+    const npmConfig = await loadNpmConfig(directoryPath);
+    const registryUrl = ensurePostfixSlash(forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl);
+    const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
 
     const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name));
@@ -37,9 +37,14 @@ export async function upgrade({
             .filter(packageName => !internalPackageNames.has(packageName))
     );
 
-    const agent = new https.Agent({ keepAlive: true });
+    const agent = isSecureUrl(registryUrl) ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
     console.log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
-    const packageNameToVersion = await fetchLatestPackageVersions(externalPackageNames, agent, token, registryUrl);
+    const packageNameToVersion = await fetchLatestPackageVersions({
+        packageNames: externalPackageNames,
+        agent,
+        token,
+        registryUrl
+    });
     agent.destroy();
 
     for (const { packageJson } of packages) {

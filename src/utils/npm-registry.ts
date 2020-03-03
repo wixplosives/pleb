@@ -1,4 +1,5 @@
 import url from 'url';
+import http from 'http';
 import https from 'https';
 import pacote from 'pacote';
 import PromiseQueue from 'p-queue';
@@ -22,11 +23,15 @@ export function uriToIdentifier(uri: string) {
     return url.resolve(url.format(parsed), '.');
 }
 
-export async function fetchPackageVersions(packageName: string, registry: string, token?: string): Promise<string[]> {
+export async function fetchPackageVersions(
+    packageName: string,
+    registryUrl: string,
+    token?: string
+): Promise<string[]> {
     try {
         log(`${packageName}: fetching versions...`);
         const packument = await pacote.packument(packageName, {
-            registry,
+            registry: registryUrl,
             token
         });
         const versions = Object.keys(packument.versions);
@@ -42,12 +47,19 @@ export async function fetchPackageVersions(packageName: string, registry: string
     }
 }
 
-export async function fetchLatestPackageVersions(
-    packageNames: Set<string>,
-    agent: https.Agent,
-    token: string | undefined,
-    registryUrl: string
-): Promise<Map<string, string>> {
+export interface IFetchLatestPackageVersionsOptions {
+    packageNames: Set<string>;
+    agent: http.Agent | https.Agent;
+    token: string | undefined;
+    registryUrl: string;
+}
+
+export async function fetchLatestPackageVersions({
+    packageNames,
+    agent,
+    token,
+    registryUrl
+}: IFetchLatestPackageVersionsOptions): Promise<Map<string, string>> {
     const cliProgress = createCliProgressBar();
     const packageNameToVersion = new Map<string, string>();
     const fetchQueue = new PromiseQueue({ concurrency: 8 });
