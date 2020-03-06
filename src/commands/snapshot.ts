@@ -43,7 +43,7 @@ export async function snapshot({
                 token
             });
         } catch {
-            failedPublishes.add(npmPackage.packageJson.name);
+            failedPublishes.add(npmPackage.packageJson.name!);
         }
     }
     for (const [filePath, fileContents] of filesToRestore) {

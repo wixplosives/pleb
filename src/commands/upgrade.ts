@@ -26,7 +26,7 @@ export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryR
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
 
-    const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name));
+    const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name!));
 
     const externalPackageNames = new Set(
         packages
@@ -49,7 +49,7 @@ export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryR
 
     for (const { packageJson } of packages) {
         if (isString(packageJson.version)) {
-            packageNameToVersion.set(packageJson.name, packageJson.version);
+            packageNameToVersion.set(packageJson.name!, packageJson.version);
         }
     }
 

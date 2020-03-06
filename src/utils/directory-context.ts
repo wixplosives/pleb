@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import findUp from 'find-up';
+import { PackageJson } from 'type-fest';
 import { resolveWorkspacePackages, extractWorkspacePackageLocations } from './yarn-workspaces';
 import { isObject, isString } from './language-helpers';
-import { INpmPackage, PACKAGE_JSON, IPackageJson } from './npm-package';
+import { INpmPackage, PACKAGE_JSON } from './npm-package';
 
 export interface SinglePackageContext {
     type: 'single';
@@ -33,7 +34,7 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
 
     const rootPackage: INpmPackage = {
         directoryPath,
-        packageJson: parsedJson as IPackageJson,
+        packageJson: parsedJson as PackageJson,
         packageJsonPath,
         packageJsonContent
     };

@@ -1,28 +1,12 @@
+import { PackageJson } from 'type-fest';
+
 export const PACKAGE_JSON = 'package.json';
-
-export type YarnWorkspacesFieldType =
-    | string
-    | string[]
-    | {
-          packages?: string | string[];
-      };
-
-export interface IPackageJson {
-    name: string;
-    version: string;
-    scripts?: Record<string, string>;
-    workspaces?: YarnWorkspacesFieldType;
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
-    peerDependencies?: Record<string, string>;
-    private?: boolean;
-}
 
 export interface INpmPackage {
     directoryPath: string;
     packageJsonPath: string;
     packageJsonContent: string;
-    packageJson: IPackageJson;
+    packageJson: PackageJson;
 }
 
 export function getDirectDepPackages(npmPackage: INpmPackage, packages: Map<string, INpmPackage>) {

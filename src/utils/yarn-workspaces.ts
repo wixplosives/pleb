@@ -2,9 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import util from 'util';
 import globCb from 'glob';
+import { PackageJson } from 'type-fest';
 import { logWarn } from './log';
 import { isString, isObject, flattenTree } from './language-helpers';
-import { INpmPackage, PACKAGE_JSON, IPackageJson, YarnWorkspacesFieldType, getDirectDepPackages } from './npm-package';
+import { INpmPackage, PACKAGE_JSON, getDirectDepPackages } from './npm-package';
 
 const glob = util.promisify(globCb);
 
@@ -19,7 +20,7 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
         const packageJsonPaths = await glob(packageJsonGlob, globOptions);
         for (const packageJsonPath of packageJsonPaths.map(path.normalize)) {
             const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
-            const packageJson = JSON.parse(packageJsonContent) as IPackageJson;
+            const packageJson = JSON.parse(packageJsonContent) as PackageJson;
             if (!isObject(packageJson)) {
                 logWarn(`${packageJsonPath}: no valid json object.`);
                 continue;
@@ -64,7 +65,7 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
     return packages;
 }
 
-export function extractWorkspacePackageLocations(workspaces: YarnWorkspacesFieldType): string[] {
+export function extractWorkspacePackageLocations(workspaces: PackageJson.YarnConfiguration['workspaces']): string[] {
     if (isString(workspaces)) {
         return [workspaces];
     } else if (Array.isArray(workspaces)) {

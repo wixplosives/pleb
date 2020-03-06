@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import childProcess from 'child_process';
+import { PackageJson } from 'type-fest';
 import { log, logWarn, logError } from './log';
 import { spawnSyncLogged } from './process';
 import { fetchPackageVersions, officialNpmRegistryUrl } from './npm-registry';
-import { INpmPackage, IPackageJson } from './npm-package';
+import { INpmPackage } from './npm-package';
 import { mapRecord, isString } from './language-helpers';
 
 export interface IPublishNpmPackageOptions {
@@ -39,8 +40,8 @@ export async function publishNpmPackage({
     const filesToRestore = new Map<string, string>();
 
     try {
-        const versions = await fetchPackageVersions(packageName, registryUrl, token);
-        if (!versions.includes(packageVersion)) {
+        const versions = await fetchPackageVersions(packageName!, registryUrl, token);
+        if (!versions.includes(packageVersion!)) {
             const publishArgs = ['publish', '--registry', registryUrl];
             if (dryRun) {
                 publishArgs.push('--dry-run');
@@ -75,7 +76,7 @@ export async function publishNpmPackage({
                 };
 
                 const distPackageJsonContents = fs.readFileSync(distPackageJsonPath, 'utf8');
-                const distPackageJson = JSON.parse(distPackageJsonContents) as IPackageJson;
+                const distPackageJson = JSON.parse(distPackageJsonContents) as PackageJson;
                 if (distPackageJson.scripts) {
                     delete distPackageJson.scripts.prepare;
                     delete distPackageJson.scripts.prepublishOnly;
@@ -103,7 +104,7 @@ export async function overridePackageJsons(packages: INpmPackage[], commitHash: 
     const filesToRestore = new Map<string, string>();
 
     const packageToVersion = new Map<string, string>(
-        packages.map(({ packageJson }) => [packageJson.name, `${packageJson.version}-${commitHash.slice(0, 7)}`])
+        packages.map(({ packageJson }) => [packageJson.name!, `${packageJson.version}-${commitHash.slice(0, 7)}`])
     );
 
     const getVersionRequest = (packageName: string, currentRequest: string) =>
@@ -111,7 +112,7 @@ export async function overridePackageJsons(packages: INpmPackage[], commitHash: 
 
     for (const { packageJson, packageJsonPath, packageJsonContent } of packages) {
         const { name: packageName, dependencies, devDependencies } = packageJson;
-        packageJson.version = packageToVersion.get(packageName)!;
+        packageJson.version = packageToVersion.get(packageName!)!;
         if (dependencies) {
             packageJson.dependencies = mapRecord(dependencies, getVersionRequest);
         }
