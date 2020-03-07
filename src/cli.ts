@@ -19,9 +19,16 @@ program
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
     .option('--registry <url>', 'npm registry to use')
-    .action(async (targetPath: string, { dryRun, contents, registry }) => {
+    .option('--tag <tag>', 'tag to use for published version', 'latest')
+    .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
         try {
-            await publish({ directoryPath: path.resolve(targetPath || ''), dryRun, contents, registryUrl: registry });
+            await publish({
+                directoryPath: path.resolve(targetPath || ''),
+                dryRun,
+                contents,
+                registryUrl: registry,
+                tag
+            });
         } catch (e) {
             printErrorAndExit(e);
         }
@@ -33,9 +40,16 @@ program
     .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
     .option('--registry <url>', 'npm registry to use')
-    .action(async (targetPath: string, { dryRun, contents, registry }) => {
+    .option('--tag <tag>', 'tag to use for published snapshot', 'next')
+    .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
         try {
-            await snapshot({ directoryPath: path.resolve(targetPath || ''), dryRun, contents, registryUrl: registry });
+            await snapshot({
+                directoryPath: path.resolve(targetPath || ''),
+                dryRun,
+                contents,
+                registryUrl: registry,
+                tag
+            });
         } catch (e) {
             printErrorAndExit(e);
         }
