@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import http from 'http';
+import https from 'https';
 import childProcess from 'child_process';
 import { PackageJson } from 'type-fest';
 import { log, logWarn, logError } from './log';
@@ -20,6 +22,8 @@ export interface IPublishNpmPackageOptions {
     registryUrl?: string;
     /** @default undefined */
     token?: string;
+    /** agent to use when making registry queries */
+    agent?: http.Agent | https.Agent;
 }
 
 export async function publishNpmPackage({
@@ -28,19 +32,24 @@ export async function publishNpmPackage({
     dryRun = false,
     distDir = '.',
     registryUrl = officialNpmRegistryUrl,
-    token
+    token,
+    agent
 }: IPublishNpmPackageOptions): Promise<void> {
-    const { directoryPath, packageJson } = npmPackage;
+    const { directoryPath, packageJson, packageJsonPath } = npmPackage;
     const { name: packageName, version: packageVersion, scripts = {} } = packageJson;
     if (packageJson.private) {
-        logWarn(`${packageName}: private. skipping.`);
+        logWarn(`${packageName || packageJsonPath}: private. skipping.`);
+        return;
+    }
+    if (!packageName) {
+        logWarn(`${packageJsonPath}: no package name. skipping.`);
         return;
     }
     const distDirectoryPath = path.join(directoryPath, distDir);
     const filesToRestore = new Map<string, string>();
 
     try {
-        const versions = await fetchPackageVersions(packageName!, registryUrl, token);
+        const versions = await fetchPackageVersions(packageName, registryUrl, token, agent);
         if (!versions.includes(packageVersion!)) {
             const publishArgs = ['publish', '--registry', registryUrl];
             if (dryRun) {

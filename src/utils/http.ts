@@ -2,18 +2,18 @@ import http from 'http';
 import https from 'https';
 import { once } from 'events';
 
-export async function fetchText(url: string, options: https.RequestOptions = {}) {
+export async function fetchText(url: string | URL, options: https.RequestOptions = {}) {
     const request = isSecureUrl(url) ? https.get(url, options) : http.get(url, options);
     const [response] = (await once(request, 'response')) as [http.IncomingMessage];
     const { statusCode, headers } = response;
     if (statusCode !== 200) {
         response.resume();
-        throw new Error(`HTTP ${statusCode}: failed fetching ${url}`);
+        throw new FetchError(`HTTP ${statusCode}: failed fetching ${url}`, statusCode);
     }
     const { 'content-type': contentType } = headers;
     if (!contentType || !isTextualContentType(contentType)) {
         response.resume();
-        throw new Error(`expected textual content-type, but got ${contentType}`);
+        throw new FetchError(`expected textual content-type, but got ${contentType}`, statusCode);
     }
     return readTextFromStream(response);
 }
@@ -35,10 +35,14 @@ export function isTextualContentType(contentType: string) {
     );
 }
 
-export function ensurePostfixSlash(url: string): string {
-    return url.endsWith('/') ? url : `${url}/`;
+export function isSecureUrl(url: string | URL): boolean {
+    return url instanceof URL ? url.protocol === 'https' : url.startsWith('https://');
 }
 
-export function isSecureUrl(url: string): boolean {
-    return url.startsWith('https://');
+export class FetchError extends Error {
+    constructor(message?: string, public statusCode?: number) {
+        super(message);
+        // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-2.html#support-for-newtarget
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
 }

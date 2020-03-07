@@ -2,11 +2,11 @@
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import { resolveDirectoryContext } from '../utils/directory-context';
+import { resolveDirectoryContext, packagesFromContext } from '../utils/directory-context';
 import { fetchLatestPackageVersions, uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadNpmConfig } from '../utils/npm-config';
 import { mapRecord, isString } from '../utils/language-helpers';
-import { ensurePostfixSlash, isSecureUrl } from '../utils/http';
+import { isSecureUrl } from '../utils/http';
 
 export interface UpgradeOptions {
     directoryPath: string;
@@ -16,13 +16,10 @@ export interface UpgradeOptions {
 
 export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryRun }: UpgradeOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
-    const packages =
-        directoryContext.type === 'workspace'
-            ? [directoryContext.rootPackage, ...directoryContext.packages]
-            : [directoryContext.npmPackage];
+    const packages = packagesFromContext(directoryContext);
 
     const npmConfig = await loadNpmConfig(directoryPath);
-    const registryUrl = ensurePostfixSlash(forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl);
+    const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
 

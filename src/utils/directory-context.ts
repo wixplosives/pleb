@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import findUp from 'find-up';
 import { PackageJson } from 'type-fest';
-import { resolveWorkspacePackages, extractWorkspacePackageLocations } from './yarn-workspaces';
+import { resolveWorkspacePackages } from './yarn-workspaces';
 import { isObject, isString } from './language-helpers';
 import { INpmPackage, PACKAGE_JSON } from './npm-package';
 
@@ -11,13 +11,13 @@ export interface SinglePackageContext {
     npmPackage: INpmPackage;
 }
 
-export interface YarnWorkspaceContext {
-    type: 'workspace';
+export interface MultiPackageContext {
+    type: 'multi';
     rootPackage: INpmPackage;
     packages: INpmPackage[];
 }
 
-export async function resolveDirectoryContext(basePath: string): Promise<SinglePackageContext | YarnWorkspaceContext> {
+export async function resolveDirectoryContext(basePath: string): Promise<SinglePackageContext | MultiPackageContext> {
     const packageJsonPath = await findUp(PACKAGE_JSON, { cwd: basePath });
 
     if (!isString(packageJsonPath)) {
@@ -41,22 +41,19 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
     const { workspaces } = rootPackage.packageJson;
 
     if (workspaces === undefined) {
-        if (!isString(rootPackage.packageJson.name)) {
-            throw new Error(`${packageJsonPath}: no valid "name" field. skipping.`);
-        }
         return {
             type: 'single',
             npmPackage: rootPackage
         };
     } else {
         return {
-            type: 'workspace',
+            type: 'multi',
             rootPackage,
-            packages: await resolveWorkspacePackages(directoryPath, extractWorkspacePackageLocations(workspaces))
+            packages: await resolveWorkspacePackages(directoryPath, rootPackage.packageJson)
         };
     }
 }
 
-export function packagesFromResolvedContext(directoryContext: SinglePackageContext | YarnWorkspaceContext) {
-    return directoryContext.type === 'single' ? [directoryContext.npmPackage] : directoryContext.packages;
+export function packagesFromContext(context: SinglePackageContext | MultiPackageContext) {
+    return context.type === 'single' ? [context.npmPackage] : [context.rootPackage, ...context.packages];
 }

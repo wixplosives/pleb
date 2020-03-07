@@ -1,7 +1,6 @@
 import url from 'url';
 import http from 'http';
 import https from 'https';
-import pacote from 'pacote';
 import PromiseQueue from 'p-queue';
 
 import { log, logWarn } from './log';
@@ -26,14 +25,23 @@ export function uriToIdentifier(uri: string) {
 export async function fetchPackageVersions(
     packageName: string,
     registryUrl: string,
-    token?: string
+    token?: string,
+    agent?: http.Agent | https.Agent
 ): Promise<string[]> {
     try {
         log(`${packageName}: fetching versions...`);
-        const packument = await pacote.packument(packageName, {
-            registry: registryUrl,
-            token
-        });
+        const options: https.RequestOptions = { agent };
+        if (token) {
+            options.headers = { authorization: `Bearer ${token}` };
+        }
+        const responseText = await fetchText(new URL(packageName, registryUrl), options);
+        const packument: { versions: Record<string, string> } = JSON.parse(responseText);
+        if (!isObject(packument)) {
+            throw new Error(`expected an object response, but got ${packument}`);
+        }
+        if (!isObject(packument.versions)) {
+            throw new Error(`expected "versions" to be an object, but got ${packument.versions}`);
+        }
         const versions = Object.keys(packument.versions);
         log(`${packageName}: got ${versions.length} published versions.`);
         return versions;
@@ -71,7 +79,10 @@ export async function fetchLatestPackageVersions({
                 if (token) {
                     options.headers = { authorization: `Bearer ${token}` };
                 }
-                const responseText = await fetchText(`${registryUrl}-/package/${packageName}/dist-tags`, options);
+                const responseText = await fetchText(
+                    new URL(`-/package/${packageName}/dist-tags`, registryUrl),
+                    options
+                );
                 const distTags: unknown = JSON.parse(responseText);
                 if (!isObject(distTags)) {
                     throw new Error(`expected an object response, but got ${distTags}`);

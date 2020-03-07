@@ -1,30 +1,39 @@
+import http from 'http';
+import https from 'https';
 import { publishNpmPackage } from '../utils/publish-npm-package';
-import { resolveDirectoryContext, packagesFromResolvedContext } from '../utils/directory-context';
+import { resolveDirectoryContext, packagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadNpmConfig } from '../utils/npm-config';
-import { ensurePostfixSlash } from '../utils/http';
+import { isSecureUrl } from '../utils/http';
 
 export interface PublishOptions {
     directoryPath: string;
     dryRun?: boolean;
     contents?: string;
     registryUrl?: string;
+    tag?: string;
 }
 
 export async function publish({
     directoryPath,
     dryRun,
     contents,
-    registryUrl: forcedRegistry
+    registryUrl: forcedRegistry,
+    tag
 }: PublishOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
-    const packages = packagesFromResolvedContext(directoryContext);
+    const packages = packagesFromContext(directoryContext);
     const npmConfig = await loadNpmConfig(directoryPath);
-    const registryUrl = ensurePostfixSlash(forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl);
+    const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
+    const agent = isSecureUrl(registryUrl) ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
 
-    for (const npmPackage of packages) {
-        await publishNpmPackage({ npmPackage, dryRun, distDir: contents, registryUrl, token });
+    try {
+        for (const npmPackage of packages) {
+            await publishNpmPackage({ npmPackage, dryRun, distDir: contents, registryUrl, token, agent, tag });
+        }
+    } finally {
+        agent.destroy();
     }
 }

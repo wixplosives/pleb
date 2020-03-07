@@ -4,13 +4,14 @@ import util from 'util';
 import globCb from 'glob';
 import { PackageJson } from 'type-fest';
 import { logWarn } from './log';
-import { isString, isObject, flattenTree } from './language-helpers';
-import { INpmPackage, PACKAGE_JSON, getDirectDepPackages } from './npm-package';
+import { isString, isObject } from './language-helpers';
+import { INpmPackage, PACKAGE_JSON, sortPackagesByDepth } from './npm-package';
 
 const glob = util.promisify(globCb);
 
-export async function resolveWorkspacePackages(basePath: string, workspaces: string[]): Promise<INpmPackage[]> {
-    const packageMap = new Map<string, INpmPackage>();
+export async function resolveWorkspacePackages(basePath: string, packageJson: PackageJson): Promise<INpmPackage[]> {
+    const workspaces = extractPackageLocations(packageJson.workspaces);
+    const packages: INpmPackage[] = [];
     const globOptions: globCb.IOptions = {
         cwd: basePath,
         absolute: true
@@ -24,21 +25,8 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
             if (!isObject(packageJson)) {
                 logWarn(`${packageJsonPath}: no valid json object.`);
                 continue;
-            } else if (!isString(packageJson.name)) {
-                logWarn(`${packageJsonPath}: no valid "name" field. skipping.`);
-                continue;
-            } else if (!isString(packageJson.version)) {
-                logWarn(`${packageJsonPath}: no valid "version" field. skipping.`);
-                continue;
-            } else if (packageMap.has(packageJson.name)) {
-                logWarn(
-                    `${packageJsonPath}: duplicate package name. "${packageJson.name}" is already used at ${
-                        packageMap.get(packageJson.name)!.packageJsonPath
-                    }`
-                );
-                continue;
             }
-            packageMap.set(packageJson.name, {
+            packages.push({
                 packageJsonPath,
                 packageJson,
                 directoryPath: path.dirname(packageJsonPath),
@@ -46,26 +34,11 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
             });
         }
     }
-    const packages = Array.from(packageMap.values());
-    const packageToDeepDeps = new Map<INpmPackage, Set<INpmPackage>>(
-        packages.map(npmPackage => [
-            npmPackage,
-            flattenTree(npmPackage, p => Array.from(getDirectDepPackages(p, packageMap)))
-        ])
-    );
-    packages.sort((package1, package2) => {
-        if (packageToDeepDeps.get(package2)!.has(package1)) {
-            return -1;
-        } else if (packageToDeepDeps.get(package1)!.has(package2)) {
-            return 1;
-        } else {
-            return 0;
-        }
-    });
-    return packages;
+
+    return sortPackagesByDepth(packages);
 }
 
-export function extractWorkspacePackageLocations(workspaces: PackageJson.YarnConfiguration['workspaces']): string[] {
+export function extractPackageLocations(workspaces: PackageJson.YarnConfiguration['workspaces']): string[] {
     if (isString(workspaces)) {
         return [workspaces];
     } else if (Array.isArray(workspaces)) {
