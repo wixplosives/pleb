@@ -2,7 +2,7 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 import { publishNpmPackage, overridePackageJsons } from '../utils/publish-npm-package';
-import { resolveDirectoryContext, packagesFromContext } from '../utils/directory-context';
+import { resolveDirectoryContext, childPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadNpmConfig } from '../utils/npm-config';
 import { currentGitCommitHash } from '../utils/git';
@@ -28,7 +28,7 @@ export async function snapshot({
     tag = 'next'
 }: SnapshotOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
-    const packages = packagesFromContext(directoryContext);
+    const packages = childPackagesFromContext(directoryContext);
     const commitHash = currentGitCommitHash();
     if (!commitHash) {
         throw new Error(`cannot determine git commit hash for ${directoryPath}`);

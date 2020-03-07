@@ -54,6 +54,10 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
     }
 }
 
-export function packagesFromContext(context: SinglePackageContext | MultiPackageContext) {
+export function childPackagesFromContext(context: SinglePackageContext | MultiPackageContext) {
+    return context.type === 'single' ? [context.npmPackage] : [...context.packages];
+}
+
+export function allPackagesFromContext(context: SinglePackageContext | MultiPackageContext) {
     return context.type === 'single' ? [context.npmPackage] : [context.rootPackage, ...context.packages];
 }

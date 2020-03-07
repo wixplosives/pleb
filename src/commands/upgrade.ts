@@ -2,8 +2,10 @@
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import { resolveDirectoryContext, packagesFromContext } from '../utils/directory-context';
-import { fetchLatestPackageVersions, uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
+import PromiseQueue from 'p-queue';
+import { createCliProgressBar } from '../utils/cli-progress-bar';
+import { resolveDirectoryContext, allPackagesFromContext } from '../utils/directory-context';
+import { uriToIdentifier, officialNpmRegistryUrl, fetchPackageDistTags } from '../utils/npm-registry';
 import { loadNpmConfig } from '../utils/npm-config';
 import { mapRecord, isString } from '../utils/language-helpers';
 import { isSecureUrl } from '../utils/http';
@@ -16,7 +18,7 @@ export interface UpgradeOptions {
 
 export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryRun }: UpgradeOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
-    const packages = packagesFromContext(directoryContext);
+    const packages = allPackagesFromContext(directoryContext);
 
     const npmConfig = await loadNpmConfig(directoryPath);
     const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
@@ -72,4 +74,44 @@ export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryR
             await fs.promises.writeFile(packageJsonPath, JSON.stringify(newPackageJson, null, 2) + '\n');
         }
     }
+}
+
+export interface IFetchLatestPackageVersionsOptions {
+    packageNames: Set<string>;
+    registryUrl: string;
+    agent?: http.Agent | https.Agent;
+    token?: string;
+}
+
+export async function fetchLatestPackageVersions({
+    packageNames,
+    agent,
+    token,
+    registryUrl
+}: IFetchLatestPackageVersionsOptions): Promise<Map<string, string>> {
+    const cliProgress = createCliProgressBar();
+    const packageNameToVersion = new Map<string, string>();
+    const fetchQueue = new PromiseQueue({ concurrency: 8 });
+    const fetchPromises: Promise<void>[] = [];
+
+    for (const packageName of packageNames) {
+        const fetchPromise = fetchQueue.add(async () => {
+            try {
+                const distTags: unknown = await fetchPackageDistTags({ agent, token, packageName, registryUrl });
+                const { latest } = distTags as Record<string, string | undefined>;
+                if (!isString(latest)) {
+                    throw new Error(`expected latest to be a string, but got ${latest}`);
+                }
+                packageNameToVersion.set(packageName, latest);
+            } catch (e) {
+                // eslint-disable-next-line no-console
+                console.error(e.message || e);
+            }
+            cliProgress.update((packageNames.size - fetchQueue.size) / packageNames.size);
+        });
+        fetchPromises.push(fetchPromise);
+    }
+    await Promise.all(fetchPromises);
+    cliProgress.done();
+    return packageNameToVersion;
 }
