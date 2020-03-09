@@ -47,16 +47,21 @@ export async function fetchPackageVersions(
             options.headers = { authorization: `Bearer ${token}` };
         }
         const responseText = await fetchText(createPackumentURL(registryUrl, packageName), options);
-        const packument: { versions: Record<string, string> } = JSON.parse(responseText);
-        if (!isObject(packument)) {
-            throw new Error(`expected an object response, but got ${packument}`);
+
+        try {
+            const packument: { versions: Record<string, string> } = JSON.parse(responseText);
+            if (!isObject(packument)) {
+                throw new Error(`expected an object response, but got ${packument}`);
+            }
+            if (!isObject(packument.versions)) {
+                throw new Error(`expected "versions" to be an object, but got ${packument.versions}`);
+            }
+            const versions = Object.keys(packument.versions);
+            log(`${packageName}: got ${versions.length} published versions.`);
+            return versions;
+        } catch (parseError) {
+            throw new Error(`${parseError?.stack ?? parseError}\nResponse is:\n${responseText}`);
         }
-        if (!isObject(packument.versions)) {
-            throw new Error(`expected "versions" to be an object, but got ${packument.versions}`);
-        }
-        const versions = Object.keys(packument.versions);
-        log(`${packageName}: got ${versions.length} published versions.`);
-        return versions;
     } catch (error) {
         if (error?.statusCode === 404) {
             logWarn(`${packageName}: package was never published.`);

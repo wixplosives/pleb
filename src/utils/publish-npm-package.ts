@@ -4,7 +4,8 @@ import http from 'http';
 import https from 'https';
 import childProcess from 'child_process';
 import { PackageJson } from 'type-fest';
-import { log, logWarn, logError } from './log';
+import { retry, IRetryOptions } from 'promise-assist';
+import { log, logWarn } from './log';
 import { spawnSyncLogged } from './process';
 import { fetchPackageVersions, officialNpmRegistryUrl } from './npm-registry';
 import { INpmPackage } from './npm-package';
@@ -24,6 +25,11 @@ export interface IPublishNpmPackageOptions {
     token?: string;
     /** agent to use when making registry queries */
     agent?: http.Agent | https.Agent;
+    /**
+     * Retry options to use when fetching versions.
+     * @default { delay: 1000, retries: 3 }
+     */
+    retryOptions?: IRetryOptions;
 }
 
 export async function publishNpmPackage({
@@ -33,7 +39,11 @@ export async function publishNpmPackage({
     distDir = '.',
     registryUrl = officialNpmRegistryUrl,
     token,
-    agent
+    agent,
+    retryOptions = {
+        delay: 1000,
+        retries: 3
+    }
 }: IPublishNpmPackageOptions): Promise<void> {
     const { directoryPath, packageJson, packageJsonPath } = npmPackage;
     const { name: packageName, version: packageVersion, scripts = {} } = packageJson;
@@ -49,7 +59,7 @@ export async function publishNpmPackage({
     const filesToRestore = new Map<string, string>();
 
     try {
-        const versions = await fetchPackageVersions(packageName, registryUrl, token, agent);
+        const versions = await retry(() => fetchPackageVersions(packageName, registryUrl, token, agent), retryOptions);
         if (!versions.includes(packageVersion!)) {
             const publishArgs = ['publish', '--registry', registryUrl];
             if (dryRun) {
@@ -99,8 +109,6 @@ export async function publishNpmPackage({
         } else {
             logWarn(`${packageName}: ${packageVersion} is already published. skipping.`);
         }
-    } catch (error) {
-        logError(`${packageName}: error while publishing: ${error?.stack || error}.`);
     } finally {
         for (const [filePath, fileContents] of filesToRestore) {
             fs.writeFileSync(filePath, fileContents);
