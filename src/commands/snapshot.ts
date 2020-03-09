@@ -1,12 +1,15 @@
 import http from 'http';
 import https from 'https';
 import fs from 'fs';
-import { publishNpmPackage, overridePackageJsons } from '../utils/publish-npm-package';
+import { publishNpmPackage } from '../utils/publish-npm-package';
 import { resolveDirectoryContext, childPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadNpmConfig } from '../utils/npm-config';
 import { currentGitCommitHash } from '../utils/git';
 import { isSecureUrl } from '../utils/http';
+import { INpmPackage } from '../utils/npm-package';
+import { mapRecord, isString } from '../utils/language-helpers';
+import { log } from '../utils/log';
 
 export interface SnapshotOptions {
     directoryPath: string;
@@ -39,11 +42,14 @@ export async function snapshot({
     const token = npmConfig[`${registryKey}:_authToken`];
     const agent = isSecureUrl(registryUrl) ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
 
-    const filesToRestore = await overridePackageJsons(packages, commitHash);
-    const failedPublishes = new Set<string>();
+    const packagesWithHashes = appendVersionHashes(packages, commitHash);
 
-    for (const npmPackage of packages) {
-        try {
+    try {
+        for (const { packageJson, packageJsonPath, packageJsonContent } of packagesWithHashes) {
+            log(`${packageJson.name ?? packageJsonPath}: updating versions in package.json`);
+            await fs.promises.writeFile(packageJsonPath, packageJsonContent);
+        }
+        for (const npmPackage of packagesWithHashes) {
             await publishNpmPackage({
                 tag,
                 npmPackage,
@@ -53,17 +59,43 @@ export async function snapshot({
                 token,
                 agent
             });
-        } catch {
-            failedPublishes.add(npmPackage.packageJson.name!);
+        }
+    } finally {
+        agent.destroy();
+        for (const { packageJsonPath, packageJsonContent } of packages) {
+            await fs.promises.writeFile(packageJsonPath, packageJsonContent);
         }
     }
-    agent.destroy();
-    for (const [filePath, fileContents] of filesToRestore) {
-        await fs.promises.writeFile(filePath, fileContents);
-    }
-    filesToRestore.clear();
+}
 
-    if (failedPublishes.size) {
-        throw new Error(`some packages failed publishing: ${Array.from(failedPublishes).join(', ')}`);
+function appendVersionHashes(packages: INpmPackage[], commitHash: string) {
+    const packageToVersion = new Map<string, string>(
+        packages
+            .filter(({ packageJson }) => isString(packageJson.name) && isString(packageJson.version))
+            .map(({ packageJson }) => [packageJson.name!, `${packageJson.version!}-${commitHash.slice(0, 7)}`])
+    );
+
+    const getVersionRequest = (packageName: string, currentRequest: string) =>
+        packageToVersion.get(packageName) ?? currentRequest;
+
+    const packagesWithHashes: INpmPackage[] = [];
+    for (const npmPackage of packages) {
+        const packageJson = { ...npmPackage.packageJson };
+        const { name: packageName, dependencies, devDependencies } = packageJson;
+        if (isString(packageName) && packageToVersion.has(packageName)) {
+            packageJson.version = packageToVersion.get(packageName)!;
+        }
+        if (dependencies) {
+            packageJson.dependencies = mapRecord(dependencies, getVersionRequest);
+        }
+        if (devDependencies) {
+            packageJson.devDependencies = mapRecord(devDependencies, getVersionRequest);
+        }
+        packagesWithHashes.push({
+            ...npmPackage,
+            packageJson,
+            packageJsonContent: JSON.stringify(packageJson, null, 2)
+        });
     }
+    return packagesWithHashes;
 }

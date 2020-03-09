@@ -1,5 +1,14 @@
 import { spawnSync, SpawnSyncOptions } from 'child_process';
 import { log, logError } from './log';
+import { isString } from './language-helpers';
+
+export const spawnSyncSafe = ((...args: Parameters<typeof spawnSync>) => {
+    const spawnResult = spawnSync(...args);
+    if (spawnResult.status !== 0) {
+        throw new Error(`Non-zero exit code returned ${status} when executing: ${args.filter(isString).join(' ')}`);
+    }
+    return spawnResult;
+}) as typeof spawnSync;
 
 export function spawnSyncLogged(
     command: string,
@@ -8,10 +17,7 @@ export function spawnSyncLogged(
     label = options.cwd || process.cwd()
 ) {
     log(`${label}: ${command} ${args.join(' ')}`);
-    const { status } = spawnSync(command, args, options);
-    if (status !== 0) {
-        throw new Error(`non-zero exit code returned ${status}`);
-    }
+    return spawnSyncSafe(command, args, options);
 }
 
 export function printErrorAndExit(message: unknown) {
