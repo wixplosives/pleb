@@ -52,7 +52,7 @@ jobs:
             - name: Use Node.js 12
               uses: actions/setup-node@v1
               with:
-                  node_version: 12
+                  node-version: 12
                   registry-url: 'https://registry.npmjs.org/'
             - run: npm i -g yarn@1
             - run: yarn
