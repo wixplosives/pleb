@@ -5,7 +5,7 @@ import { isString } from './language-helpers';
 export const spawnSyncSafe = ((...args: Parameters<typeof spawnSync>) => {
     const spawnResult = spawnSync(...args);
     if (spawnResult.status !== 0) {
-        throw new Error(`Non-zero exit code returned ${status} when executing: ${args.filter(isString).join(' ')}`);
+        throw new Error(`Command "${args.filter(isString).join(' ')}" failed with exit code ${spawnResult.status}.`);
     }
     return spawnResult;
 }) as typeof spawnSync;

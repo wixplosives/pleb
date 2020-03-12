@@ -1,6 +1,7 @@
 import url from 'url';
 import http from 'http';
 import https from 'https';
+import { URL } from 'url';
 
 import { log, logWarn } from './log';
 import { fetchText } from './http';

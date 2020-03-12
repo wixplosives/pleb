@@ -1,6 +1,7 @@
 import http from 'http';
 import https from 'https';
 import { once } from 'events';
+import { URL } from 'url';
 
 export async function fetchText(url: string | URL, options: https.RequestOptions = {}) {
     const request = isSecureUrl(url) ? https.get(url, options) : http.get(url, options);
