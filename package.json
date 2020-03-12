@@ -1,7 +1,7 @@
 {
   "name": "pleb",
   "description": "a casual publisher",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "main": "cjs/index.js",
   "types": "cjs/index.d.ts",
   "bin": {
