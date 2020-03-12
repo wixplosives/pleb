@@ -5,15 +5,10 @@ import { once } from 'events';
 export async function fetchText(url: string | URL, options: https.RequestOptions = {}) {
     const request = isSecureUrl(url) ? https.get(url, options) : http.get(url, options);
     const [response] = (await once(request, 'response')) as [http.IncomingMessage];
-    const { statusCode, headers } = response;
+    const { statusCode } = response;
     if (statusCode !== 200) {
         response.resume();
         throw new FetchError(`HTTP ${statusCode}: failed fetching ${url}`, statusCode);
-    }
-    const { 'content-type': contentType } = headers;
-    if (!contentType || !isTextualContentType(contentType)) {
-        response.resume();
-        throw new FetchError(`expected textual content-type, but got ${contentType}`, statusCode);
     }
     return readTextFromStream(response);
 }
@@ -25,14 +20,6 @@ export async function readTextFromStream(readable: NodeJS.ReadableStream, encodi
         text += chunk;
     }
     return text;
-}
-
-export function isTextualContentType(contentType: string) {
-    return (
-        contentType.startsWith('text/') ||
-        contentType.startsWith('application/javascript') ||
-        contentType.startsWith('application/json')
-    );
 }
 
 export function isSecureUrl(url: string | URL): boolean {
