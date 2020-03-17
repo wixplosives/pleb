@@ -14,13 +14,19 @@ export interface UpgradeOptions {
     directoryPath: string;
     dryRun?: boolean;
     registryUrl?: string;
+    printConfig?: boolean;
 }
 
-export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryRun }: UpgradeOptions): Promise<void> {
+export async function upgrade({
+    directoryPath,
+    registryUrl: forcedRegistry,
+    dryRun,
+    printConfig
+}: UpgradeOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = allPackagesFromContext(directoryContext);
 
-    const npmConfig = await loadNpmConfig(directoryPath);
+    const npmConfig = await loadNpmConfig({ basePath: directoryPath, printConfig });
     const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];

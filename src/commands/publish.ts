@@ -8,10 +8,16 @@ import { isSecureUrl } from '../utils/http';
 
 export interface PublishOptions {
     directoryPath: string;
+    /** @default false */
     dryRun?: boolean;
-    contents?: string;
+    /** @default '.' */
+    contents: string;
+    /** @default .npmrc or official npm registry */
     registryUrl?: string;
+    /** @default 'latest' */
     tag?: string;
+    /** @default false */
+    printConfig?: boolean;
 }
 
 export async function publish({
@@ -19,11 +25,12 @@ export async function publish({
     dryRun,
     contents,
     registryUrl: forcedRegistry,
-    tag
+    tag,
+    printConfig
 }: PublishOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = childPackagesFromContext(directoryContext);
-    const npmConfig = await loadNpmConfig(directoryPath);
+    const npmConfig = await loadNpmConfig({ basePath: directoryPath, printConfig });
     const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
