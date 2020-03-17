@@ -21,8 +21,6 @@ export interface SnapshotOptions {
     registryUrl?: string;
     /** @default 'next' */
     tag?: string;
-    /** @default false */
-    printConfig?: boolean;
 }
 
 export async function snapshot({
@@ -30,8 +28,7 @@ export async function snapshot({
     dryRun,
     contents,
     registryUrl: forcedRegistry,
-    tag = 'next',
-    printConfig
+    tag = 'next'
 }: SnapshotOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = childPackagesFromContext(directoryContext);
@@ -39,7 +36,7 @@ export async function snapshot({
     if (!commitHash) {
         throw new Error(`cannot determine git commit hash for ${directoryPath}`);
     }
-    const npmConfig = await loadNpmConfig({ basePath: directoryPath, printConfig });
+    const npmConfig = await loadNpmConfig({ basePath: directoryPath });
     const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];

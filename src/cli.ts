@@ -20,16 +20,14 @@ program
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
     .option('--registry <url>', 'npm registry to use')
     .option('--tag <tag>', 'tag to use for published version', 'latest')
-    .option('--print-config', 'outputs the contents of found .npmrc files (without replaced env vars)', false)
-    .action(async (targetPath: string, { dryRun, contents, registry, tag, printConfig }) => {
+    .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
         try {
             await publish({
                 directoryPath: path.resolve(targetPath || ''),
                 dryRun,
                 contents,
                 registryUrl: registry,
-                tag,
-                printConfig
+                tag
             });
         } catch (e) {
             printErrorAndExit(e);
@@ -43,16 +41,14 @@ program
     .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
     .option('--registry <url>', 'npm registry to use')
     .option('--tag <tag>', 'tag to use for published snapshot', 'next')
-    .option('--print-config', 'outputs the contents of found .npmrc files (without replaced env vars)', false)
-    .action(async (targetPath: string, { dryRun, contents, registry, tag, printConfig }) => {
+    .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
         try {
             await snapshot({
                 directoryPath: path.resolve(targetPath || ''),
                 dryRun,
                 contents,
                 registryUrl: registry,
-                tag,
-                printConfig
+                tag
             });
         } catch (e) {
             printErrorAndExit(e);
@@ -64,14 +60,12 @@ program
     .description('upgrade dependencies and devDependencies of all packages')
     .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
     .option('--registry <url>', 'npm registry to use')
-    .option('--print-config', 'outputs the contents of found .npmrc files (without replaced env vars)', false)
-    .action(async (targetPath: string, { dryRun, registry, printConfig }) => {
+    .action(async (targetPath: string, { dryRun, registry }) => {
         try {
             await upgrade({
                 directoryPath: path.resolve(targetPath || ''),
                 dryRun,
-                registryUrl: registry,
-                printConfig
+                registryUrl: registry
             });
         } catch (e) {
             printErrorAndExit(e);

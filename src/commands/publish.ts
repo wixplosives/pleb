@@ -16,8 +16,6 @@ export interface PublishOptions {
     registryUrl?: string;
     /** @default 'latest' */
     tag?: string;
-    /** @default false */
-    printConfig?: boolean;
 }
 
 export async function publish({
@@ -25,12 +23,11 @@ export async function publish({
     dryRun,
     contents,
     registryUrl: forcedRegistry,
-    tag,
-    printConfig
+    tag
 }: PublishOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = childPackagesFromContext(directoryContext);
-    const npmConfig = await loadNpmConfig({ basePath: directoryPath, printConfig });
+    const npmConfig = await loadNpmConfig({ basePath: directoryPath });
     const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
