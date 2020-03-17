@@ -11,28 +11,17 @@ export interface LoadNpmConfigOptions {
 
 export async function loadEnvNpmConfig({ basePath }: LoadNpmConfigOptions = {}): Promise<Record<string, string>> {
     const config: Record<string, string> = {};
-    const visitedConfigFilePaths = new Set<string>();
+    const configFilePaths = new Set<string | undefined>();
 
-    const userNpmConfigPath = path.join(os.homedir(), '.npmrc');
-    visitedConfigFilePaths.add(userNpmConfigPath);
-    Object.assign(config, await loadNpmConfigFile(userNpmConfigPath));
+    configFilePaths.add(path.join(os.homedir(), '.npmrc'));
+    configFilePaths.add(process.env.NPM_CONFIG_GLOBALCONFIG);
+    configFilePaths.add(process.env.NPM_CONFIG_USERCONFIG);
+    configFilePaths.add(await findUp('.npmrc', { cwd: basePath }));
 
-    const { NPM_CONFIG_GLOBALCONFIG = process.env.NPM_CONFIG_GLOBALCONFIG } = config;
-    if (NPM_CONFIG_GLOBALCONFIG !== undefined && !visitedConfigFilePaths.has(NPM_CONFIG_GLOBALCONFIG)) {
-        visitedConfigFilePaths.add(NPM_CONFIG_GLOBALCONFIG);
-        Object.assign(config, await loadNpmConfigFile(NPM_CONFIG_GLOBALCONFIG));
-    }
-
-    const { NPM_CONFIG_USERCONFIG = process.env.NPM_CONFIG_USERCONFIG } = config;
-    if (NPM_CONFIG_USERCONFIG !== undefined && !visitedConfigFilePaths.has(NPM_CONFIG_USERCONFIG)) {
-        visitedConfigFilePaths.add(NPM_CONFIG_USERCONFIG);
-        Object.assign(config, await loadNpmConfigFile(NPM_CONFIG_USERCONFIG));
-    }
-
-    const projectNpmConfigPath = await findUp('.npmrc', { cwd: basePath });
-    if (projectNpmConfigPath !== undefined && !visitedConfigFilePaths.has(projectNpmConfigPath)) {
-        visitedConfigFilePaths.add(projectNpmConfigPath);
-        Object.assign(config, await loadNpmConfigFile(projectNpmConfigPath));
+    for (const configFilePath of configFilePaths) {
+        if (configFilePath !== undefined) {
+            Object.assign(config, await loadNpmConfigFile(configFilePath));
+        }
     }
 
     // replace referenced env variables with actual values
