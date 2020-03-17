@@ -6,7 +6,7 @@ import PromiseQueue from 'p-queue';
 import { createCliProgressBar } from '../utils/cli-progress-bar';
 import { resolveDirectoryContext, allPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, officialNpmRegistryUrl, fetchPackageDistTags } from '../utils/npm-registry';
-import { loadNpmConfig } from '../utils/npm-config';
+import { loadEnvNpmConfig } from '../utils/npm-config';
 import { mapRecord, isString } from '../utils/language-helpers';
 import { isSecureUrl } from '../utils/http';
 
@@ -20,7 +20,7 @@ export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryR
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = allPackagesFromContext(directoryContext);
 
-    const npmConfig = await loadNpmConfig({ basePath: directoryPath });
+    const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
     const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];

@@ -4,7 +4,7 @@ import fs from 'fs';
 import { publishNpmPackage } from '../utils/publish-npm-package';
 import { resolveDirectoryContext, childPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
-import { loadNpmConfig } from '../utils/npm-config';
+import { loadEnvNpmConfig } from '../utils/npm-config';
 import { currentGitCommitHash } from '../utils/git';
 import { isSecureUrl } from '../utils/http';
 import { INpmPackage } from '../utils/npm-package';
@@ -36,7 +36,7 @@ export async function snapshot({
     if (!commitHash) {
         throw new Error(`cannot determine git commit hash for ${directoryPath}`);
     }
-    const npmConfig = await loadNpmConfig({ basePath: directoryPath });
+    const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
     const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
     const registryKey = uriToIdentifier(registryUrl);
     const token = npmConfig[`${registryKey}:_authToken`];
