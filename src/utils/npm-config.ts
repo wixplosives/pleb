@@ -19,7 +19,7 @@ export async function loadEnvNpmConfig({ basePath }: LoadNpmConfigOptions = {}):
     configFilePaths.add(await findUp('.npmrc', { cwd: basePath }));
 
     for (const configFilePath of configFilePaths) {
-        if (configFilePath !== undefined) {
+        if (typeof configFilePath === 'string') {
             Object.assign(config, await loadNpmConfigFile(configFilePath));
         }
     }
