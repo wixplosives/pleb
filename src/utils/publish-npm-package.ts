@@ -65,6 +65,15 @@ export async function publishNpmPackage({
             if (dryRun) {
                 publishArgs.push('--dry-run');
             }
+
+            const { NPM_CONFIG_GLOBALCONFIG, NPM_CONFIG_USERCONFIG } = process.env;
+            if (NPM_CONFIG_GLOBALCONFIG) {
+                publishArgs.push('--globalconfig', NPM_CONFIG_GLOBALCONFIG);
+            }
+            if (NPM_CONFIG_USERCONFIG) {
+                publishArgs.push('--userconfig', NPM_CONFIG_USERCONFIG);
+            }
+
             if (tag !== 'latest') {
                 publishArgs.push('--tag', tag);
             }
