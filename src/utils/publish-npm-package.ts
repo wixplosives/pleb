@@ -61,18 +61,18 @@ export async function publishNpmPackage({
     try {
         const versions = await retry(() => fetchPackageVersions(packageName, registryUrl, token, agent), retryOptions);
         if (!versions.includes(packageVersion!)) {
-            const publishArgs = ['publish', '--registry', registryUrl];
+            const publishArgs = ['publish'];
             if (dryRun) {
                 publishArgs.push('--dry-run');
             }
 
-            const { NPM_CONFIG_GLOBALCONFIG, NPM_CONFIG_USERCONFIG } = process.env;
-            if (NPM_CONFIG_GLOBALCONFIG) {
-                publishArgs.push('--globalconfig', NPM_CONFIG_GLOBALCONFIG);
-            }
-            if (NPM_CONFIG_USERCONFIG) {
-                publishArgs.push('--userconfig', NPM_CONFIG_USERCONFIG);
-            }
+            // const { NPM_CONFIG_GLOBALCONFIG, NPM_CONFIG_USERCONFIG } = process.env;
+            // if (NPM_CONFIG_GLOBALCONFIG) {
+            //     publishArgs.push('--globalconfig', NPM_CONFIG_GLOBALCONFIG);
+            // }
+            // if (NPM_CONFIG_USERCONFIG) {
+            //     publishArgs.push('--userconfig', NPM_CONFIG_USERCONFIG);
+            // }
 
             if (tag !== 'latest') {
                 publishArgs.push('--tag', tag);
@@ -80,7 +80,8 @@ export async function publishNpmPackage({
             const rootSpawnOptions: childProcess.SpawnSyncOptions = {
                 cwd: directoryPath,
                 stdio: 'inherit',
-                shell: true
+                shell: true,
+                env: process.env
             };
 
             if (distDirectoryPath === directoryPath) {
@@ -100,7 +101,8 @@ export async function publishNpmPackage({
                 const distSpawnOptions: childProcess.SpawnSyncOptions = {
                     cwd: distDirectoryPath,
                     stdio: 'inherit',
-                    shell: true
+                    shell: true,
+                    env: process.env
                 };
 
                 const distPackageJsonContents = await fs.promises.readFile(distPackageJsonPath, 'utf8');
