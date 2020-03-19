@@ -9,7 +9,9 @@ export interface LoadNpmConfigOptions {
     basePath?: string;
 }
 
-export async function loadEnvNpmConfig({ basePath }: LoadNpmConfigOptions = {}): Promise<Record<string, string>> {
+export async function loadEnvNpmConfig({ basePath }: LoadNpmConfigOptions = {}): Promise<
+    Record<string, string | undefined>
+> {
     const config: Record<string, string> = {};
     const configFilePaths = new Set<string | undefined>();
 

@@ -1,12 +1,9 @@
-import http from 'http';
-import https from 'https';
 import fs from 'fs';
-import { publishNpmPackage } from '../utils/publish-npm-package';
+import { npmPublish } from '../utils/npm-publish';
 import { resolveDirectoryContext, childPackagesFromContext } from '../utils/directory-context';
-import { uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
+import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry';
 import { loadEnvNpmConfig } from '../utils/npm-config';
 import { currentGitCommitHash } from '../utils/git';
-import { isSecureUrl } from '../utils/http';
 import { INpmPackage } from '../utils/npm-package';
 import { mapRecord, isString } from '../utils/language-helpers';
 import { log } from '../utils/log';
@@ -27,7 +24,7 @@ export async function snapshot({
     directoryPath,
     dryRun,
     contents,
-    registryUrl: forcedRegistry,
+    registryUrl,
     tag = 'next'
 }: SnapshotOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
@@ -37,10 +34,9 @@ export async function snapshot({
         throw new Error(`cannot determine git commit hash for ${directoryPath}`);
     }
     const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
-    const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
-    const registryKey = uriToIdentifier(registryUrl);
-    const token = npmConfig[`${registryKey}:_authToken`];
-    const agent = isSecureUrl(registryUrl) ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
+    const resolvedRegistryUrl = registryUrl ?? npmConfig.registry ?? officialNpmRegistryUrl;
+    const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
+    const registry = new NpmRegistry(resolvedRegistryUrl, token);
 
     const packagesWithHashes = appendVersionHashes(packages, commitHash);
 
@@ -50,18 +46,16 @@ export async function snapshot({
             await fs.promises.writeFile(packageJsonPath, packageJsonContent);
         }
         for (const npmPackage of packagesWithHashes) {
-            await publishNpmPackage({
-                tag,
+            await npmPublish({
                 npmPackage,
+                registry,
+                tag,
                 dryRun,
-                distDir: contents,
-                registryUrl,
-                token,
-                agent
+                distDir: contents
             });
         }
     } finally {
-        agent.destroy();
+        registry.dispose();
         for (const { packageJsonPath, packageJsonContent } of packages) {
             await fs.promises.writeFile(packageJsonPath, packageJsonContent);
         }

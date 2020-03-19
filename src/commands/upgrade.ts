@@ -1,14 +1,11 @@
 /* eslint-disable no-console */
 import fs from 'fs';
-import http from 'http';
-import https from 'https';
 import PromiseQueue from 'p-queue';
 import { createCliProgressBar } from '../utils/cli-progress-bar';
 import { resolveDirectoryContext, allPackagesFromContext } from '../utils/directory-context';
-import { uriToIdentifier, officialNpmRegistryUrl, fetchPackageDistTags } from '../utils/npm-registry';
+import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry';
 import { loadEnvNpmConfig } from '../utils/npm-config';
 import { mapRecord, isString } from '../utils/language-helpers';
-import { isSecureUrl } from '../utils/http';
 
 export interface UpgradeOptions {
     directoryPath: string;
@@ -16,14 +13,14 @@ export interface UpgradeOptions {
     registryUrl?: string;
 }
 
-export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryRun }: UpgradeOptions): Promise<void> {
+export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = allPackagesFromContext(directoryContext);
 
     const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
-    const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
-    const registryKey = uriToIdentifier(registryUrl);
-    const token = npmConfig[`${registryKey}:_authToken`];
+    const resolvedRegistryUrl = registryUrl ?? npmConfig.registry ?? officialNpmRegistryUrl;
+    const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
+    const registry = new NpmRegistry(resolvedRegistryUrl, token);
 
     const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name!));
 
@@ -36,15 +33,12 @@ export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryR
             .filter(packageName => !internalPackageNames.has(packageName))
     );
 
-    const agent = isSecureUrl(registryUrl) ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
     console.log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
     const packageNameToVersion = await fetchLatestPackageVersions({
         packageNames: externalPackageNames,
-        agent,
-        token,
-        registryUrl
+        registry
     });
-    agent.destroy();
+    registry.dispose();
 
     for (const { packageJson } of packages) {
         if (isString(packageJson.version)) {
@@ -77,17 +71,13 @@ export async function upgrade({ directoryPath, registryUrl: forcedRegistry, dryR
 }
 
 export interface IFetchLatestPackageVersionsOptions {
+    registry: NpmRegistry;
     packageNames: Set<string>;
-    registryUrl: string;
-    agent?: http.Agent | https.Agent;
-    token?: string;
 }
 
 export async function fetchLatestPackageVersions({
-    packageNames,
-    agent,
-    token,
-    registryUrl
+    registry,
+    packageNames
 }: IFetchLatestPackageVersionsOptions): Promise<Map<string, string>> {
     const cliProgress = createCliProgressBar();
     const packageNameToVersion = new Map<string, string>();
@@ -97,7 +87,7 @@ export async function fetchLatestPackageVersions({
     for (const packageName of packageNames) {
         const fetchPromise = fetchQueue.add(async () => {
             try {
-                const distTags: unknown = await fetchPackageDistTags({ agent, token, packageName, registryUrl });
+                const distTags: unknown = await registry.fetchDistTags(packageName);
                 const { latest } = distTags as Record<string, string | undefined>;
                 if (!isString(latest)) {
                     throw new Error(`expected latest to be a string, but got ${latest}`);

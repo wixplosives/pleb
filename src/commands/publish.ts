@@ -1,10 +1,7 @@
-import http from 'http';
-import https from 'https';
-import { publishNpmPackage } from '../utils/publish-npm-package';
+import { npmPublish } from '../utils/npm-publish';
 import { resolveDirectoryContext, childPackagesFromContext } from '../utils/directory-context';
-import { uriToIdentifier, officialNpmRegistryUrl } from '../utils/npm-registry';
+import { uriToIdentifier, NpmRegistry, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadEnvNpmConfig } from '../utils/npm-config';
-import { isSecureUrl } from '../utils/http';
 
 export interface PublishOptions {
     directoryPath: string;
@@ -18,26 +15,25 @@ export interface PublishOptions {
     tag?: string;
 }
 
-export async function publish({
-    directoryPath,
-    dryRun,
-    contents,
-    registryUrl: forcedRegistry,
-    tag
-}: PublishOptions): Promise<void> {
+export async function publish({ directoryPath, dryRun, contents, registryUrl, tag }: PublishOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = childPackagesFromContext(directoryContext);
     const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
-    const registryUrl = forcedRegistry ?? npmConfig.registry ?? officialNpmRegistryUrl;
-    const registryKey = uriToIdentifier(registryUrl);
-    const token = npmConfig[`${registryKey}:_authToken`];
-    const agent = isSecureUrl(registryUrl) ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
+    const resolvedRegistryUrl = registryUrl ?? npmConfig.registry ?? officialNpmRegistryUrl;
+    const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
+    const registry = new NpmRegistry(resolvedRegistryUrl, token);
 
     try {
         for (const npmPackage of packages) {
-            await publishNpmPackage({ npmPackage, dryRun, distDir: contents, registryUrl, token, agent, tag });
+            await npmPublish({
+                npmPackage,
+                registry,
+                dryRun,
+                distDir: contents,
+                tag
+            });
         }
     } finally {
-        agent.destroy();
+        registry.dispose();
     }
 }
