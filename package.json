@@ -49,6 +49,16 @@
   "engines": {
     "node": ">=12"
   },
+  "keywords": [
+    "publish",
+    "packages",
+    "workspace",
+    "npm",
+    "yarn",
+    "ci",
+    "automation",
+    "upgrade"
+  ],
   "publishConfig": {
     "access": "public"
   },
