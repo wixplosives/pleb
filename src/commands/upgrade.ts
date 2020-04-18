@@ -28,15 +28,15 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
         packages
             .flatMap(({ packageJson: { dependencies = {}, devDependencies = {} } }) => [
                 ...Object.keys(dependencies),
-                ...Object.keys(devDependencies)
+                ...Object.keys(devDependencies),
             ])
-            .filter(packageName => !internalPackageNames.has(packageName))
+            .filter((packageName) => !internalPackageNames.has(packageName))
     );
 
     console.log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
     const packageNameToVersion = await fetchLatestPackageVersions({
         packageNames: externalPackageNames,
-        registry
+        registry,
     });
     registry.dispose();
 
@@ -77,7 +77,7 @@ export interface IFetchLatestPackageVersionsOptions {
 
 export async function fetchLatestPackageVersions({
     registry,
-    packageNames
+    packageNames,
 }: IFetchLatestPackageVersionsOptions): Promise<Map<string, string>> {
     const cliProgress = createCliProgressBar();
     const packageNameToVersion = new Map<string, string>();

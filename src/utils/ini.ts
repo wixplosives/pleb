@@ -1,6 +1,6 @@
 export function parseIni(fileContents: string): Record<string, string> {
     const config: Record<string, string> = {};
-    const lines = fileContents.split('\n').map(line => line.trim());
+    const lines = fileContents.split('\n').map((line) => line.trim());
     for (const line of lines) {
         if (!line || line.startsWith(';') || line.startsWith('#') || line.startsWith('[')) {
             continue; // ignore empty lines, ini comments and sections

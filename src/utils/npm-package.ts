@@ -35,9 +35,9 @@ export function sortPackagesByDepth(packages: INpmPackage[]): INpmPackage[] {
     }
 
     const packageToDeepDeps = new Map<INpmPackage, Set<INpmPackage>>(
-        packages.map(npmPackage => [
+        packages.map((npmPackage) => [
             npmPackage,
-            flattenTree(npmPackage, p => Array.from(getDirectDepPackages(p, namedPackages)))
+            flattenTree(npmPackage, (p) => Array.from(getDirectDepPackages(p, namedPackages))),
         ])
     );
 

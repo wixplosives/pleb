@@ -33,8 +33,8 @@ export async function npmPublish({
     registry,
     retryOptions = {
         delay: 1000,
-        retries: 3
-    }
+        retries: 3,
+    },
 }: IPublishNpmPackageOptions): Promise<void> {
     const { directoryPath, packageJson, packageJsonPath } = npmPackage;
     const { name: packageName, version: packageVersion, scripts = {} } = packageJson;
@@ -69,7 +69,7 @@ export async function npmPublish({
             const rootSpawnOptions: childProcess.SpawnSyncOptions = {
                 cwd: directoryPath,
                 stdio: 'inherit',
-                shell: true
+                shell: true,
             };
 
             if (distDirectoryPath === directoryPath) {
@@ -89,7 +89,7 @@ export async function npmPublish({
                 const distSpawnOptions: childProcess.SpawnSyncOptions = {
                     cwd: distDirectoryPath,
                     stdio: 'inherit',
-                    shell: true
+                    shell: true,
                 };
 
                 const distPackageJsonContents = await fs.promises.readFile(distPackageJsonPath, 'utf8');

@@ -25,7 +25,7 @@ export async function snapshot({
     dryRun,
     contents,
     registryUrl,
-    tag = 'next'
+    tag = 'next',
 }: SnapshotOptions): Promise<void> {
     const directoryContext = await resolveDirectoryContext(directoryPath);
     const packages = childPackagesFromContext(directoryContext);
@@ -51,7 +51,7 @@ export async function snapshot({
                 registry,
                 tag,
                 dryRun,
-                distDir: contents
+                distDir: contents,
             });
         }
     } finally {
@@ -88,7 +88,7 @@ function appendVersionHashes(packages: INpmPackage[], commitHash: string) {
         packagesWithHashes.push({
             ...npmPackage,
             packageJson,
-            packageJsonContent: JSON.stringify(packageJson, null, 2)
+            packageJsonContent: JSON.stringify(packageJson, null, 2),
         });
     }
     return packagesWithHashes;

@@ -20,6 +20,6 @@ export async function spawnAsync(command: string, args: ReadonlyArray<string> = 
                 childProcess.stderr.pipe(process.stderr);
             }
         }
-        childProcess.once('exit', exitCode => res({ output: output.join(), exitCode: exitCode || 0 }));
+        childProcess.once('exit', (exitCode) => res({ output: output.join(), exitCode: exitCode || 0 }));
     });
 }

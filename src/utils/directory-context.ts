@@ -36,20 +36,20 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
         directoryPath,
         packageJson: parsedJson as PackageJson,
         packageJsonPath,
-        packageJsonContent
+        packageJsonContent,
     };
     const { workspaces } = rootPackage.packageJson;
 
     if (workspaces === undefined) {
         return {
             type: 'single',
-            npmPackage: rootPackage
+            npmPackage: rootPackage,
         };
     } else {
         return {
             type: 'multi',
             rootPackage,
-            packages: await resolveWorkspacePackages(directoryPath, rootPackage.packageJson)
+            packages: await resolveWorkspacePackages(directoryPath, rootPackage.packageJson),
         };
     }
 }

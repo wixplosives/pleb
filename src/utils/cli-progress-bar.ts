@@ -23,7 +23,7 @@ export function createCliProgressBar({
     complete = '\u2588', // opaque square
     prefix = '[',
     postfix = ']',
-    message = numberAsPercent
+    message = numberAsPercent,
 }: CliProgressBarOptions = {}) {
     update(0);
 
@@ -58,7 +58,7 @@ export function createCliProgressBar({
 
     return {
         update,
-        done
+        done,
     };
 }
 

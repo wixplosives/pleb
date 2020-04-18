@@ -14,7 +14,7 @@ export async function resolveWorkspacePackages(basePath: string, packageJson: Pa
     const packages: INpmPackage[] = [];
     const globOptions: globCb.IOptions = {
         cwd: basePath,
-        absolute: true
+        absolute: true,
     };
     for (const packageDirGlob of workspaces) {
         const packageJsonGlob = path.posix.join(packageDirGlob, PACKAGE_JSON);
@@ -30,7 +30,7 @@ export async function resolveWorkspacePackages(basePath: string, packageJson: Pa
                 packageJsonPath,
                 packageJson,
                 directoryPath: path.dirname(packageJsonPath),
-                packageJsonContent
+                packageJsonContent,
             });
         }
     }

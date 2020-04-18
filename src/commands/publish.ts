@@ -30,7 +30,7 @@ export async function publish({ directoryPath, dryRun, contents, registryUrl, ta
                 registry,
                 dryRun,
                 distDir: contents,
-                tag
+                tag,
             });
         }
     } finally {

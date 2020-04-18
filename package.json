@@ -15,7 +15,8 @@
     "test": "mocha \"./test/**/*.spec.ts\"",
     "lint": "eslint . --ext .js,.ts,.tsx -f codeframe",
     "prepack": "npm run build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prettify": "npx prettier \"./**/*.{js,ts}\" --write"
   },
   "dependencies": {
     "chalk": "^4.0.0",
