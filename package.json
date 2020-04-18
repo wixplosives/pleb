@@ -5,7 +5,7 @@
   "main": "cjs/index.js",
   "types": "cjs/index.d.ts",
   "bin": {
-    "pleb": "cjs/cli.js"
+    "pleb": "bin/pleb.js"
   },
   "scripts": {
     "clean": "rimraf ./cjs ./dist",
@@ -43,6 +43,7 @@
     "typescript": "~3.8.3"
   },
   "files": [
+    "bin",
     "cjs",
     "src"
   ],

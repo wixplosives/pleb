@@ -1,17 +1,12 @@
-#!/usr/bin/env node
-
 import path from 'path';
 import program from 'commander';
-import { printErrorAndExit } from './utils/process';
-import { publish } from './commands/publish';
-import { snapshot } from './commands/snapshot';
-import { upgrade } from './commands/upgrade';
+import { reportProcessError } from './utils/process';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version, description } = require('../package.json');
 
-process.on('unhandledRejection', printErrorAndExit);
-process.on('uncaughtException', printErrorAndExit);
+process.on('unhandledRejection', reportProcessError);
+process.on('uncaughtException', reportProcessError);
 
 program
     .command('publish [target]')
@@ -22,15 +17,17 @@ program
     .option('--tag <tag>', 'tag to use for published version', 'latest')
     .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
         try {
+            const { publish } = await import('./commands/publish');
+
             await publish({
                 directoryPath: path.resolve(targetPath || ''),
                 dryRun,
                 contents,
                 registryUrl: registry,
-                tag
+                tag,
             });
         } catch (e) {
-            printErrorAndExit(e);
+            reportProcessError(e);
         }
     });
 
@@ -43,15 +40,17 @@ program
     .option('--tag <tag>', 'tag to use for published snapshot', 'next')
     .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
         try {
+            const { snapshot } = await import('./commands/snapshot');
+
             await snapshot({
                 directoryPath: path.resolve(targetPath || ''),
                 dryRun,
                 contents,
                 registryUrl: registry,
-                tag
+                tag,
             });
         } catch (e) {
-            printErrorAndExit(e);
+            reportProcessError(e);
         }
     });
 
@@ -62,18 +61,16 @@ program
     .option('--registry <url>', 'npm registry to use')
     .action(async (targetPath: string, { dryRun, registry }) => {
         try {
+            const { upgrade } = await import('./commands/upgrade');
+
             await upgrade({
                 directoryPath: path.resolve(targetPath || ''),
                 dryRun,
-                registryUrl: registry
+                registryUrl: registry,
             });
         } catch (e) {
-            printErrorAndExit(e);
+            reportProcessError(e);
         }
     });
 
-program
-    .version(version, '-v, --version')
-    .description(description)
-    .usage('[options]')
-    .parse(process.argv);
+program.version(version, '-v, --version').description(description).usage('[options]').parse(process.argv);

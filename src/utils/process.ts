@@ -20,7 +20,7 @@ export function spawnSyncLogged(
     return spawnSyncSafe(command, args, options);
 }
 
-export function printErrorAndExit(message: unknown) {
+export function reportProcessError(message: unknown) {
     logError(message);
     process.exitCode = 1;
 }
