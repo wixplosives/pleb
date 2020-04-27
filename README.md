@@ -7,10 +7,10 @@ CLI to automate several npm package tasks.
 
 ## Features
 
--   Works locally and in CI. `npx pleb [command]` in mind.
--   Supports both single package and yarn workspace setups.
--   Skips already-published versions when publishing.
--   Loads and uses user's npm authentication.
+- Works locally and in CI. `npx pleb [command]` in mind.
+- Supports both single package and yarn workspace setups.
+- Skips already-published versions and private packages when publishing.
+- Loads and uses user's npm authentication.
 
 ## Commands
 
@@ -42,23 +42,23 @@ Save the following as `npm.yml`:
 ```yml
 name: npm
 on:
-    push:
-        branches: [master]
+  push:
+    branches: [master]
 jobs:
-    npm:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - name: Use Node.js 12
-              uses: actions/setup-node@v1
-              with:
-                  node-version: 12
-                  registry-url: 'https://registry.npmjs.org/'
-            - run: npm i -g yarn@1
-            - run: yarn
-            - run: npx pleb publish
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: 'https://registry.npmjs.org/'
+      - run: npm i -g yarn@1
+      - run: yarn
+      - run: npx pleb publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
 ### Travis CI
@@ -69,16 +69,16 @@ Add following to the end of `.travis.yml`:
 
 ```yml
 before_deploy:
-    - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > ~/.npmrc
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > ~/.npmrc
 
 deploy:
-    skip_cleanup: true
-    provider: script
-    script: npx pleb publish
-    on:
-        branch: master
-        node_js: 12
-        condition: $TRAVIS_OS_NAME = linux
+  skip_cleanup: true
+  provider: script
+  script: npx pleb publish
+  on:
+    branch: master
+    node_js: 12
+    condition: $TRAVIS_OS_NAME = linux
 ```
 
 ### License

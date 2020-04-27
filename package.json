@@ -16,7 +16,7 @@
     "lint": "eslint . --ext .js,.ts,.tsx -f codeframe",
     "prepack": "npm run build",
     "typecheck": "tsc --noEmit",
-    "prettify": "npx prettier \"./**/*.{js,ts}\" --write"
+    "prettify": "npx prettier \"./**/*.{md,js,ts}\" --write"
   },
   "dependencies": {
     "chalk": "^4.0.0",
@@ -63,6 +63,10 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true
   },
   "license": "MIT",
   "repository": "git@github.com:wixplosives/pleb.git"

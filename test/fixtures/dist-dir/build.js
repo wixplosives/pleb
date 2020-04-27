@@ -4,7 +4,7 @@ const path = require('path');
 const distPath = path.join(__dirname, 'npm');
 
 if (fs.existsSync(distPath)) {
-    fs.rmdirSync(distPath, { recursive: true });
+  fs.rmdirSync(distPath, { recursive: true });
 }
 fs.mkdirSync(distPath, { recursive: true });
 fs.copyFileSync(require.resolve('./package.json'), path.join(distPath, 'package.json'));
