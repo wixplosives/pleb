@@ -8,4 +8,4 @@ if (fs.existsSync(distPath)) {
 }
 fs.mkdirSync(distPath, { recursive: true });
 fs.copyFileSync(require.resolve('./package.json'), path.join(distPath, 'package.json'));
-fs.writeFileSync(path.join(distPath, 'main.js'), `export default 'hello world';`);
+fs.writeFileSync(path.join(distPath, 'main.js'), `module.exports = 'hello world';`);
