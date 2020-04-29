@@ -29,7 +29,7 @@ export async function snapshot({
 }: SnapshotOptions): Promise<void> {
   const directoryContext = await resolveDirectoryContext(directoryPath);
   const packages = childPackagesFromContext(directoryContext);
-  const commitHash = currentGitCommitHash();
+  const commitHash = currentGitCommitHash(directoryPath);
   if (!commitHash) {
     throw new Error(`cannot determine git commit hash for ${directoryPath}`);
   }
