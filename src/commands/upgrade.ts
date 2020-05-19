@@ -56,7 +56,7 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
   };
 
   if (!dryRun) {
-    for (const { packageJsonPath, packageJson } of packages) {
+    for (const { packageJsonPath, packageJson, packageJsonContent } of packages) {
       const { dependencies, devDependencies } = packageJson;
       const newPackageJson = { ...packageJson };
       if (dependencies) {
@@ -65,7 +65,13 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
       if (devDependencies) {
         newPackageJson.devDependencies = mapRecord(devDependencies, getVersionRequest);
       }
-      await fs.promises.writeFile(packageJsonPath, JSON.stringify(newPackageJson, null, 2) + '\n');
+
+      // retain original EOL. JSON.stringify always outputs \n.
+      const newPackageJsonContent = JSON.stringify(newPackageJson, null, 2) + '\n';
+      const normalizedNewPackageJsonContent = packageJsonContent.includes('\r\n')
+        ? newPackageJsonContent.replace(/\n/g, '\r\n')
+        : newPackageJsonContent;
+      await fs.promises.writeFile(packageJsonPath, normalizedNewPackageJsonContent);
     }
   }
 }
