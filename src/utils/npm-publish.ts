@@ -105,7 +105,7 @@ export async function npmPublish({
       }
       log(`${packageName}: done.`);
     } else {
-      logWarn(`${packageName}: ${packageVersion} is already published. skipping.`);
+      logWarn(`${packageName}: ${packageVersion!} is already published. skipping.`);
     }
   } finally {
     for (const [filePath, fileContents] of filesToRestore) {

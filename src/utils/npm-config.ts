@@ -39,7 +39,7 @@ export async function loadNpmConfigFile(configFilePath: string): Promise<Record<
 
 const envExpression = /(\\*)\$\{([^}]+)\}/g;
 function replaceEnvVarReferences(value: string) {
-  return value.replace(envExpression, (orig, esc, envKey) => {
+  return value.replace(envExpression, (orig, esc: unknown[], envKey: string) => {
     if (esc.length && esc.length % 2) {
       return orig;
     }

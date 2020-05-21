@@ -3,18 +3,18 @@ import https from 'https';
 import { once } from 'events';
 import { URL } from 'url';
 
-export async function fetchText(url: string | URL, options: https.RequestOptions = {}) {
+export async function fetchText(url: string | URL, options: https.RequestOptions = {}): Promise<string> {
   const request = isSecureUrl(url) ? https.get(url, options) : http.get(url, options);
   const [response] = (await once(request, 'response')) as [http.IncomingMessage];
   const { statusCode } = response;
   if (statusCode !== 200) {
     response.resume();
-    throw new FetchError(`HTTP ${statusCode}: failed fetching ${url}`, statusCode);
+    throw new FetchError(`HTTP ${String(statusCode)}: failed fetching ${url.toString()}`, statusCode);
   }
   return readTextFromStream(response);
 }
 
-export async function readTextFromStream(readable: NodeJS.ReadableStream, encoding = 'utf8') {
+export async function readTextFromStream(readable: NodeJS.ReadableStream, encoding = 'utf8'): Promise<string> {
   let text = '';
   readable.setEncoding(encoding);
   for await (const chunk of readable) {

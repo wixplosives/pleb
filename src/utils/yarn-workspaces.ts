@@ -50,7 +50,7 @@ export function extractPackageLocations(workspaces: PackageJson.YarnConfiguratio
     if (isString(packages)) {
       return [packages];
     } else if (Array.isArray(packages) && packages.every(isString)) {
-      return packages;
+      return packages as string[];
     }
   }
   throw new Error(`cannot extract package locations from "workspaces" field.`);

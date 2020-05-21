@@ -27,14 +27,14 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
   const directoryPath = path.dirname(packageJsonPath);
 
   const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
-  const parsedJson = JSON.parse(packageJsonContent);
+  const parsedJson = JSON.parse(packageJsonContent) as PackageJson;
   if (!isObject(parsedJson)) {
     throw new Error(`${packageJsonPath} is not a valid json object.`);
   }
 
   const rootPackage: INpmPackage = {
     directoryPath,
-    packageJson: parsedJson as PackageJson,
+    packageJson: parsedJson,
     packageJsonPath,
     packageJsonContent,
   };
@@ -54,10 +54,10 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
   }
 }
 
-export function childPackagesFromContext(context: SinglePackageContext | MultiPackageContext) {
+export function childPackagesFromContext(context: SinglePackageContext | MultiPackageContext): INpmPackage[] {
   return context.type === 'single' ? [context.npmPackage] : [...context.packages];
 }
 
-export function allPackagesFromContext(context: SinglePackageContext | MultiPackageContext) {
+export function allPackagesFromContext(context: SinglePackageContext | MultiPackageContext): INpmPackage[] {
   return context.type === 'single' ? [context.npmPackage] : [context.rootPackage, ...context.packages];
 }

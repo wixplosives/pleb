@@ -24,7 +24,10 @@ export function createCliProgressBar({
   prefix = '[',
   postfix = ']',
   message = numberAsPercent,
-}: CliProgressBarOptions = {}) {
+}: CliProgressBarOptions = {}): {
+  update: (current: number, messageText?: string | undefined) => void;
+  done: (messageText?: string | undefined) => void;
+} {
   update(0);
 
   /**

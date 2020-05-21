@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import path from 'path';
 import program from 'commander';
 import { reportProcessError } from './utils/process';
+import type { PackageJson } from 'type-fest';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { version, description } = require('../package.json');
+const { version, description } = require('../package.json') as PackageJson;
 
 process.on('unhandledRejection', reportProcessError);
 process.on('uncaughtException', reportProcessError);
@@ -73,4 +75,4 @@ program
     }
   });
 
-program.version(version, '-v, --version').description(description).usage('[options]').parse(process.argv);
+program.version(version!, '-v, --version').description(description!).usage('[options]').parse(process.argv);

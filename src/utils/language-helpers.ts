@@ -1,12 +1,12 @@
 export const isString = (value: unknown): value is string => typeof value === 'string';
-export const isObject = (value: unknown): value is object =>
+export const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 export function mapRecord<T>(
   obj: Record<string, T>,
   replaceFn: (key: string, currentValue: T) => T,
   targetObj: Record<string, T> = {}
-) {
+): Record<string, T> {
   for (const [key, value] of Object.entries(obj)) {
     targetObj[key] = replaceFn(key, value);
   }
@@ -16,7 +16,7 @@ export function mapRecord<T>(
 export function flattenTree<T>(
   root: T,
   children: (node: T) => Iterable<T>,
-  predicate: (node: T) => boolean = () => true
+  predicate: (node: T) => boolean = (): boolean => true
 ): Set<T> {
   const results = new Set<T>();
   const visited = new Set<T>();

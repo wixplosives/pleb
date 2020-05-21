@@ -96,12 +96,11 @@ export async function fetchLatestPackageVersions({
         const distTags: unknown = await registry.fetchDistTags(packageName);
         const { latest } = distTags as Record<string, string | undefined>;
         if (!isString(latest)) {
-          throw new Error(`expected latest to be a string, but got ${latest}`);
+          throw new Error(`expected latest to be a string, but got ${String(latest)}`);
         }
         packageNameToVersion.set(packageName, latest);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e.message || e);
+        console.error((e as Error)?.message || e);
       }
       cliProgress.update((packageNames.size - fetchQueue.size) / packageNames.size);
     });

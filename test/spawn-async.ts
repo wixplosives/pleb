@@ -5,7 +5,14 @@ export interface ISpawnAsyncOptions extends SpawnOptions {
   pipeStreams?: boolean;
 }
 
-export async function spawnAsync(command: string, args: ReadonlyArray<string> = [], options: ISpawnAsyncOptions = {}) {
+export async function spawnAsync(
+  command: string,
+  args: ReadonlyArray<string> = [],
+  options: ISpawnAsyncOptions = {}
+): Promise<{
+  output: string;
+  exitCode: number;
+}> {
   const childProcess = spawn(command, args, options);
   const output: Array<string | Buffer> = [];
 

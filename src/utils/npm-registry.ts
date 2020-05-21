@@ -2,7 +2,7 @@ import url from 'url';
 import http from 'http';
 import https from 'https';
 import { URL } from 'url';
-import { fetchText, isSecureUrl } from './http';
+import { fetchText, isSecureUrl, FetchError } from './http';
 import { isObject } from './language-helpers';
 
 export const officialNpmRegistryUrl = 'https://registry.npmjs.org/';
@@ -24,9 +24,9 @@ export class NpmRegistry {
       options.headers = { authorization: `Bearer ${token}` };
     }
     const responseText = await fetchText(new URL(`-/package/${packageName}/dist-tags`, url), options);
-    const distTags: unknown = JSON.parse(responseText);
+    const distTags = JSON.parse(responseText) as unknown;
     if (!isObject(distTags)) {
-      throw new Error(`expected an object response, but got ${distTags}`);
+      throw new Error(`expected an object response, but got ${String(distTags)}`);
     }
 
     return distTags as NpmRegistryDistTags;
@@ -44,20 +44,20 @@ export class NpmRegistry {
       const responseText = await fetchText(new URL(packageName, url), options);
 
       try {
-        const packument: { versions: Record<string, string> } = JSON.parse(responseText);
+        const packument = JSON.parse(responseText) as { versions: Record<string, string> };
         if (!isObject(packument)) {
-          throw new Error(`expected an object response, but got ${packument}`);
+          throw new Error(`expected an object response, but got ${String(packument)}`);
         }
         if (!isObject(packument.versions)) {
-          throw new Error(`expected "versions" to be an object, but got ${packument.versions}`);
+          throw new Error(`expected "versions" to be an object, but got ${String(packument.versions)}`);
         }
         const versions = Object.keys(packument.versions);
         return versions;
       } catch (parseError) {
-        throw new Error(`${parseError?.stack ?? parseError}\nResponse is:\n${responseText}`);
+        throw new Error(`${(parseError as Error)?.stack ?? String(parseError)}\nResponse is:\n${responseText}`);
       }
     } catch (error) {
-      if (error?.statusCode === 404) {
+      if ((error as FetchError)?.statusCode === 404) {
         return [];
       } else {
         throw error;
@@ -65,7 +65,7 @@ export class NpmRegistry {
     }
   }
 
-  public dispose() {
+  public dispose(): void {
     if (this.agent) {
       this.agent.destroy();
     }
@@ -80,7 +80,7 @@ export class NpmRegistry {
 }
 
 // https://github.com/npm/cli/blob/v6.13.7/lib/config/nerf-dart.js
-export function uriToIdentifier(uri: string) {
+export function uriToIdentifier(uri: string): string {
   const parsed = url.parse(uri);
   delete parsed.protocol;
   delete parsed.auth;

@@ -8,7 +8,7 @@ export interface PublishOptions {
   /** @default false */
   dryRun?: boolean;
   /** @default '.' */
-  contents: string;
+  contents?: string;
   /** @default .npmrc or official npm registry */
   registryUrl?: string;
   /** @default 'latest' */

@@ -10,7 +10,7 @@ export interface INpmPackage {
   packageJson: PackageJson;
 }
 
-export function getDirectDepPackages(npmPackage: INpmPackage, packages: Map<string, INpmPackage>) {
+export function getDirectDepPackages(npmPackage: INpmPackage, packages: Map<string, INpmPackage>): Set<INpmPackage> {
   const depPackages = new Set<INpmPackage>();
   for (const depName of getPackageDependencyNames(npmPackage.packageJson)) {
     const depPackage = packages.get(depName);
