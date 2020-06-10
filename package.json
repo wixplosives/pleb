@@ -19,7 +19,7 @@
     "prettify": "npx prettier \"./**/*.{md,js,ts}\" --write"
   },
   "dependencies": {
-    "chalk": "^4.0.0",
+    "chalk": "^4.1.0",
     "commander": "^5.1.0",
     "find-up": "^4.1.0",
     "glob": "^7.1.6",
