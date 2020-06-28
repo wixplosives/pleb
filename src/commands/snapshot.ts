@@ -1,10 +1,10 @@
 import fs from 'fs';
+import type { INpmPackage } from '../utils/npm-package';
 import { npmPublish } from '../utils/npm-publish';
 import { resolveDirectoryContext, childPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry';
 import { loadEnvNpmConfig } from '../utils/npm-config';
 import { currentGitCommitHash } from '../utils/git';
-import { INpmPackage } from '../utils/npm-package';
 import { mapRecord, isString } from '../utils/language-helpers';
 import { log } from '../utils/log';
 

@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import childProcess from 'child_process';
-import { PackageJson } from 'type-fest';
+import type childProcess from 'child_process';
+import type { PackageJson } from 'type-fest';
 import { retry, IRetryOptions } from 'promise-assist';
+import type { NpmRegistry } from './npm-registry';
+import type { INpmPackage } from './npm-package';
 import { log, logWarn } from './log';
 import { spawnSyncLogged } from './process';
-import { NpmRegistry } from './npm-registry';
-import { INpmPackage } from './npm-package';
 import { isString } from './language-helpers';
 
 export interface IPublishNpmPackageOptions {

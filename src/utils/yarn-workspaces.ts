@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import util from 'util';
 import globCb from 'glob';
-import { PackageJson } from 'type-fest';
+import type { PackageJson } from 'type-fest';
 import { logWarn } from './log';
 import { isString, isObject } from './language-helpers';
 import { INpmPackage, PACKAGE_JSON, sortPackagesByDepth } from './npm-package';

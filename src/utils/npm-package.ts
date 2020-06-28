@@ -1,4 +1,4 @@
-import { PackageJson } from 'type-fest';
+import type { PackageJson } from 'type-fest';
 import { flattenTree, isString } from './language-helpers';
 
 export const PACKAGE_JSON = 'package.json';

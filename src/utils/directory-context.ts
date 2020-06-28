@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import findUp from 'find-up';
-import { PackageJson } from 'type-fest';
+import type { PackageJson } from 'type-fest';
 import { resolveWorkspacePackages } from './yarn-workspaces';
 import { isObject, isString } from './language-helpers';
 import { INpmPackage, PACKAGE_JSON } from './npm-package';
