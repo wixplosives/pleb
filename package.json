@@ -2,13 +2,13 @@
   "name": "pleb",
   "description": "a casual publisher",
   "version": "2.5.13",
-  "main": "cjs/index.js",
-  "types": "cjs/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "pleb": "bin/pleb.js"
   },
   "scripts": {
-    "clean": "rimraf ./cjs ./dist",
+    "clean": "rimraf ./dist",
     "prebuild": "npm run clean",
     "build": "tsc -p tsconfig.build.json",
     "pretest": "npm run typecheck && npm run lint",
@@ -46,7 +46,7 @@
   },
   "files": [
     "bin",
-    "cjs",
+    "dist",
     "src"
   ],
   "engines": {
