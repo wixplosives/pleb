@@ -48,7 +48,7 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
 
   const getVersionRequest = (packageName: string, currentRequest: string): string => {
     const latestVersion = packageNameToVersion.get(packageName);
-    if (latestVersion !== undefined) {
+    if (latestVersion !== undefined && !currentRequest.startsWith('file:')) {
       return currentRequest.startsWith('~') ? `~${latestVersion}` : `^${latestVersion}`;
     } else {
       return currentRequest;
