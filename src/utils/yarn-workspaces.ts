@@ -4,8 +4,8 @@ import util from 'util';
 import globCb from 'glob';
 import type { PackageJson } from 'type-fest';
 import { logWarn } from './log';
-import { isString, isObject } from './language-helpers';
-import { INpmPackage, PACKAGE_JSON, sortPackagesByDepth } from './npm-package';
+import { isString, isPlainObject } from './language-helpers';
+import { INpmPackage, PACKAGE_JSON } from './npm-package';
 
 const glob = util.promisify(globCb);
 
@@ -22,7 +22,7 @@ export async function resolveWorkspacePackages(basePath: string, packageJson: Pa
     for (const packageJsonPath of packageJsonPaths.map(path.normalize)) {
       const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
       const packageJson = JSON.parse(packageJsonContent) as PackageJson;
-      if (!isObject(packageJson)) {
+      if (!isPlainObject(packageJson)) {
         logWarn(`${packageJsonPath}: no valid json object.`);
         continue;
       }
@@ -35,7 +35,7 @@ export async function resolveWorkspacePackages(basePath: string, packageJson: Pa
     }
   }
 
-  return sortPackagesByDepth(packages);
+  return packages;
 }
 
 export function extractPackageLocations(workspaces: PackageJson.YarnConfiguration['workspaces']): string[] {
@@ -45,7 +45,7 @@ export function extractPackageLocations(workspaces: PackageJson.YarnConfiguratio
     if (workspaces.every(isString)) {
       return workspaces;
     }
-  } else if (isObject(workspaces)) {
+  } else if (isPlainObject(workspaces)) {
     const { packages } = workspaces;
     if (isString(packages)) {
       return [packages];

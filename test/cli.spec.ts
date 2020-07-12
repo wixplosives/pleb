@@ -57,9 +57,20 @@ describe('cli', () => {
 
       const { output, exitCode } = await runCli(['publish', distDirFixturePath]);
 
-      expect(output).to.include('pleb-workspace-a: done.');
-      expect(output).to.include('pleb-workspace-b: done.');
-      expect(output.indexOf('pleb-workspace-b: done.')).to.be.lessThan(output.indexOf('pleb-workspace-a: done.'));
+      expect(output).to.include('yarn-workspace-a: done.');
+      expect(output).to.include('yarn-workspace-b: done.');
+      expect(output.indexOf('yarn-workspace-b: done.')).to.be.lessThan(output.indexOf('yarn-workspace-a: done.'));
+      expect(exitCode).to.equal(0);
+    });
+
+    it('publishes npm-style "file:" linked packages', async () => {
+      const distDirFixturePath = join(fixturesRoot, 'npm-linked');
+
+      const { output, exitCode } = await runCli(['publish', distDirFixturePath]);
+
+      expect(output).to.include('npm-linked-a: done.');
+      expect(output).to.include('npm-linked-b: done.');
+      expect(output.indexOf('npm-linked-b: done.')).to.be.lessThan(output.indexOf('npm-linked-a: done.'));
       expect(exitCode).to.equal(0);
     });
   });

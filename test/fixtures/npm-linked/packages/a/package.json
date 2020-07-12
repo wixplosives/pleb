@@ -1,0 +1,7 @@
+{
+  "name": "npm-linked-a",
+  "version": "1.0.0",
+  "dependencies": {
+    "npm-linked-b": "^1.0.0"
+  }
+}

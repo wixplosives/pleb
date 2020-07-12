@@ -3,7 +3,7 @@ import http from 'http';
 import https from 'https';
 import { URL } from 'url';
 import { fetchText, isSecureUrl, FetchError } from './http';
-import { isObject } from './language-helpers';
+import { isPlainObject } from './language-helpers';
 
 export const officialNpmRegistryUrl = 'https://registry.npmjs.org/';
 
@@ -25,7 +25,7 @@ export class NpmRegistry {
     }
     const responseText = await fetchText(new URL(`-/package/${packageName}/dist-tags`, url), options);
     const distTags = JSON.parse(responseText) as unknown;
-    if (!isObject(distTags)) {
+    if (!isPlainObject(distTags)) {
       throw new Error(`expected an object response, but got ${String(distTags)}`);
     }
 
@@ -45,10 +45,10 @@ export class NpmRegistry {
 
       try {
         const packument = JSON.parse(responseText) as { versions: Record<string, string> };
-        if (!isObject(packument)) {
+        if (!isPlainObject(packument)) {
           throw new Error(`expected an object response, but got ${String(packument)}`);
         }
-        if (!isObject(packument.versions)) {
+        if (!isPlainObject(packument.versions)) {
           throw new Error(`expected "versions" to be an object, but got ${String(packument.versions)}`);
         }
         const versions = Object.keys(packument.versions);
