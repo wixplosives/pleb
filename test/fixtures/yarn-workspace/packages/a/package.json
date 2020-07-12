@@ -1,7 +1,7 @@
 {
-  "name": "pleb-workspace-a",
+  "name": "yarn-workspace-a",
   "version": "1.0.0",
   "dependencies": {
-    "pleb-workspace-b": "^1.0.0"
+    "yarn-workspace-b": "^1.0.0"
   }
 }

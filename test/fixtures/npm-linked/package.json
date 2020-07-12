@@ -1,0 +1,9 @@
+{
+  "name": "npm-linked",
+  "dependencies": {
+    "npm-linked-a": "file:packages/a",
+    "npm-linked-b": "file:packages/b"
+  },
+  "license": "MIT",
+  "private": true
+}

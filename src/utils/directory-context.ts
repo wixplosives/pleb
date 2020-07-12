@@ -3,8 +3,8 @@ import path from 'path';
 import findUp from 'find-up';
 import type { PackageJson } from 'type-fest';
 import { resolveWorkspacePackages } from './yarn-workspaces';
-import { isObject, isString } from './language-helpers';
-import { INpmPackage, PACKAGE_JSON } from './npm-package';
+import { isPlainObject, isString } from './language-helpers';
+import { INpmPackage, PACKAGE_JSON, resolveLinkedPackages, sortPackagesByDepth } from './npm-package';
 
 export interface SinglePackageContext {
   type: 'single';
@@ -28,7 +28,7 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
 
   const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
   const parsedJson = JSON.parse(packageJsonContent) as PackageJson;
-  if (!isObject(parsedJson)) {
+  if (!isPlainObject(parsedJson)) {
     throw new Error(`${packageJsonPath} is not a valid json object.`);
   }
 
@@ -40,18 +40,27 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
   };
   const { workspaces } = rootPackage.packageJson;
 
-  if (workspaces === undefined) {
-    return {
-      type: 'single',
-      npmPackage: rootPackage,
-    };
-  } else {
+  if (workspaces !== undefined) {
     return {
       type: 'multi',
       rootPackage,
-      packages: await resolveWorkspacePackages(directoryPath, rootPackage.packageJson),
+      packages: sortPackagesByDepth(await resolveWorkspacePackages(directoryPath, rootPackage.packageJson)),
     };
   }
+
+  const linkedPackages = await resolveLinkedPackages(rootPackage);
+  if (linkedPackages.length) {
+    return {
+      type: 'multi',
+      rootPackage,
+      packages: sortPackagesByDepth(linkedPackages),
+    };
+  }
+
+  return {
+    type: 'single',
+    npmPackage: rootPackage,
+  };
 }
 
 export function childPackagesFromContext(context: SinglePackageContext | MultiPackageContext): INpmPackage[] {

@@ -1,5 +1,7 @@
+import path from 'path';
+import fs from 'fs';
 import type { PackageJson } from 'type-fest';
-import { flattenTree, isString } from './language-helpers';
+import { flattenTree, isString, concatIterables, isPlainObject } from './language-helpers';
 
 export const PACKAGE_JSON = 'package.json';
 
@@ -8,6 +10,32 @@ export interface INpmPackage {
   packageJsonPath: string;
   packageJsonContent: string;
   packageJson: PackageJson;
+}
+
+export async function resolveLinkedPackages(rootPackage: INpmPackage): Promise<INpmPackage[]> {
+  const { dependencies = {}, devDependencies = {} } = rootPackage.packageJson;
+  const linkedPackages: INpmPackage[] = [];
+  for (const request of concatIterables(Object.values(dependencies), Object.values(devDependencies))) {
+    if (request.startsWith('file:')) {
+      const linkTarget = request.slice(5);
+      const directoryPath = path.join(rootPackage.directoryPath, linkTarget);
+      const packageJsonPath = path.join(directoryPath, PACKAGE_JSON);
+      const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
+      const parsedJson = JSON.parse(packageJsonContent) as PackageJson;
+
+      if (!isPlainObject(parsedJson)) {
+        throw new Error(`${packageJsonPath} is not a valid json object.`);
+      }
+
+      linkedPackages.push({
+        directoryPath,
+        packageJson: parsedJson,
+        packageJsonPath,
+        packageJsonContent,
+      });
+    }
+  }
+  return linkedPackages;
 }
 
 export function getDirectDepPackages(npmPackage: INpmPackage, packages: Map<string, INpmPackage>): Set<INpmPackage> {

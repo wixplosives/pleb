@@ -1,5 +1,5 @@
 export const isString = (value: unknown): value is string => typeof value === 'string';
-export const isObject = (value: unknown): value is Record<string, unknown> =>
+export const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 export function mapRecord<T>(
@@ -33,4 +33,12 @@ export function flattenTree<T>(
     toProcess.push(...children(node));
   }
   return results;
+}
+
+export function* concatIterables<T>(...iterables: Iterable<T>[]): Iterable<T> {
+  for (const iterable of iterables) {
+    for (const item of iterable) {
+      yield item;
+    }
+  }
 }
