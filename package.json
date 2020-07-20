@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "chalk": "^4.1.0",
-    "commander": "^5.1.0",
+    "commander": "^6.0.0",
     "find-up": "^4.1.0",
     "glob": "^7.1.6",
     "p-queue": "^6.6.0",
