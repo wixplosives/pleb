@@ -52,13 +52,17 @@ describe('cli', () => {
       expect(exitCode).to.equal(0);
     });
 
-    it('publishes workspace packages in correct order (deps first)', async () => {
+    it.only('publishes workspace packages in correct order (deps first)', async () => {
       const distDirFixturePath = join(fixturesRoot, 'yarn-workspace');
 
       const { output, exitCode } = await runCli(['publish', distDirFixturePath]);
 
+      expect(output).to.include('prepack b');
+      expect(output).to.include('prepack a');
       expect(output).to.include('yarn-workspace-a: done.');
       expect(output).to.include('yarn-workspace-b: done.');
+      expect(output.indexOf('prepack b')).to.be.lessThan(output.indexOf('prepack a'));
+      expect(output.indexOf('prepack a')).to.be.lessThan(output.indexOf('yarn-workspace-b: done.'));
       expect(output.indexOf('yarn-workspace-b: done.')).to.be.lessThan(output.indexOf('yarn-workspace-a: done.'));
       expect(exitCode).to.equal(0);
     });
