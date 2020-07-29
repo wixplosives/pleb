@@ -5,7 +5,7 @@ import type { PackageJson } from 'type-fest';
 import type { NpmRegistry } from './npm-registry';
 import type { INpmPackage } from './npm-package';
 import { spawnSyncLogged } from './process';
-import { isString } from './language-helpers';
+import { isString, isPlainObject } from './language-helpers';
 import { logWarn, log } from './log';
 
 export async function getPackagesToPublish(packages: INpmPackage[], registry: NpmRegistry): Promise<INpmPackage[]> {
@@ -80,6 +80,9 @@ export async function removePrepublishScripts(
 ): Promise<void> {
   const packageJsonContents = await fs.promises.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContents) as PackageJson;
+  if (!isPlainObject(packageJson)) {
+    throw new Error(`${packageJsonPath} is not a valid json object.`);
+  }
   const { scripts } = packageJson;
   if (
     scripts &&
