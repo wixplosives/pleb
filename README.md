@@ -20,12 +20,6 @@ Publish unpublished packages.
 
 **pleb** assumes packages have already been built when publishing. If on-demand building is required, a "prepack" script can be used to build right before packing the package: `"prepack": "npm run build"`
 
-### `snapshot`
-
-Publish a snapshot of the packages (based on git commit hash)
-
-The snapshot version (e.g. `2.0.0-cc10763`) is combined from the current version in `package.json`, and the first seven characters of the current git commit hash.
-
 ### `upgrade`
 
 Upgrade `dependencies` and `devDependencies` of all packages.

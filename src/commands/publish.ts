@@ -1,13 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import type { SpawnSyncOptions } from 'child_process';
-import { retry } from 'promise-assist';
-import { npmPublishArgs, executePrepublishScripts, removePrepublishScripts } from '../utils/npm-publish';
+import {
+  npmPublishArgs,
+  executePrepublishScripts,
+  removePrepublishScripts,
+  getPackagesToPublish,
+} from '../utils/npm-publish';
 import { resolveDirectoryContext, childPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, NpmRegistry, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadEnvNpmConfig } from '../utils/npm-config';
-import type { INpmPackage } from '../utils/npm-package';
-import { log, logWarn } from '../utils/log';
+import { log } from '../utils/log';
 import { spawnSyncLogged } from '../utils/process';
 
 export interface PublishOptions {
@@ -70,41 +73,4 @@ export async function publish({
     filesToRestore.clear();
     registry.dispose();
   }
-}
-
-export async function getPackagesToPublish(packages: INpmPackage[], registry: NpmRegistry): Promise<INpmPackage[]> {
-  const packagesToPublish: INpmPackage[] = [];
-  for (const npmPackage of packages) {
-    const { displayName, packageJson } = npmPackage;
-    const { name: packageName, version: packageVersion } = packageJson;
-    if (typeof packageName !== 'string') {
-      logWarn(`${displayName}: no package name. skipping.`);
-      continue;
-    }
-    if (packageJson.private) {
-      logWarn(`${packageName}: private. skipping.`);
-      continue;
-    }
-    if (typeof packageVersion !== 'string') {
-      logWarn(`${packageName}: invalid version field. skipping.`);
-      continue;
-    }
-    log(`${packageName}: fetching versions...`);
-    const versions = await retry(() => registry.fetchVersions(packageName), {
-      delay: 1000,
-      retries: 3,
-    });
-
-    log(`${packageName}: got ${versions.length} published versions.`);
-    if (!versions.length) {
-      logWarn(`${packageName}: package was never published.`);
-      packagesToPublish.push(npmPackage);
-    } else if (!versions.includes(packageVersion)) {
-      logWarn(`${packageName}: ${packageVersion} was never published.`);
-      packagesToPublish.push(npmPackage);
-    } else {
-      logWarn(`${packageName}: ${packageVersion} is already published. skipping.`);
-    }
-  }
-  return packagesToPublish;
 }

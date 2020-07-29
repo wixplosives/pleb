@@ -1,92 +1,48 @@
 import fs from 'fs';
-import path from 'path';
 import type childProcess from 'child_process';
+import { retry } from 'promise-assist';
 import type { PackageJson } from 'type-fest';
-import { retry, IRetryOptions } from 'promise-assist';
 import type { NpmRegistry } from './npm-registry';
 import type { INpmPackage } from './npm-package';
-import { log, logWarn } from './log';
 import { spawnSyncLogged } from './process';
 import { isString } from './language-helpers';
+import { logWarn, log } from './log';
 
-export interface IPublishNpmPackageOptions {
-  npmPackage: INpmPackage;
-  registry: NpmRegistry;
-  /** @default false */
-  dryRun?: boolean;
-  /** @default 'latest' */
-  tag?: string;
-  /** @default '.' */
-  distDir?: string;
-  /**
-   * Retry options to use when fetching versions.
-   * @default { delay: 1000, retries: 3 }
-   */
-  retryOptions?: IRetryOptions;
-}
-
-export async function npmPublish({
-  npmPackage,
-  tag = 'latest',
-  dryRun = false,
-  distDir = '.',
-  registry,
-  retryOptions = {
-    delay: 1000,
-    retries: 3,
-  },
-}: IPublishNpmPackageOptions): Promise<void> {
-  const { directoryPath, packageJson, packageJsonPath } = npmPackage;
-  const { name: packageName, version: packageVersion } = packageJson;
-  if (!packageName) {
-    logWarn(`${packageJsonPath}: no package name. skipping.`);
-    return;
-  }
-  if (packageJson.private) {
-    logWarn(`${packageName}: private. skipping.`);
-    return;
-  }
-  const distDirectoryPath = path.join(directoryPath, distDir);
-  const filesToRestore = new Map<string, string>();
-
-  try {
+export async function getPackagesToPublish(packages: INpmPackage[], registry: NpmRegistry): Promise<INpmPackage[]> {
+  const packagesToPublish: INpmPackage[] = [];
+  for (const npmPackage of packages) {
+    const { displayName, packageJson } = npmPackage;
+    const { name: packageName, version: packageVersion } = packageJson;
+    if (typeof packageName !== 'string') {
+      logWarn(`${displayName}: no package name. skipping.`);
+      continue;
+    }
+    if (packageJson.private) {
+      logWarn(`${packageName}: private. skipping.`);
+      continue;
+    }
+    if (typeof packageVersion !== 'string') {
+      logWarn(`${packageName}: invalid version field. skipping.`);
+      continue;
+    }
     log(`${packageName}: fetching versions...`);
-    const versions = await retry(() => registry.fetchVersions(packageName), retryOptions);
+    const versions = await retry(() => registry.fetchVersions(packageName), {
+      delay: 1000,
+      retries: 3,
+    });
+
     log(`${packageName}: got ${versions.length} published versions.`);
     if (!versions.length) {
       logWarn(`${packageName}: package was never published.`);
-    }
-
-    if (!versions.includes(packageVersion!)) {
-      const publishArgs = npmPublishArgs(registry, dryRun, tag);
-
-      if (distDirectoryPath === directoryPath) {
-        const spawnOptions: childProcess.SpawnSyncOptions = {
-          cwd: directoryPath,
-          stdio: 'inherit',
-          shell: true,
-        };
-        spawnSyncLogged('npm', publishArgs, spawnOptions, packageName);
-      } else {
-        executePrepublishScripts(npmPackage);
-        await removePrepublishScripts(path.join(distDirectoryPath, 'package.json'), filesToRestore);
-        const distSpawnOptions: childProcess.SpawnSyncOptions = {
-          cwd: distDirectoryPath,
-          stdio: 'inherit',
-          shell: true,
-        };
-        spawnSyncLogged('npm', publishArgs, distSpawnOptions, packageName);
-      }
-      log(`${packageName}: done.`);
+      packagesToPublish.push(npmPackage);
+    } else if (!versions.includes(packageVersion)) {
+      logWarn(`${packageName}: ${packageVersion} was never published.`);
+      packagesToPublish.push(npmPackage);
     } else {
-      logWarn(`${packageName}: ${packageVersion!} is already published. skipping.`);
+      logWarn(`${packageName}: ${packageVersion} is already published. skipping.`);
     }
-  } finally {
-    for (const [filePath, fileContents] of filesToRestore) {
-      await fs.promises.writeFile(filePath, fileContents);
-    }
-    filesToRestore.clear();
   }
+  return packagesToPublish;
 }
 
 export function npmPublishArgs(registry: NpmRegistry, dryRun: boolean, tag: string): string[] {

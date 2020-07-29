@@ -34,29 +34,6 @@ program
   });
 
 program
-  .command('snapshot [target]')
-  .description('publish a snapshot of the packages (based on git commit hash)')
-  .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
-  .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
-  .option('--registry <url>', 'npm registry to use')
-  .option('--tag <tag>', 'tag to use for published snapshot', 'next')
-  .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
-    try {
-      const { snapshot } = await import('./commands/snapshot');
-
-      await snapshot({
-        directoryPath: path.resolve(targetPath || ''),
-        dryRun,
-        distDir: contents,
-        registryUrl: registry,
-        tag,
-      });
-    } catch (e) {
-      reportProcessError(e);
-    }
-  });
-
-program
   .command('upgrade [target]')
   .description('upgrade dependencies and devDependencies of all packages')
   .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
