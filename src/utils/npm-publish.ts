@@ -38,12 +38,12 @@ export async function npmPublish({
 }: IPublishNpmPackageOptions): Promise<void> {
   const { directoryPath, packageJson, packageJsonPath } = npmPackage;
   const { name: packageName, version: packageVersion, scripts = {} } = packageJson;
-  if (packageJson.private) {
-    logWarn(`${packageName ?? packageJsonPath}: private. skipping.`);
-    return;
-  }
   if (!packageName) {
     logWarn(`${packageJsonPath}: no package name. skipping.`);
+    return;
+  }
+  if (packageJson.private) {
+    logWarn(`${packageName}: private. skipping.`);
     return;
   }
   const distDirectoryPath = path.join(directoryPath, distDir);

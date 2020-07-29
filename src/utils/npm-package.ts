@@ -6,6 +6,7 @@ import { flattenTree, isString, concatIterables, isPlainObject } from './languag
 export const PACKAGE_JSON = 'package.json';
 
 export interface INpmPackage {
+  displayName: string;
   directoryPath: string;
   packageJsonPath: string;
   packageJsonContent: string;
@@ -21,15 +22,18 @@ export async function resolveLinkedPackages(rootPackage: INpmPackage): Promise<I
       const directoryPath = path.join(rootPackage.directoryPath, linkTarget);
       const packageJsonPath = path.join(directoryPath, PACKAGE_JSON);
       const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
-      const parsedJson = JSON.parse(packageJsonContent) as PackageJson;
+      const packageJson = JSON.parse(packageJsonContent) as PackageJson;
 
-      if (!isPlainObject(parsedJson)) {
+      if (!isPlainObject(packageJson)) {
         throw new Error(`${packageJsonPath} is not a valid json object.`);
       }
 
+      const displayName = packageJson.name ? packageJson.name : packageJsonPath;
+
       linkedPackages.push({
+        displayName,
         directoryPath,
-        packageJson: parsedJson,
+        packageJson,
         packageJsonPath,
         packageJsonContent,
       });

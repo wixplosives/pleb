@@ -27,14 +27,17 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
   const directoryPath = path.dirname(packageJsonPath);
 
   const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
-  const parsedJson = JSON.parse(packageJsonContent) as PackageJson;
-  if (!isPlainObject(parsedJson)) {
+  const packageJson = JSON.parse(packageJsonContent) as PackageJson;
+  if (!isPlainObject(packageJson)) {
     throw new Error(`${packageJsonPath} is not a valid json object.`);
   }
 
+  const displayName = packageJson.name ? packageJson.name : packageJsonPath;
+
   const rootPackage: INpmPackage = {
+    displayName,
     directoryPath,
-    packageJson: parsedJson,
+    packageJson,
     packageJsonPath,
     packageJsonContent,
   };

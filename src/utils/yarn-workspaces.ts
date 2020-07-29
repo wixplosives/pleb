@@ -26,7 +26,11 @@ export async function resolveWorkspacePackages(basePath: string, packageJson: Pa
         logWarn(`${packageJsonPath}: no valid json object.`);
         continue;
       }
+
+      const displayName = packageJson.name ? packageJson.name : packageJsonPath;
+
       packages.push({
+        displayName,
         packageJsonPath,
         packageJson,
         directoryPath: path.dirname(packageJsonPath),
