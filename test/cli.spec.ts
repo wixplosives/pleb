@@ -57,8 +57,12 @@ describe('cli', () => {
 
       const { output, exitCode } = await runCli(['publish', distDirFixturePath]);
 
+      expect(output).to.include('prepack b');
+      expect(output).to.include('prepack a');
       expect(output).to.include('yarn-workspace-a: done.');
       expect(output).to.include('yarn-workspace-b: done.');
+      expect(output.indexOf('prepack b')).to.be.lessThan(output.indexOf('prepack a'));
+      expect(output.indexOf('prepack a')).to.be.lessThan(output.indexOf('yarn-workspace-b: done.'));
       expect(output.indexOf('yarn-workspace-b: done.')).to.be.lessThan(output.indexOf('yarn-workspace-a: done.'));
       expect(exitCode).to.equal(0);
     });
