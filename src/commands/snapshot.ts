@@ -13,7 +13,7 @@ export interface SnapshotOptions {
   /** @default false */
   dryRun?: boolean;
   /** @default '.' */
-  contents: string;
+  distDir: string;
   /** @default .npmrc or official npm registry */
   registryUrl?: string;
   /** @default 'next' */
@@ -23,7 +23,7 @@ export interface SnapshotOptions {
 export async function snapshot({
   directoryPath,
   dryRun,
-  contents,
+  distDir,
   registryUrl,
   tag = 'next',
 }: SnapshotOptions): Promise<void> {
@@ -51,7 +51,7 @@ export async function snapshot({
         registry,
         tag,
         dryRun,
-        distDir: contents,
+        distDir,
       });
     }
   } finally {

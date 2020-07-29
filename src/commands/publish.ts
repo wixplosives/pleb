@@ -8,14 +8,14 @@ export interface PublishOptions {
   /** @default false */
   dryRun?: boolean;
   /** @default '.' */
-  contents?: string;
+  distDir?: string;
   /** @default .npmrc or official npm registry */
   registryUrl?: string;
   /** @default 'latest' */
   tag?: string;
 }
 
-export async function publish({ directoryPath, dryRun, contents, registryUrl, tag }: PublishOptions): Promise<void> {
+export async function publish({ directoryPath, dryRun, distDir, registryUrl, tag }: PublishOptions): Promise<void> {
   const directoryContext = await resolveDirectoryContext(directoryPath);
   const packages = childPackagesFromContext(directoryContext);
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
@@ -29,7 +29,7 @@ export async function publish({ directoryPath, dryRun, contents, registryUrl, ta
         npmPackage,
         registry,
         dryRun,
-        distDir: contents,
+        distDir,
         tag,
       });
     }

@@ -24,7 +24,7 @@ program
       await publish({
         directoryPath: path.resolve(targetPath || ''),
         dryRun,
-        contents,
+        distDir: contents,
         registryUrl: registry,
         tag,
       });
@@ -47,7 +47,7 @@ program
       await snapshot({
         directoryPath: path.resolve(targetPath || ''),
         dryRun,
-        contents,
+        distDir: contents,
         registryUrl: registry,
         tag,
       });
