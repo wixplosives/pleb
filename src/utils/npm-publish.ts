@@ -37,7 +37,7 @@ export async function npmPublish({
   },
 }: IPublishNpmPackageOptions): Promise<void> {
   const { directoryPath, packageJson, packageJsonPath } = npmPackage;
-  const { name: packageName, version: packageVersion, scripts = {} } = packageJson;
+  const { name: packageName, version: packageVersion } = packageJson;
   if (!packageName) {
     logWarn(`${packageJsonPath}: no package name. skipping.`);
     return;
@@ -58,49 +58,23 @@ export async function npmPublish({
     }
 
     if (!versions.includes(packageVersion!)) {
-      const publishArgs = ['publish', '--registry', registry.url];
-      if (dryRun) {
-        publishArgs.push('--dry-run');
-      }
-      if (tag !== 'latest') {
-        publishArgs.push('--tag', tag);
-      }
-
-      const rootSpawnOptions: childProcess.SpawnSyncOptions = {
-        cwd: directoryPath,
-        stdio: 'inherit',
-        shell: true,
-      };
+      const publishArgs = npmPublishArgs(registry, dryRun, tag);
 
       if (distDirectoryPath === directoryPath) {
-        spawnSyncLogged('npm', publishArgs, rootSpawnOptions, packageName);
+        const spawnOptions: childProcess.SpawnSyncOptions = {
+          cwd: directoryPath,
+          stdio: 'inherit',
+          shell: true,
+        };
+        spawnSyncLogged('npm', publishArgs, spawnOptions, packageName);
       } else {
-        if (isString(scripts.prepare)) {
-          spawnSyncLogged('npm', ['run', 'prepare'], rootSpawnOptions, packageName);
-        }
-        if (isString(scripts.prepublishOnly)) {
-          spawnSyncLogged('npm', ['run', 'prepublishOnly'], rootSpawnOptions, packageName);
-        }
-        if (isString(scripts.prepack)) {
-          spawnSyncLogged('npm', ['run', 'prepack'], rootSpawnOptions, packageName);
-        }
-
-        const distPackageJsonPath = path.join(distDirectoryPath, 'package.json');
+        executePrepublishScripts(npmPackage);
+        await removePrepublishScripts(path.join(distDirectoryPath, 'package.json'), filesToRestore);
         const distSpawnOptions: childProcess.SpawnSyncOptions = {
           cwd: distDirectoryPath,
           stdio: 'inherit',
           shell: true,
         };
-
-        const distPackageJsonContents = await fs.promises.readFile(distPackageJsonPath, 'utf8');
-        const distPackageJson = JSON.parse(distPackageJsonContents) as PackageJson;
-        if (distPackageJson.scripts) {
-          delete distPackageJson.scripts.prepare;
-          delete distPackageJson.scripts.prepublishOnly;
-          delete distPackageJson.scripts.prepack;
-          filesToRestore.set(distPackageJsonPath, distPackageJsonContents);
-          await fs.promises.writeFile(distPackageJsonPath, JSON.stringify(distPackageJson, null, 2));
-        }
         spawnSyncLogged('npm', publishArgs, distSpawnOptions, packageName);
       }
       log(`${packageName}: done.`);
@@ -112,5 +86,58 @@ export async function npmPublish({
       await fs.promises.writeFile(filePath, fileContents);
     }
     filesToRestore.clear();
+  }
+}
+
+export function npmPublishArgs(registry: NpmRegistry, dryRun: boolean, tag: string): string[] {
+  const publishArgs: string[] = ['publish', '--registry', registry.url];
+  if (dryRun) {
+    publishArgs.push('--dry-run');
+  }
+  if (tag !== 'latest') {
+    publishArgs.push('--tag', tag);
+  }
+  return publishArgs;
+}
+
+export function executePrepublishScripts({ displayName, directoryPath, packageJson }: INpmPackage): void {
+  const spawnOptions: childProcess.SpawnSyncOptions = {
+    cwd: directoryPath,
+    stdio: 'inherit',
+    shell: true,
+  };
+  const { scripts = {} } = packageJson;
+  if (isString(scripts.prepare)) {
+    spawnSyncLogged('npm', ['run', 'prepare'], spawnOptions, displayName);
+  }
+  if (isString(scripts.prepublishOnly)) {
+    spawnSyncLogged('npm', ['run', 'prepublishOnly'], spawnOptions, displayName);
+  }
+  if (isString(scripts.prepack)) {
+    spawnSyncLogged('npm', ['run', 'prepack'], spawnOptions, displayName);
+  }
+}
+
+export async function removePrepublishScripts(
+  packageJsonPath: string,
+  filesToRestore: Map<string, string>
+): Promise<void> {
+  const packageJsonContents = await fs.promises.readFile(packageJsonPath, 'utf8');
+  const packageJson = JSON.parse(packageJsonContents) as PackageJson;
+  const { scripts } = packageJson;
+  if (
+    scripts &&
+    (scripts.prepare !== undefined || scripts.prepublishOnly !== undefined || scripts.prepack !== undefined)
+  ) {
+    delete scripts.prepare;
+    delete scripts.prepublishOnly;
+    delete scripts.prepack;
+    // retain original EOL. JSON.stringify always outputs \n.
+    const newPackageJsonContent = JSON.stringify(packageJson, null, 2) + '\n';
+    const normalizedNewPackageJsonContent = packageJsonContents.includes('\r\n')
+      ? newPackageJsonContent.replace(/\n/g, '\r\n')
+      : newPackageJsonContent;
+    filesToRestore.set(packageJsonPath, packageJsonContents);
+    await fs.promises.writeFile(packageJsonPath, normalizedNewPackageJsonContent);
   }
 }
