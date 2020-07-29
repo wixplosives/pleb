@@ -52,7 +52,7 @@ describe('cli', () => {
       expect(exitCode).to.equal(0);
     });
 
-    it.only('publishes workspace packages in correct order (deps first)', async () => {
+    it('publishes workspace packages in correct order (deps first)', async () => {
       const distDirFixturePath = join(fixturesRoot, 'yarn-workspace');
 
       const { output, exitCode } = await runCli(['publish', distDirFixturePath]);
