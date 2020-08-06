@@ -9,8 +9,7 @@ import { INpmPackage, PACKAGE_JSON } from './npm-package';
 
 const glob = util.promisify(globCb);
 
-export async function resolveWorkspacePackages(basePath: string, packageJson: PackageJson): Promise<INpmPackage[]> {
-  const workspaces = extractPackageLocations(packageJson.workspaces);
+export async function resolveWorkspacePackages(basePath: string, workspaces: string[]): Promise<INpmPackage[]> {
   const packages: INpmPackage[] = [];
   const globOptions: globCb.IOptions = {
     cwd: basePath,

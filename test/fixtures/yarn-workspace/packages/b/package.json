@@ -2,6 +2,6 @@
   "name": "yarn-workspace-b",
   "version": "1.0.0",
   "scripts": {
-    "prepack": "echo \"prepack b\""
+    "prepack": "echo \"prepack yarn-workspace-b\""
   }
 }
