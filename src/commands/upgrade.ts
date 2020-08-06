@@ -25,12 +25,14 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
   const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name!));
 
   const externalPackageNames = new Set(
-    packages
-      .flatMap(({ packageJson: { dependencies = {}, devDependencies = {} } }) => [
-        ...Object.keys(dependencies),
-        ...Object.keys(devDependencies),
-      ])
-      .filter((packageName) => !internalPackageNames.has(packageName))
+    packages.flatMap(({ packageJson: { dependencies = {}, devDependencies = {} } }) =>
+      [...Object.entries(dependencies), ...Object.entries(devDependencies)]
+        .filter(
+          ([packageName, packageVersion]) =>
+            !internalPackageNames.has(packageName) && !isFileColonRequest(packageVersion)
+        )
+        .map(([packageName]) => packageName)
+    )
   );
 
   console.log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
@@ -40,15 +42,17 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
   });
   registry.dispose();
 
-  for (const { packageJson } of packages) {
-    if (isString(packageJson.version)) {
-      packageNameToVersion.set(packageJson.name!, packageJson.version);
+  for (const {
+    packageJson: { name: packageName, version: packageVersion },
+  } of packages) {
+    if (isString(packageName) && isString(packageVersion)) {
+      packageNameToVersion.set(packageName, packageVersion);
     }
   }
 
   const getVersionRequest = (packageName: string, currentRequest: string): string => {
     const latestVersion = packageNameToVersion.get(packageName);
-    if (latestVersion !== undefined && !currentRequest.startsWith('file:')) {
+    if (latestVersion !== undefined && !isFileColonRequest(currentRequest)) {
       return currentRequest.startsWith('~') ? `~${latestVersion}` : `^${latestVersion}`;
     } else {
       return currentRequest;
@@ -109,4 +113,8 @@ export async function fetchLatestPackageVersions({
   await Promise.all(fetchPromises);
   cliProgress.done();
   return packageNameToVersion;
+}
+
+function isFileColonRequest(request: string) {
+  return request.startsWith('file:');
 }
