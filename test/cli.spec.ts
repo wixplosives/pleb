@@ -57,12 +57,12 @@ describe('cli', () => {
 
       const { output, exitCode } = await runCli(['publish', distDirFixturePath]);
 
-      expect(output).to.include('prepack b');
-      expect(output).to.include('prepack a');
+      expect(output).to.include('prepack yarn-workspace-b');
+      expect(output).to.include('prepack yarn-workspace-a');
       expect(output).to.include('yarn-workspace-a: done.');
       expect(output).to.include('yarn-workspace-b: done.');
-      expect(output.indexOf('prepack b')).to.be.lessThan(output.indexOf('prepack a'));
-      expect(output.indexOf('prepack a')).to.be.lessThan(output.indexOf('yarn-workspace-b: done.'));
+      expect(output.indexOf('prepack yarn-workspace-b')).to.be.lessThan(output.indexOf('prepack yarn-workspace-a'));
+      expect(output.indexOf('prepack yarn-workspace-a')).to.be.lessThan(output.indexOf('yarn-workspace-b: done.'));
       expect(output.indexOf('yarn-workspace-b: done.')).to.be.lessThan(output.indexOf('yarn-workspace-a: done.'));
       expect(exitCode).to.equal(0);
     });
@@ -75,6 +75,17 @@ describe('cli', () => {
       expect(output).to.include('npm-linked-a: done.');
       expect(output).to.include('npm-linked-b: done.');
       expect(output.indexOf('npm-linked-b: done.')).to.be.lessThan(output.indexOf('npm-linked-a: done.'));
+      expect(exitCode).to.equal(0);
+    });
+
+    it('publishes lerna workspaces', async () => {
+      const distDirFixturePath = join(fixturesRoot, 'lerna-workspace');
+
+      const { output, exitCode } = await runCli(['publish', distDirFixturePath]);
+
+      expect(output).to.include('lerna-workspace-a: done.');
+      expect(output).to.include('lerna-workspace-b: done.');
+      expect(output.indexOf('lerna-workspace-b: done.')).to.be.lessThan(output.indexOf('lerna-workspace-a: done.'));
       expect(exitCode).to.equal(0);
     });
   });

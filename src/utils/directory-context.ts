@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import findUp from 'find-up';
 import type { PackageJson } from 'type-fest';
-import { resolveWorkspacePackages } from './yarn-workspaces';
+import { resolveWorkspacePackages, extractPackageLocations } from './yarn-workspaces';
 import { isPlainObject, isString } from './language-helpers';
 import { INpmPackage, PACKAGE_JSON, resolveLinkedPackages, sortPackagesByDepth } from './npm-package';
 
@@ -47,8 +47,25 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
     return {
       type: 'multi',
       rootPackage,
-      packages: sortPackagesByDepth(await resolveWorkspacePackages(directoryPath, rootPackage.packageJson)),
+      packages: sortPackagesByDepth(
+        await resolveWorkspacePackages(directoryPath, extractPackageLocations(packageJson.workspaces))
+      ),
     };
+  }
+
+  const lernaJsonPath = path.join(directoryPath, 'lerna.json');
+  if (fs.existsSync(lernaJsonPath)) {
+    const lernaJsonContents = await fs.promises.readFile(lernaJsonPath, 'utf8');
+    const lernaJson = JSON.parse(lernaJsonContents) as { packages?: string[] };
+    if (isPlainObject(packageJson) && Array.isArray(lernaJson.packages)) {
+      return {
+        type: 'multi',
+        rootPackage,
+        packages: sortPackagesByDepth(
+          await resolveWorkspacePackages(directoryPath, extractPackageLocations(lernaJson.packages))
+        ),
+      };
+    }
   }
 
   const linkedPackages = await resolveLinkedPackages(rootPackage);

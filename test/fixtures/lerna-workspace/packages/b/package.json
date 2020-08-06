@@ -1,0 +1,7 @@
+{
+  "name": "lerna-workspace-b",
+  "version": "1.0.0",
+  "scripts": {
+    "prepack": "echo \"prepack lerna-workspace-b\""
+  }
+}

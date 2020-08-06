@@ -1,0 +1,10 @@
+{
+  "name": "lerna-workspace-a",
+  "version": "1.0.0",
+  "scripts": {
+    "prepack": "echo \"prepack lerna-workspace-a\""
+  },
+  "dependencies": {
+    "lerna-workspace-b": "^1.0.0"
+  }
+}
