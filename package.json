@@ -1,7 +1,7 @@
 {
   "name": "pleb",
   "description": "a casual publisher",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
