@@ -33,7 +33,7 @@
     "@ts-tools/node": "^2.0.0",
     "@types/chai": "^4.2.12",
     "@types/glob": "^7.1.3",
-    "@types/mocha": "^8.0.1",
+    "@types/mocha": "^8.0.2",
     "@types/node": "12",
     "@typescript-eslint/eslint-plugin": "^3.9.0",
     "@typescript-eslint/parser": "^3.9.0",
