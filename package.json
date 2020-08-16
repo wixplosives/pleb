@@ -24,7 +24,7 @@
     "commander": "^6.0.0",
     "find-up": "^5.0.0",
     "glob": "^7.1.6",
-    "p-queue": "^6.6.0",
+    "p-queue": "^6.6.1",
     "promise-assist": "^1.3.0",
     "tslib": "^2.0.1",
     "type-fest": "^0.16.0"
@@ -38,7 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^3.9.0",
     "@typescript-eslint/parser": "^3.9.0",
     "chai": "^4.2.0",
-    "eslint": "^7.6.0",
+    "eslint": "^7.7.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-no-only-tests": "^2.4.0",
     "mocha": "^8.1.1",
