@@ -79,14 +79,14 @@ export class NpmRegistry {
   }
 }
 
-// https://github.com/npm/cli/blob/v6.13.7/lib/config/nerf-dart.js
+// https://github.com/npm/cli/blob/release-v6.14.8/lib/config/nerf-dart.js
 export function uriToIdentifier(uri: string): string {
   const parsed = url.parse(uri);
-  delete parsed.protocol;
-  delete parsed.auth;
-  delete parsed.query;
-  delete parsed.search;
-  delete parsed.hash;
+  parsed.protocol = null;
+  parsed.auth = null;
+  parsed.query = null;
+  parsed.search = null;
+  parsed.hash = null;
 
   return url.resolve(url.format(parsed), '.');
 }
