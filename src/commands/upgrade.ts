@@ -29,7 +29,9 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
       [...Object.entries(dependencies), ...Object.entries(devDependencies)]
         .filter(
           ([packageName, packageVersion]) =>
-            !internalPackageNames.has(packageName) && !isFileColonRequest(packageVersion)
+            !internalPackageNames.has(packageName) &&
+            !isFileColonRequest(packageVersion) &&
+            !(packageName === '@types/node' && isPureNumericRequest(packageVersion))
         )
         .map(([packageName]) => packageName)
     )
@@ -117,4 +119,20 @@ export async function fetchLatestPackageVersions({
 
 function isFileColonRequest(request: string) {
   return request.startsWith('file:');
+}
+
+function isPureNumericRequest(request: string) {
+  if (!request.length) {
+    return false;
+  }
+  for (const character of request) {
+    if (!isDigit(character)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isDigit(c: string) {
+  return c >= '0' && c <= '9';
 }
