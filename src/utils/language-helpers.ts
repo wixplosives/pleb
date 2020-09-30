@@ -1,5 +1,5 @@
 export const isString = (value: unknown): value is string => typeof value === 'string';
-export const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+export const isPlainObject = (value: unknown): value is object =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 export function mapRecord<T>(
