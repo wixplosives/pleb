@@ -38,7 +38,9 @@ program
   .description('upgrade dependencies and devDependencies of all packages')
   .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
   .option('--registry <url>', 'npm registry to use')
-  .action(async (targetPath: string, { dryRun, registry }) => {
+  .option('--tag <tag>', 'tag upgrade to', 'latest')
+  .option('--prefix <prefix>', 'upgrade only packages that start with <prefix>')
+  .action(async (targetPath: string, { dryRun, registry, tag, prefix }) => {
     try {
       const { upgrade } = await import('./commands/upgrade');
 
@@ -46,6 +48,8 @@ program
         directoryPath: path.resolve(targetPath || ''),
         dryRun,
         registryUrl: registry,
+        tag,
+        prefix,
       });
     } catch (e) {
       reportProcessError(e);

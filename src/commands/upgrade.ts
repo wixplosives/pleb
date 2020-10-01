@@ -11,9 +11,17 @@ export interface UpgradeOptions {
   directoryPath: string;
   dryRun?: boolean;
   registryUrl?: string;
+  tag?: string;
+  prefix?: string;
 }
 
-export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOptions): Promise<void> {
+export async function upgrade({
+  directoryPath,
+  registryUrl,
+  dryRun,
+  tag = 'latest',
+  prefix,
+}: UpgradeOptions): Promise<void> {
   const directoryContext = await resolveDirectoryContext(directoryPath);
   const packages = allPackagesFromContext(directoryContext);
 
@@ -24,23 +32,24 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
 
   const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name!));
 
-  const externalPackageNames = new Set(
-    packages.flatMap(({ packageJson: { dependencies = {}, devDependencies = {} } }) =>
-      [...Object.entries(dependencies), ...Object.entries(devDependencies)]
-        .filter(
-          ([packageName, packageVersion]) =>
-            !internalPackageNames.has(packageName) &&
-            !isFileColonRequest(packageVersion) &&
-            !(packageName === '@types/node' && isPureNumericRequest(packageVersion))
-        )
-        .map(([packageName]) => packageName)
-    )
+  const allPackages = packages.flatMap(({ packageJson: { dependencies = {}, devDependencies = {} } }) =>
+    [...Object.entries(dependencies), ...Object.entries(devDependencies)]
+      .filter(
+        ([packageName, packageVersion]) =>
+          !internalPackageNames.has(packageName) &&
+          !isFileColonRequest(packageVersion) &&
+          !(packageName === '@types/node' && isPureNumericRequest(packageVersion))
+      )
+      .map(([packageName]) => packageName)
   );
 
-  console.log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
-  const packageNameToVersion = await fetchLatestPackageVersions({
+  const externalPackageNames = new Set(prefix ? allPackages.filter((name) => name.startsWith(prefix)) : allPackages);
+
+  console.log(`Getting "${tag}" version for ${externalPackageNames.size} dependencies...`);
+  const packageNameToVersion = await fetchPackageVersionsByTag({
     packageNames: externalPackageNames,
     registry,
+    tag,
   });
   registry.dispose();
 
@@ -85,11 +94,13 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
 export interface IFetchLatestPackageVersionsOptions {
   registry: NpmRegistry;
   packageNames: Set<string>;
+  tag: string;
 }
 
-export async function fetchLatestPackageVersions({
+export async function fetchPackageVersionsByTag({
   registry,
   packageNames,
+  tag,
 }: IFetchLatestPackageVersionsOptions): Promise<Map<string, string>> {
   const cliProgress = createCliProgressBar();
   const packageNameToVersion = new Map<string, string>();
@@ -100,11 +111,14 @@ export async function fetchLatestPackageVersions({
     const fetchPromise = fetchQueue.add(async () => {
       try {
         const distTags: unknown = await registry.fetchDistTags(packageName);
-        const { latest } = distTags as Record<string, string | undefined>;
-        if (!isString(latest)) {
-          throw new Error(`expected latest to be a string, but got ${String(latest)}`);
+        const { [tag]: version } = distTags as Record<string, string | undefined>;
+        // Non latest tags can not exist, and should not throw an error, just be ignored
+        if (tag === 'latest' && !isString(version)) {
+          throw new Error(`expected ${tag} to be a string, but got ${String(version)}`);
         }
-        packageNameToVersion.set(packageName, latest);
+        if (isString(version)) {
+          packageNameToVersion.set(packageName, version);
+        }
       } catch (e) {
         console.error((e as Error)?.message || e);
       }
