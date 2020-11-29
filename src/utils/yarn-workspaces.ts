@@ -14,6 +14,7 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
   const globOptions: globCb.IOptions = {
     cwd: basePath,
     absolute: true,
+    ignore: '**/node_modules/**',
   };
   for (const packageDirGlob of workspaces) {
     const packageJsonGlob = path.posix.join(packageDirGlob, PACKAGE_JSON);
