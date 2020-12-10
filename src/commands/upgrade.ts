@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import fs from 'fs';
 import PromiseQueue from 'p-queue';
+import { gt, coerce } from 'semver';
 import { createCliProgressBar } from '../utils/cli-progress-bar';
 import { resolveDirectoryContext, allPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry';
@@ -54,7 +55,12 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
 
   const getVersionRequest = (packageName: string, currentRequest: string): string => {
     const latestVersion = packageNameToVersion.get(packageName);
-    if (latestVersion !== undefined && !isFileColonRequest(currentRequest)) {
+    const currentRequestAsSemver = coerce(currentRequest);
+    if (
+      latestVersion !== undefined &&
+      !isFileColonRequest(currentRequest) &&
+      (!currentRequestAsSemver || !gt(currentRequestAsSemver, latestVersion))
+    ) {
       return currentRequest.startsWith('~') ? `~${latestVersion}` : `^${latestVersion}`;
     } else {
       return currentRequest;
