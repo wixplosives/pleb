@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "chalk": "^4.1.0",
-    "commander": "^6.2.0",
+    "commander": "^6.2.1",
     "find-up": "^5.0.0",
     "glob": "^7.1.6",
     "p-queue": "^6.6.2",
