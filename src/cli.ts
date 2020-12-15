@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import path from 'path';
 import program from 'commander';
-import { reportProcessError } from './utils/process';
 import type { PackageJson } from 'type-fest';
+import { reportProcessError } from './utils/process';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version, description } = require('../package.json') as PackageJson;
