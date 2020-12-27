@@ -1,3 +1,4 @@
+export const noop = (): void => undefined;
 export const isString = (value: unknown): value is string => typeof value === 'string';
 export const isPlainObject = (value: unknown): value is object =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -5,10 +6,15 @@ export const isPlainObject = (value: unknown): value is object =>
 export function mapRecord<T>(
   obj: Record<string, T>,
   replaceFn: (key: string, currentValue: T) => T,
-  targetObj: Record<string, T> = {}
+  targetObj: Record<string, T> = {},
+  onReplace: (key: string, originalValue: T, newValue: T) => void = noop
 ): Record<string, T> {
   for (const [key, value] of Object.entries(obj)) {
-    targetObj[key] = replaceFn(key, value);
+    const newValue = replaceFn(key, value);
+    if (newValue !== value) {
+      onReplace(key, value, newValue);
+    }
+    targetObj[key] = newValue;
   }
   return targetObj;
 }

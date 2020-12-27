@@ -67,17 +67,21 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
     }
   };
 
-  if (!dryRun) {
-    for (const { packageJsonPath, packageJson, packageJsonContent } of packages) {
-      const { dependencies, devDependencies } = packageJson;
-      const newPackageJson = { ...packageJson };
-      if (dependencies) {
-        newPackageJson.dependencies = mapRecord(dependencies, getVersionRequest);
-      }
-      if (devDependencies) {
-        newPackageJson.devDependencies = mapRecord(devDependencies, getVersionRequest);
-      }
+  const replacements = new Map<string, { originalValue: string; newValue: string }>();
+  const onReplace = (key: string, originalValue: string, newValue: string) =>
+    replacements.set(key, { originalValue, newValue });
 
+  for (const { packageJsonPath, packageJson, packageJsonContent } of packages) {
+    const { dependencies, devDependencies } = packageJson;
+    const newPackageJson = { ...packageJson };
+    if (dependencies) {
+      newPackageJson.dependencies = mapRecord(dependencies, getVersionRequest, undefined, onReplace);
+    }
+    if (devDependencies) {
+      newPackageJson.devDependencies = mapRecord(devDependencies, getVersionRequest, undefined, onReplace);
+    }
+
+    if (!dryRun) {
       // retain original EOL. JSON.stringify always outputs \n.
       const newPackageJsonContent = JSON.stringify(newPackageJson, null, 2) + '\n';
       const normalizedNewPackageJsonContent = packageJsonContent.includes('\r\n')
@@ -85,6 +89,15 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
         : newPackageJsonContent;
       await fs.promises.writeFile(packageJsonPath, normalizedNewPackageJsonContent);
     }
+  }
+  if (replacements.size) {
+    console.log('Changes:');
+    const maxKeyLength = Array.from(replacements.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
+    for (const [key, { originalValue, newValue }] of replacements) {
+      console.log(`${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}`);
+    }
+  } else {
+    console.log('Nothing to upgrade.');
   }
 }
 
