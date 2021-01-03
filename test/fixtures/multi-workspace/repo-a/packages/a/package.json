@@ -1,0 +1,10 @@
+{
+  "name": "@repo-a/package-a",
+  "version": "1.0.0",
+  "dependencies": {
+    "toky": "^0.0.6"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

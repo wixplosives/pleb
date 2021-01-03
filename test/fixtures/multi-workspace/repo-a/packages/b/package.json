@@ -1,0 +1,11 @@
+{
+  "name": "@repo-a/package-b",
+  "version": "1.0.0",
+  "dependencies": {
+    "@repo-a/package-a": "^1.0.0",
+    "lodash": "4.17.20"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

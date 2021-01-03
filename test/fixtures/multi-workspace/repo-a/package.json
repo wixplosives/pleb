@@ -1,0 +1,10 @@
+{
+  "name": "repo-a",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "rollup": "^2.35.1"
+  }
+}
