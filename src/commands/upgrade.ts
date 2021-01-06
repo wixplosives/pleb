@@ -12,9 +12,15 @@ export interface UpgradeOptions {
   directoryPath: string;
   dryRun?: boolean;
   registryUrl?: string;
+  dependencies?: string[];
 }
 
-export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOptions): Promise<void> {
+export async function upgrade({
+  directoryPath,
+  registryUrl,
+  dryRun,
+  dependencies = [],
+}: UpgradeOptions): Promise<void> {
   const directoryContext = await resolveDirectoryContext(directoryPath);
   const packages = allPackagesFromContext(directoryContext);
 
@@ -25,12 +31,17 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
 
   const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name!));
 
+  const depNameFilter = dependencies.length
+    ? (packageName: string) => dependencies.some((d) => packageName.includes(d))
+    : () => true;
+
   const externalPackageNames = new Set(
     packages.flatMap(({ packageJson: { dependencies = {}, devDependencies = {} } }) =>
       [...Object.entries(dependencies), ...Object.entries(devDependencies)]
         .filter(
           ([packageName, packageVersion]) =>
             !internalPackageNames.has(packageName) &&
+            depNameFilter(packageName) &&
             !isFileColonRequest(packageVersion) &&
             !(packageName === '@types/node' && isPureNumericRequest(packageVersion))
         )

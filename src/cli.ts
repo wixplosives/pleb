@@ -34,18 +34,19 @@ program
   });
 
 program
-  .command('upgrade [target]')
+  .command('upgrade [dependency...]')
   .description('upgrade dependencies and devDependencies of all packages')
   .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
   .option('--registry <url>', 'npm registry to use')
-  .action(async (targetPath: string, { dryRun, registry }) => {
+  .action(async (dependencies: string[], { dryRun, registry }) => {
     try {
       const { upgrade } = await import('./commands/upgrade');
 
       await upgrade({
-        directoryPath: path.resolve(targetPath || ''),
+        directoryPath: process.cwd(),
         dryRun,
         registryUrl: registry,
+        dependencies,
       });
     } catch (e) {
       reportProcessError(e);
