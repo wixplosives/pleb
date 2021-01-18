@@ -15,10 +15,16 @@ export interface MultiPackageContext {
   type: 'multi';
   rootPackage: INpmPackage;
   packages: INpmPackage[];
+  packageLocations: string[];
 }
 
-export async function resolveDirectoryContext(basePath: string): Promise<SinglePackageContext | MultiPackageContext> {
-  const packageJsonPath = await findUp(PACKAGE_JSON, { cwd: basePath });
+export async function resolveDirectoryContext(
+  basePath: string,
+  packageJsonPath?: string
+): Promise<SinglePackageContext | MultiPackageContext> {
+  if (!isString(packageJsonPath)) {
+    packageJsonPath = await findUp(PACKAGE_JSON, { cwd: basePath });
+  }
 
   if (!isString(packageJsonPath)) {
     throw new Error(`Cannot find ${PACKAGE_JSON} for ${basePath}`);
@@ -44,12 +50,12 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
   const { workspaces } = rootPackage.packageJson;
 
   if (workspaces !== undefined) {
+    const packageLocations = extractPackageLocations(packageJson.workspaces);
     return {
       type: 'multi',
       rootPackage,
-      packages: sortPackagesByDepth(
-        await resolveWorkspacePackages(directoryPath, extractPackageLocations(packageJson.workspaces))
-      ),
+      packages: sortPackagesByDepth(await resolveWorkspacePackages(directoryPath, packageLocations)),
+      packageLocations,
     };
   }
 
@@ -58,22 +64,23 @@ export async function resolveDirectoryContext(basePath: string): Promise<SingleP
     const lernaJsonContents = await fs.promises.readFile(lernaJsonPath, 'utf8');
     const lernaJson = JSON.parse(lernaJsonContents) as { packages?: string[] };
     if (isPlainObject(packageJson) && Array.isArray(lernaJson.packages)) {
+      const packageLocations = extractPackageLocations(lernaJson.packages);
       return {
         type: 'multi',
         rootPackage,
-        packages: sortPackagesByDepth(
-          await resolveWorkspacePackages(directoryPath, extractPackageLocations(lernaJson.packages))
-        ),
+        packages: sortPackagesByDepth(await resolveWorkspacePackages(directoryPath, packageLocations)),
+        packageLocations,
       };
     }
   }
 
-  const linkedPackages = await resolveLinkedPackages(rootPackage);
+  const { linkedPackages, packageLocations } = await resolveLinkedPackages(rootPackage);
   if (linkedPackages.length) {
     return {
       type: 'multi',
       rootPackage,
       packages: sortPackagesByDepth(linkedPackages),
+      packageLocations,
     };
   }
 

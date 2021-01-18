@@ -53,4 +53,21 @@ program
     }
   });
 
+program
+  .command('link [target]')
+  .description('cross-link repositories into a single tree')
+  .option('--clean', 'delete all node_modules folders', false)
+  .action(async (targetPath: string, { clean }) => {
+    try {
+      const { link } = await import('./commands/link');
+
+      await link({
+        directoryPath: path.resolve(targetPath || ''),
+        clean,
+      });
+    } catch (e) {
+      reportProcessError(e);
+    }
+  });
+
 program.version(version!, '-v, --version').description(description!).parse();

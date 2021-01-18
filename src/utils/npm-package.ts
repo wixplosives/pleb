@@ -13,12 +13,16 @@ export interface INpmPackage {
   packageJson: PackageJson;
 }
 
-export async function resolveLinkedPackages(rootPackage: INpmPackage): Promise<INpmPackage[]> {
+export async function resolveLinkedPackages(
+  rootPackage: INpmPackage
+): Promise<{ linkedPackages: INpmPackage[]; packageLocations: string[] }> {
   const { dependencies = {}, devDependencies = {} } = rootPackage.packageJson;
+  const packageLocations: string[] = [];
   const linkedPackages: INpmPackage[] = [];
   for (const request of concatIterables(Object.values(dependencies), Object.values(devDependencies))) {
     if (request.startsWith('file:')) {
       const linkTarget = request.slice(5);
+      packageLocations.push(linkTarget);
       const directoryPath = path.join(rootPackage.directoryPath, linkTarget);
       const packageJsonPath = path.join(directoryPath, PACKAGE_JSON);
       const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
@@ -39,7 +43,7 @@ export async function resolveLinkedPackages(rootPackage: INpmPackage): Promise<I
       });
     }
   }
-  return linkedPackages;
+  return { linkedPackages, packageLocations };
 }
 
 export function getDirectDepPackages(npmPackage: INpmPackage, packages: Map<string, INpmPackage>): Set<INpmPackage> {
