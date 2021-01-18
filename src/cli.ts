@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import path from 'path';
-import program from 'commander';
+import { Command } from 'commander';
 import type { PackageJson } from 'type-fest';
 import { reportProcessError } from './utils/process';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { version, description } = require('../package.json') as PackageJson;
+const { name, version, description } = require('../package.json') as PackageJson;
 
 process.on('unhandledRejection', reportProcessError);
 process.on('uncaughtException', reportProcessError);
 
+const program = new Command(name);
 program
   .command('publish [target]')
   .description('publish unpublished packages')
@@ -52,4 +53,4 @@ program
     }
   });
 
-program.version(version!, '-v, --version').description(description!).usage('[options]').parse(process.argv);
+program.version(version!, '-v, --version').description(description!).parse();
