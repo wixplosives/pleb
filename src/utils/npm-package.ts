@@ -73,16 +73,18 @@ export function sortPackagesByDepth(packages: INpmPackage[]): INpmPackage[] {
     ])
   );
 
-  packages = [...packages]; // .sort() mutates original array, yet we prefer immutability
-  packages.sort((package1, package2) => {
-    if (packageToDeepDeps.get(package2)!.has(package1)) {
-      return -1;
-    } else if (packageToDeepDeps.get(package1)!.has(package2)) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
+  const sortedPackages: INpmPackage[] = [];
 
-  return packages;
+  for (const npmPackage of packages) {
+    const dependingPackageIdx = sortedPackages.findIndex((sortedPackage) =>
+      packageToDeepDeps.get(sortedPackage)!.has(npmPackage)
+    );
+    if (dependingPackageIdx === -1) {
+      sortedPackages.push(npmPackage);
+    } else {
+      sortedPackages.splice(dependingPackageIdx, 0, npmPackage);
+    }
+  }
+
+  return sortedPackages;
 }
