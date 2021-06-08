@@ -10,7 +10,7 @@ import { INpmPackage, PACKAGE_JSON } from './npm-package';
 const glob = util.promisify(globCb);
 
 export async function resolveWorkspacePackages(basePath: string, workspaces: string[]): Promise<INpmPackage[]> {
-  const packages: INpmPackage[] = [];
+  const packages = new Map<string, INpmPackage>();
   const globOptions: globCb.IOptions = {
     cwd: basePath,
     absolute: true,
@@ -20,6 +20,9 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
     const packageJsonGlob = path.posix.join(packageDirGlob, PACKAGE_JSON);
     const packageJsonPaths = await glob(packageJsonGlob, globOptions);
     for (const packageJsonPath of packageJsonPaths.map(path.normalize)) {
+      if (packages.has(packageJsonPath)) {
+        continue;
+      }
       const packageJsonContent = await fs.promises.readFile(packageJsonPath, 'utf8');
       const packageJson = JSON.parse(packageJsonContent) as PackageJson;
       if (!isPlainObject(packageJson)) {
@@ -29,7 +32,7 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
 
       const displayName = packageJson.name ? packageJson.name : packageJsonPath;
 
-      packages.push({
+      packages.set(packageJsonPath, {
         displayName,
         packageJsonPath,
         packageJson,
@@ -39,7 +42,7 @@ export async function resolveWorkspacePackages(basePath: string, workspaces: str
     }
   }
 
-  return packages;
+  return Array.from(packages.values());
 }
 
 export function extractPackageLocations(workspaces: PackageJson.YarnConfiguration['workspaces']): string[] {

@@ -1,5 +1,20 @@
+import { join } from 'path';
 import { expect } from 'chai';
 import { INpmPackage, sortPackagesByDepth } from '../src/utils/npm-package';
+import { resolveWorkspacePackages } from '../src/utils/yarn-workspaces';
+
+describe('resolveWorkspacePackages', () => {
+  const yarnWorkspaceFixturePath = join(__dirname, 'fixtures/yarn-workspace');
+  it('finds packages when workspace definition contains a glob', async () => {
+    const packages = await resolveWorkspacePackages(yarnWorkspaceFixturePath, ['packages/*']);
+    expect(packages.map(({ displayName }) => displayName)).to.eql(['yarn-workspace-a', 'yarn-workspace-b']);
+  });
+
+  it('finds packages only once, even if targeted by multiple definitions', async () => {
+    const packages = await resolveWorkspacePackages(yarnWorkspaceFixturePath, ['packages/b', 'packages/*']);
+    expect(packages.map(({ displayName }) => displayName)).to.eql(['yarn-workspace-b', 'yarn-workspace-a']);
+  });
+});
 
 describe('sortPackagesByDepth', () => {
   const createPackage = (packageName: string, dependencies?: Record<string, string>): INpmPackage => ({
