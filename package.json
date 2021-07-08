@@ -28,7 +28,7 @@
     "promise-assist": "^1.3.0",
     "semver": "^7.3.5",
     "tslib": "^2.3.0",
-    "type-fest": "^1.2.1"
+    "type-fest": "^1.2.2"
   },
   "devDependencies": {
     "@ts-tools/node": "^3.0.1",
