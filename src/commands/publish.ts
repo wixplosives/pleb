@@ -1,13 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import type { SpawnSyncOptions } from 'child_process';
+import { resolveDirectoryContext, childPackagesFromContext } from '@wixc3/resolve-directory-context';
 import {
   npmPublishArgs,
   executePrepublishScripts,
   removePrepublishScripts,
   getPackagesToPublish,
 } from '../utils/npm-publish';
-import { resolveDirectoryContext, childPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, NpmRegistry, officialNpmRegistryUrl } from '../utils/npm-registry';
 import { loadEnvNpmConfig } from '../utils/npm-config';
 import { log } from '../utils/log';
@@ -32,7 +32,7 @@ export async function publish({
   registryUrl,
   tag = 'latest',
 }: PublishOptions): Promise<void> {
-  const directoryContext = await resolveDirectoryContext(directoryPath);
+  const directoryContext = resolveDirectoryContext(directoryPath);
   const packages = childPackagesFromContext(directoryContext);
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
   const resolvedRegistryUrl = registryUrl ?? npmConfig.registry ?? officialNpmRegistryUrl;

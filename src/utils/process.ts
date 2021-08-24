@@ -1,12 +1,13 @@
 import { spawnSync, SpawnSyncOptions, SpawnSyncReturns } from 'child_process';
 import { log, logError } from './log';
-import { isString } from './language-helpers';
 
 export const spawnSyncSafe = ((...args: Parameters<typeof spawnSync>) => {
   const spawnResult = spawnSync(...args);
   if (spawnResult.status !== 0) {
     throw new Error(
-      `Command "${args.filter(isString).join(' ')}" failed with exit code ${String(spawnResult.status)}.`
+      `Command "${args.filter((arg) => typeof arg === 'string').join(' ')}" failed with exit code ${String(
+        spawnResult.status
+      )}.`
     );
   }
   return spawnResult;
