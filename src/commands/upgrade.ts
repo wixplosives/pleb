@@ -2,11 +2,11 @@
 import fs from 'fs';
 import PromiseQueue from 'p-queue';
 import { gt, coerce } from 'semver';
+import { resolveDirectoryContext, allPackagesFromContext, isString } from '@wixc3/resolve-directory-context';
 import { createCliProgressBar } from '../utils/cli-progress-bar';
-import { resolveDirectoryContext, allPackagesFromContext } from '../utils/directory-context';
 import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry';
 import { loadEnvNpmConfig } from '../utils/npm-config';
-import { mapRecord, isString } from '../utils/language-helpers';
+import { mapRecord } from '../utils/language-helpers';
 
 export interface UpgradeOptions {
   directoryPath: string;
@@ -15,7 +15,7 @@ export interface UpgradeOptions {
 }
 
 export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOptions): Promise<void> {
-  const directoryContext = await resolveDirectoryContext(directoryPath);
+  const directoryContext = resolveDirectoryContext(directoryPath);
   const packages = allPackagesFromContext(directoryContext);
 
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });

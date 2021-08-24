@@ -2,8 +2,8 @@ import url from 'url';
 import http from 'http';
 import https from 'https';
 import { URL } from 'url';
+import { isPlainObject } from '@wixc3/resolve-directory-context';
 import { fetchText, isSecureUrl, FetchError } from './http';
-import { isPlainObject } from './language-helpers';
 
 export const officialNpmRegistryUrl = 'https://registry.npmjs.org/';
 

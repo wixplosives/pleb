@@ -2,10 +2,9 @@ import fs from 'fs';
 import type childProcess from 'child_process';
 import { retry } from 'promise-assist';
 import type { PackageJson } from 'type-fest';
+import { INpmPackage, isString, isPlainObject } from '@wixc3/resolve-directory-context';
 import type { NpmRegistry } from './npm-registry';
-import type { INpmPackage } from './npm-package';
 import { spawnSyncLogged } from './process';
-import { isString, isPlainObject } from './language-helpers';
 import { logWarn, log } from './log';
 
 export async function getPackagesToPublish(packages: INpmPackage[], registry: NpmRegistry): Promise<INpmPackage[]> {
