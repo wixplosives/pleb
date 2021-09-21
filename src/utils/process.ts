@@ -18,7 +18,7 @@ export function spawnSyncLogged(
   args: string[],
   options: SpawnSyncOptions,
   label = options.cwd || process.cwd()
-): SpawnSyncReturns<Buffer> {
+): SpawnSyncReturns<string | Buffer> {
   log(`${label}: ${command} ${args.join(' ')}`);
   return spawnSyncSafe(command, args, options);
 }
