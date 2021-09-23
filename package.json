@@ -2,7 +2,10 @@
   "name": "pleb",
   "description": "a casual publisher",
   "version": "3.4.5",
-  "main": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "types": "dist/index.d.ts",
   "bin": {
     "pleb": "bin/pleb.js"
@@ -11,7 +14,7 @@
     "clean": "rimraf ./dist",
     "prebuild": "npm run clean",
     "build": "tsc -p tsconfig.build.json",
-    "pretest": "npm run typecheck && npm run lint",
+    "pretest": "npm run typecheck && npm run lint && npm run build",
     "test": "npm run test:spec",
     "test:spec": "mocha \"./test/**/*.spec.ts\"",
     "lint": "eslint . -f codeframe",
@@ -23,15 +26,15 @@
     "@wixc3/resolve-directory-context": "^1.0.1",
     "chalk": "^4.1.2",
     "commander": "^8.2.0",
-    "find-up": "^5.0.0",
-    "p-queue": "^6.6.2",
+    "find-up": "^6.0.0",
+    "p-queue": "^7.1.0",
     "promise-assist": "^1.3.0",
     "semver": "^7.3.5",
     "tslib": "^2.3.1",
     "type-fest": "^2.3.4"
   },
   "devDependencies": {
-    "@ts-tools/node": "^3.0.1",
+    "@ts-tools/esm": "^3.0.1",
     "@types/chai": "^4.2.22",
     "@types/mocha": "^9.0.0",
     "@types/node": "12",

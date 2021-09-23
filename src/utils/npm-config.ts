@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import findUp from 'find-up';
-import { parseIni } from './ini';
-import { fileExists } from './fs';
+import { findUp } from 'find-up';
+import { parseIni } from './ini.js';
+import { fileExists } from './fs.js';
 
 export interface LoadNpmConfigOptions {
   basePath?: string;

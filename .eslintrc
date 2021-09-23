@@ -5,6 +5,9 @@
   },
   "extends": ["eslint:recommended", "prettier"],
   "plugins": ["no-only-tests"],
+  "parserOptions": {
+    "sourceType": "module"
+  },
   "rules": {
     "no-only-tests/no-only-tests": "error",
     "no-console": "error"

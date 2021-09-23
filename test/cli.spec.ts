@@ -1,17 +1,19 @@
 import { join } from 'path';
+import { fileURLToPath, URL } from 'url';
 import { expect } from 'chai';
-import { spawnAsync } from './spawn-async';
+import { spawnAsync } from './spawn-async.js';
 
-const fixturesRoot = join(__dirname, 'fixtures');
-
-const cliEntryPath = require.resolve('../src/cli.ts');
+const fixturesRoot = fileURLToPath(new URL('./fixtures', import.meta.url));
+const cliEntryPath = fileURLToPath(new URL('../bin/pleb.js', import.meta.url));
 
 const runCli = async (cliArgs: string[] = []) =>
-  spawnAsync('node', ['-r', '@ts-tools/node/r', cliEntryPath, ...cliArgs, '--dry-run'], {
+  spawnAsync('node', [cliEntryPath, ...cliArgs, '--dry-run'], {
     pipeStreams: true,
   });
 
-describe('cli', () => {
+describe('cli', function () {
+  this.timeout(30_000);
+
   describe('publish', () => {
     it('allows publishing new (not published) packages', async () => {
       const newPackagePath = join(fixturesRoot, 'new-package');
