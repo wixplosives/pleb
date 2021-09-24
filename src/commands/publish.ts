@@ -7,11 +7,11 @@ import {
   executePrepublishScripts,
   removePrepublishScripts,
   getPackagesToPublish,
-} from '../utils/npm-publish';
-import { uriToIdentifier, NpmRegistry, officialNpmRegistryUrl } from '../utils/npm-registry';
-import { loadEnvNpmConfig } from '../utils/npm-config';
-import { log } from '../utils/log';
-import { spawnSyncLogged } from '../utils/process';
+} from '../utils/npm-publish.js';
+import { uriToIdentifier, NpmRegistry, officialNpmRegistryUrl } from '../utils/npm-registry.js';
+import { loadEnvNpmConfig } from '../utils/npm-config.js';
+import { log } from '../utils/log.js';
+import { spawnSyncLogged } from '../utils/process.js';
 
 export interface PublishOptions {
   directoryPath: string;

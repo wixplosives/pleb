@@ -1,2 +1,2 @@
-export * from './commands/publish';
-export * from './commands/upgrade';
+export * from './commands/publish.js';
+export * from './commands/upgrade.js';

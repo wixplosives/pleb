@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import fs from 'fs';
 import path from 'path';
+import { URL } from 'url';
 import { Command } from 'commander';
 import type { PackageJson } from 'type-fest';
-import { reportProcessError } from './utils/process';
+import { reportProcessError } from './utils/process.js';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { name, version, description } = require('../package.json') as PackageJson;
+const packageJsonPath = new URL('../package.json', import.meta.url);
+const { name, version, description } = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as PackageJson;
 
 process.on('unhandledRejection', reportProcessError);
 process.on('uncaughtException', reportProcessError);
@@ -20,7 +22,7 @@ program
   .option('--tag <tag>', 'tag to use for published version', 'latest')
   .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
     try {
-      const { publish } = await import('./commands/publish');
+      const { publish } = await import('./commands/publish.js');
 
       await publish({
         directoryPath: path.resolve(targetPath || ''),
@@ -41,7 +43,7 @@ program
   .option('--registry <url>', 'npm registry to use')
   .action(async (targetPath: string, { dryRun, registry }) => {
     try {
-      const { upgrade } = await import('./commands/upgrade');
+      const { upgrade } = await import('./commands/upgrade.js');
 
       await upgrade({
         directoryPath: path.resolve(targetPath || ''),

@@ -3,9 +3,9 @@ import type childProcess from 'child_process';
 import { retry } from 'promise-assist';
 import type { PackageJson } from 'type-fest';
 import { INpmPackage, isString, isPlainObject } from '@wixc3/resolve-directory-context';
-import type { NpmRegistry } from './npm-registry';
-import { spawnSyncLogged } from './process';
-import { logWarn, log } from './log';
+import type { NpmRegistry } from './npm-registry.js';
+import { spawnSyncLogged } from './process.js';
+import { logWarn, log } from './log.js';
 
 export async function getPackagesToPublish(packages: INpmPackage[], registry: NpmRegistry): Promise<INpmPackage[]> {
   const packagesToPublish: INpmPackage[] = [];

@@ -1,12 +1,14 @@
 /* eslint-disable no-console */
 import fs from 'fs';
 import PromiseQueue from 'p-queue';
-import { gt, coerce } from 'semver';
+import semver from 'semver';
 import { resolveDirectoryContext, allPackagesFromContext, isString } from '@wixc3/resolve-directory-context';
-import { createCliProgressBar } from '../utils/cli-progress-bar';
-import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry';
-import { loadEnvNpmConfig } from '../utils/npm-config';
-import { mapRecord } from '../utils/language-helpers';
+import { createCliProgressBar } from '../utils/cli-progress-bar.js';
+import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry.js';
+import { loadEnvNpmConfig } from '../utils/npm-config.js';
+import { mapRecord } from '../utils/language-helpers.js';
+
+const { gt, coerce } = semver;
 
 export interface UpgradeOptions {
   directoryPath: string;
