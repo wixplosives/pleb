@@ -20,7 +20,7 @@
     "lint": "eslint . -f codeframe",
     "prepack": "npm run build",
     "typecheck": "tsc --noEmit",
-    "prettify": "npx prettier \"./**/*.{md,js,ts}\" --write"
+    "prettify": "npx prettier . --write"
   },
   "dependencies": {
     "@wixc3/resolve-directory-context": "^1.0.1",
