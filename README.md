@@ -43,10 +43,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 12
+      - name: Use Node.js 14
         uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: 14
           registry-url: 'https://registry.npmjs.org/'
       - run: npm i -g yarn@1
       - run: yarn
@@ -71,7 +71,7 @@ deploy:
   script: npx pleb publish
   on:
     branch: master
-    node_js: 12
+    node_js: 14
     condition: $TRAVIS_OS_NAME = linux
 ```
 
