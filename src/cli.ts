@@ -21,19 +21,15 @@ program
   .option('--registry <url>', 'npm registry to use')
   .option('--tag <tag>', 'tag to use for published version', 'latest')
   .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
-    try {
-      const { publish } = await import('./commands/publish.js');
+    const { publish } = await import('./commands/publish.js');
 
-      await publish({
-        directoryPath: path.resolve(targetPath || ''),
-        dryRun,
-        distDir: contents,
-        registryUrl: registry,
-        tag,
-      });
-    } catch (e) {
-      reportProcessError(e);
-    }
+    await publish({
+      directoryPath: path.resolve(targetPath || ''),
+      dryRun,
+      distDir: contents,
+      registryUrl: registry,
+      tag,
+    });
   });
 
 program
@@ -42,17 +38,13 @@ program
   .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
   .option('--registry <url>', 'npm registry to use')
   .action(async (targetPath: string, { dryRun, registry }) => {
-    try {
-      const { upgrade } = await import('./commands/upgrade.js');
+    const { upgrade } = await import('./commands/upgrade.js');
 
-      await upgrade({
-        directoryPath: path.resolve(targetPath || ''),
-        dryRun,
-        registryUrl: registry,
-      });
-    } catch (e) {
-      reportProcessError(e);
-    }
+    await upgrade({
+      directoryPath: path.resolve(targetPath || ''),
+      dryRun,
+      registryUrl: registry,
+    });
   });
 
-program.version(version!, '-v, --version').description(description!).parse();
+program.version(version!, '-v, --version').description(description!).parseAsync().catch(reportProcessError);
