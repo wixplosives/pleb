@@ -13,10 +13,10 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "prebuild": "npm run clean",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc --build",
     "pretest": "npm run typecheck && npm run lint && npm run build",
     "test": "npm run test:spec",
-    "test:spec": "mocha \"./test/**/*.spec.ts\"",
+    "test:spec": "mocha \"./dist/test/**/*.spec.js\"",
     "lint": "eslint .",
     "prepack": "npm run build",
     "typecheck": "tsc --noEmit",
@@ -33,7 +33,6 @@
     "type-fest": "^2.5.1"
   },
   "devDependencies": {
-    "@ts-tools/esm": "^3.0.1",
     "@types/chai": "^4.2.22",
     "@types/mocha": "^9.0.0",
     "@types/node": "12",
@@ -51,7 +50,9 @@
   "files": [
     "bin",
     "dist",
-    "src"
+    "!dist/test",
+    "src",
+    "!*/tsconfig.{json,tsbuildinfo}"
   ],
   "engines": {
     "node": ">=12"

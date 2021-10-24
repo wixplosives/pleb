@@ -16,7 +16,7 @@
     {
       "files": ["*.ts", "*.tsx"],
       "parserOptions": {
-        "project": "./tsconfig.json"
+        "project": "./{src,test}/tsconfig.json"
       },
       "extends": [
         "plugin:@typescript-eslint/recommended",

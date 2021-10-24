@@ -35,7 +35,7 @@ export async function publish({
   const directoryContext = resolveDirectoryContext(directoryPath);
   const packages = childPackagesFromContext(directoryContext);
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
-  const resolvedRegistryUrl = registryUrl ?? npmConfig.registry ?? officialNpmRegistryUrl;
+  const resolvedRegistryUrl = registryUrl ?? npmConfig['registry'] ?? officialNpmRegistryUrl;
   const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
   const registry = new NpmRegistry(resolvedRegistryUrl, token);
 

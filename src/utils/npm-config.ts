@@ -16,8 +16,8 @@ export async function loadEnvNpmConfig({ basePath }: LoadNpmConfigOptions = {}):
   const configFilePaths = new Set<string | undefined>();
 
   configFilePaths.add(path.join(os.homedir(), '.npmrc'));
-  configFilePaths.add(process.env.NPM_CONFIG_GLOBALCONFIG);
-  configFilePaths.add(process.env.NPM_CONFIG_USERCONFIG);
+  configFilePaths.add(process.env['NPM_CONFIG_GLOBALCONFIG']);
+  configFilePaths.add(process.env['NPM_CONFIG_USERCONFIG']);
   configFilePaths.add(await findUp('.npmrc', { cwd: basePath }));
 
   for (const configFilePath of configFilePaths) {

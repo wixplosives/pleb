@@ -3,8 +3,8 @@ import { fileURLToPath, URL } from 'url';
 import { expect } from 'chai';
 import { spawnAsync } from './spawn-async.js';
 
-const fixturesRoot = fileURLToPath(new URL('./fixtures', import.meta.url));
-const cliEntryPath = fileURLToPath(new URL('../bin/pleb.js', import.meta.url));
+const fixturesRoot = fileURLToPath(new URL('../../test/fixtures', import.meta.url));
+const cliEntryPath = fileURLToPath(new URL('../../bin/pleb.js', import.meta.url));
 
 const runCli = async (cliArgs: string[] = []) =>
   spawnAsync('node', [cliEntryPath, ...cliArgs, '--dry-run'], {

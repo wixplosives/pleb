@@ -21,7 +21,7 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
   const packages = allPackagesFromContext(directoryContext);
 
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
-  const resolvedRegistryUrl = registryUrl ?? npmConfig.registry ?? officialNpmRegistryUrl;
+  const resolvedRegistryUrl = registryUrl ?? npmConfig['registry'] ?? officialNpmRegistryUrl;
   const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
   const registry = new NpmRegistry(resolvedRegistryUrl, token);
 
