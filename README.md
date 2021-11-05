@@ -43,13 +43,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 14
+      - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16
           registry-url: 'https://registry.npmjs.org/'
-      - run: npm i -g yarn@1
-      - run: yarn
+      - run: npm ci
       - run: npx pleb publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -71,7 +70,7 @@ deploy:
   script: npx pleb publish
   on:
     branch: master
-    node_js: 14
+    node_js: 16
     condition: $TRAVIS_OS_NAME = linux
 ```
 
