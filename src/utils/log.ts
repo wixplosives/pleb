@@ -1,6 +1,4 @@
-import chalk from 'chalk';
-
-const { green, yellow, red } = chalk;
+import { green, yellow, red } from 'colorette';
 
 /* eslint-disable no-console */
 export const log = (message: unknown): void => console.log(`${green('#')} ${String(message)}`);
