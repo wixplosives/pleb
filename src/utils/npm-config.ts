@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { findUp } from 'find-up';
+import { findFileUpSync } from '@wixc3/resolve-directory-context';
 import { parseIni } from './ini.js';
 import { fileExists } from './fs.js';
 
@@ -9,7 +9,7 @@ export interface LoadNpmConfigOptions {
   basePath?: string;
 }
 
-export async function loadEnvNpmConfig({ basePath }: LoadNpmConfigOptions = {}): Promise<
+export async function loadEnvNpmConfig({ basePath = process.cwd() }: LoadNpmConfigOptions = {}): Promise<
   Record<string, string | undefined>
 > {
   const config: Record<string, string> = {};
@@ -18,7 +18,7 @@ export async function loadEnvNpmConfig({ basePath }: LoadNpmConfigOptions = {}):
   configFilePaths.add(path.join(os.homedir(), '.npmrc'));
   configFilePaths.add(process.env['NPM_CONFIG_GLOBALCONFIG']);
   configFilePaths.add(process.env['NPM_CONFIG_USERCONFIG']);
-  configFilePaths.add(await findUp('.npmrc', { cwd: basePath }));
+  configFilePaths.add(findFileUpSync(basePath, '.npmrc'));
 
   for (const configFilePath of configFilePaths) {
     if (typeof configFilePath === 'string') {
