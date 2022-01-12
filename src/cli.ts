@@ -33,6 +33,23 @@ program
   });
 
 program
+  .command('version [target]')
+  .description('careful upgrade semver version of selected packages')
+  .option('--dry-run', 'no actual file system operations', false)
+  .option('--mode', 'major | minor | patch', undefined) // TODO: expend to all Modes
+  .option('--identifier', 'identifier for the release', '')
+  .action(async (targetPath: string, { dryRun, mode, identifier }) => {
+    const { version } = await import('./commands/version.js');
+
+    version({
+      directoryPath: path.resolve(targetPath || ''),
+      identifier,
+      dryRun,
+      mode,
+    });
+  });
+
+program
   .command('upgrade [target]')
   .description('upgrade dependencies and devDependencies of all packages')
   .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
