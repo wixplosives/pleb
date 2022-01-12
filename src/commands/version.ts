@@ -1,9 +1,4 @@
-import {
-  resolveDirectoryContext,
-  MultiPackageContext,
-  childPackagesFromContext,
-  SinglePackageContext,
-} from '@wixc3/resolve-directory-context';
+import { resolveDirectoryContext, getRootPackage, childPackagesFromContext } from '@wixc3/resolve-directory-context';
 import { upgrade } from '../utils/workspace-upgrade.js';
 import { versionSelector } from '../utils/version-selector.js';
 import { type Modes, preProcessPackages } from '../utils/semver.js';
@@ -45,9 +40,4 @@ export function version({ directoryPath, dryRun, mode, identifier }: VersionOpti
       process.exit(0); // TODO
     },
   });
-}
-
-//TODO: move to @wixc3/resolve-directory-context
-function getRootPackage(directoryContext: SinglePackageContext | MultiPackageContext) {
-  return directoryContext.type === 'single' ? directoryContext.npmPackage : directoryContext.rootPackage;
 }
