@@ -19,7 +19,7 @@ export function spawnSyncLogged(
   options: SpawnSyncOptions,
   label = options.cwd || process.cwd()
 ): SpawnSyncReturns<string | Buffer> {
-  log(`${label}: ${command} ${args.join(' ')}`);
+  log(`${label.toString()}: ${command} ${args.join(' ')}`);
   return spawnSyncSafe(command, args, options);
 }
 

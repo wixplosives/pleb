@@ -14,7 +14,10 @@ export async function fetchText(url: string | URL, options: https.RequestOptions
   return readTextFromStream(response);
 }
 
-export async function readTextFromStream(readable: NodeJS.ReadableStream, encoding = 'utf8'): Promise<string> {
+export async function readTextFromStream(
+  readable: NodeJS.ReadableStream,
+  encoding: BufferEncoding = 'utf8'
+): Promise<string> {
   let text = '';
   readable.setEncoding(encoding);
   for await (const chunk of readable) {
