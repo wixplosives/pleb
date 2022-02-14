@@ -32,7 +32,7 @@ export async function publish({
   registryUrl,
   tag = 'latest',
 }: PublishOptions): Promise<void> {
-  const directoryContext = resolveDirectoryContext(directoryPath);
+  const directoryContext = resolveDirectoryContext(directoryPath, { ...fs, ...path });
   const packages = childPackagesFromContext(directoryContext);
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
   const resolvedRegistryUrl = registryUrl ?? npmConfig['registry'] ?? officialNpmRegistryUrl;

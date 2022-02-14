@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import fs from 'fs';
+import path from 'path';
 import PromiseQueue from 'p-queue';
 import semver from 'semver';
 import { resolveDirectoryContext, allPackagesFromContext, isString } from '@wixc3/resolve-directory-context';
@@ -17,7 +18,7 @@ export interface UpgradeOptions {
 }
 
 export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOptions): Promise<void> {
-  const directoryContext = resolveDirectoryContext(directoryPath);
+  const directoryContext = resolveDirectoryContext(directoryPath, { ...fs, ...path });
   const packages = allPackagesFromContext(directoryContext);
 
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });

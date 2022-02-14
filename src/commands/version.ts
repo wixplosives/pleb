@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import type { PackageJson } from 'type-fest';
 import { resolveDirectoryContext, getRootPackage } from '@wixc3/resolve-directory-context';
 import { spawnSyncLogged } from '../utils/process.js';
@@ -11,7 +12,7 @@ export interface VersionOptions {
 }
 
 export async function version({ directoryPath, target = 'patch' }: VersionOptions): Promise<void> {
-  const directoryContext = resolveDirectoryContext(directoryPath);
+  const directoryContext = resolveDirectoryContext(directoryPath, { ...fs, ...path });
   const rootPackage = getRootPackage(directoryContext);
   spawnSyncLogged(
     'npm',

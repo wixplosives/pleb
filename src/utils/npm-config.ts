@@ -18,7 +18,7 @@ export async function loadEnvNpmConfig({ basePath = process.cwd() }: LoadNpmConf
   configFilePaths.add(path.join(os.homedir(), '.npmrc'));
   configFilePaths.add(process.env['NPM_CONFIG_GLOBALCONFIG']);
   configFilePaths.add(process.env['NPM_CONFIG_USERCONFIG']);
-  configFilePaths.add(findFileUpSync(basePath, '.npmrc'));
+  configFilePaths.add(findFileUpSync(basePath, '.npmrc', { ...fs, ...path }));
 
   for (const configFilePath of configFilePaths) {
     if (typeof configFilePath === 'string') {
