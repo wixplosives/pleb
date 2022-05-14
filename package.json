@@ -22,7 +22,7 @@
     "prettify": "npx prettier . --write"
   },
   "dependencies": {
-    "@wixc3/resolve-directory-context": "^2.0.0",
+    "@wixc3/resolve-directory-context": "^3.0.0",
     "colorette": "^2.0.16",
     "commander": "^9.2.0",
     "p-queue": "^7.2.0",
