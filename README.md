@@ -37,7 +37,7 @@ Save the following as `npm.yml`:
 name: npm
 on:
   push:
-    branches: [master]
+    branches: [main]
 jobs:
   npm:
     runs-on: ubuntu-latest
@@ -69,7 +69,7 @@ deploy:
   provider: script
   script: npx pleb publish
   on:
-    branch: master
+    branch: main
     node_js: 16
     condition: $TRAVIS_OS_NAME = linux
 ```

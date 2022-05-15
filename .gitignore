@@ -2,7 +2,7 @@
 .idea
 .vscode
 
-# Below is a copy of https://github.com/github/gitignore/blob/master/Node.gitignore
+# Below is a copy of https://github.com/github/gitignore/blob/main/Node.gitignore
 
 # Logs
 logs
