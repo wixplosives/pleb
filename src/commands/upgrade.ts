@@ -34,8 +34,8 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
         .filter(
           ([packageName, packageVersion]) =>
             !internalPackageNames.has(packageName) &&
-            !isFileColonRequest(packageVersion) &&
-            !(packageName === '@types/node' && isPureNumericRequest(packageVersion))
+            !isFileColonRequest(packageVersion!) &&
+            !(packageName === '@types/node' && isPureNumericRequest(packageVersion!))
         )
         .map(([packageName]) => packageName)
     )

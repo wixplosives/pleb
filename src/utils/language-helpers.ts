@@ -1,6 +1,12 @@
 export const noop = (): void => undefined;
 
 export function mapRecord<T>(
+  obj: Partial<Record<string, T>>,
+  replaceFn: (key: string, currentValue: T) => T,
+  targetObj?: Partial<Record<string, T>>,
+  onReplace?: (key: string, originalValue: T, newValue: T) => void
+): Partial<Record<string, T>>;
+export function mapRecord<T>(
   obj: Record<string, T>,
   replaceFn: (key: string, currentValue: T) => T,
   targetObj: Record<string, T> = {},
