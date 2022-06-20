@@ -25,6 +25,25 @@ Publish unpublished packages.
 Upgrade `dependencies` and `devDependencies` of all packages.
 Checks the registry for `latest` version of each package, and updates `package.json` files with the new request.
 
+## Configuration File
+
+**pleb** looks up `pleb.config.js` (or `.mjs` / `.cjs`) in the current directory and loads configuration from it, if exists.
+
+e.g.:
+
+```js
+// pleb.config.mjs
+
+/** @type import('pleb').Configuration */
+export default {
+  pinnedPackages: ['react', 'react-dom', { name: 'execa', reason: 'newer version are pure ESM' }],
+};
+```
+
+Available configuration fields:
+
+- `"pinnedPackages"` - skip upgrading specified packages during `pleb upgrade`. Any skipped packages, with their optional `reason`, will be printed in the upgrade report.
+
 ## Integration
 
 ### GitHub Actions
@@ -52,26 +71,6 @@ jobs:
       - run: npx pleb publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-```
-
-### Travis CI
-
-Inject `NPM_TOKEN` as a secure environment variable in Travis repository settings.
-
-Add following to the end of `.travis.yml`:
-
-```yml
-before_deploy:
-  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > ~/.npmrc
-
-deploy:
-  skip_cleanup: true
-  provider: script
-  script: npx pleb publish
-  on:
-    branch: main
-    node_js: 16
-    condition: $TRAVIS_OS_NAME = linux
 ```
 
 ### License

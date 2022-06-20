@@ -7,7 +7,7 @@ import { resolveDirectoryContext, allPackagesFromContext, isString } from '@wixc
 import { createCliProgressBar } from '../utils/cli-progress-bar.js';
 import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry.js';
 import { loadEnvNpmConfig } from '../utils/npm-config.js';
-import { mapRecord } from '../utils/language-helpers.js';
+import { normalizePinnedPackages, loadPlebConfig } from '../utils/config.js';
 
 const { gt, coerce } = semver;
 
@@ -20,7 +20,8 @@ export interface UpgradeOptions {
 export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOptions): Promise<void> {
   const directoryContext = resolveDirectoryContext(directoryPath, { ...fs, ...path });
   const packages = allPackagesFromContext(directoryContext);
-
+  const plebConfig = await loadPlebConfig(directoryPath);
+  const pinnedPackages = normalizePinnedPackages(plebConfig.pinnedPackages);
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
   const resolvedRegistryUrl = registryUrl ?? npmConfig['registry'] ?? officialNpmRegistryUrl;
   const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
@@ -71,17 +72,38 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
   };
 
   const replacements = new Map<string, { originalValue: string; newValue: string }>();
-  const onReplace = (key: string, originalValue: string, newValue: string) =>
-    replacements.set(key, { originalValue, newValue });
+  const skipped = new Map<string, { originalValue: string; newValue: string; reason: string }>();
+
+  function mapDependencies(obj: Partial<Record<string, string>>): Partial<Record<string, string>> {
+    const newObj: Partial<Record<string, string>> = {};
+    for (const [packageName, request] of Object.entries(obj)) {
+      const newVersionRequest = getVersionRequest(packageName, request!);
+      newObj[packageName] = request;
+
+      if (newVersionRequest !== request) {
+        if (pinnedPackages.has(packageName)) {
+          skipped.set(packageName, {
+            originalValue: request!,
+            newValue: newVersionRequest,
+            reason: pinnedPackages.get(packageName)!,
+          });
+        } else {
+          replacements.set(packageName, { originalValue: request!, newValue: newVersionRequest });
+          newObj[packageName] = newVersionRequest;
+        }
+      }
+    }
+    return newObj;
+  }
 
   for (const { packageJsonPath, packageJson, packageJsonContent } of packages) {
     const { dependencies, devDependencies } = packageJson;
     const newPackageJson = { ...packageJson };
     if (dependencies) {
-      newPackageJson.dependencies = mapRecord(dependencies, getVersionRequest, undefined, onReplace);
+      newPackageJson.dependencies = mapDependencies(dependencies);
     }
     if (devDependencies) {
-      newPackageJson.devDependencies = mapRecord(devDependencies, getVersionRequest, undefined, onReplace);
+      newPackageJson.devDependencies = mapDependencies(devDependencies);
     }
 
     if (!dryRun) {
@@ -97,9 +119,21 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
     console.log('Changes:');
     const maxKeyLength = Array.from(replacements.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
     for (const [key, { originalValue, newValue }] of replacements) {
-      console.log(`${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}`);
+      console.log(`  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}`);
     }
-  } else {
+  }
+
+  if (skipped.size) {
+    console.log('Skipped:');
+    const maxKeyLength = Array.from(skipped.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
+    for (const [key, { originalValue, reason, newValue }] of skipped) {
+      console.log(
+        `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}` + (reason ? ` (${reason})` : ``)
+      );
+    }
+  }
+
+  if (!replacements.size) {
     console.log('Nothing to upgrade.');
   }
 }
