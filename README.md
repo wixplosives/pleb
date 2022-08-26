@@ -34,7 +34,7 @@ e.g.:
 ```js
 // pleb.config.mjs
 
-/** @type import('pleb').Configuration */
+/** @type import('pleb').PlebConfiguration */
 export default {
   pinnedPackages: ['react', 'react-dom', { name: 'execa', reason: 'newer version are pure ESM' }],
 };
