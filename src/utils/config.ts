@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { findFileUpSync, isPlainObject, isString } from '@wixc3/resolve-directory-context';
 
 export type SkipConfiguration = string | { name: string; reason?: string };
@@ -19,7 +20,7 @@ export async function loadPlebConfig(directoryPath: string): Promise<Configurati
   for (const configName of possibleConfigNames) {
     const configFilePath = findFileUpSync(directoryPath, configName, host);
     if (configFilePath !== undefined) {
-      const { default: configValue } = (await import(configFilePath)) as { default: unknown };
+      const { default: configValue } = (await import(pathToFileURL(configFilePath).href)) as { default: unknown };
       if (!isPlainObject(configValue)) {
         throw new Error(`config file ${configFilePath} doesn't export a default object`);
       }
