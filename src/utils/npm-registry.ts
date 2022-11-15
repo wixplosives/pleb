@@ -1,7 +1,6 @@
 import url from 'url';
 import http from 'http';
 import https from 'https';
-import { URL } from 'url';
 import { isPlainObject } from '@wixc3/resolve-directory-context';
 import { fetchText, isSecureUrl, FetchError } from './http.js';
 

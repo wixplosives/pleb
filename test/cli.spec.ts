@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { fileURLToPath, URL } from 'url';
+import { fileURLToPath } from 'url';
 import { expect } from 'chai';
 import { spawnAsync } from './spawn-async.js';
 

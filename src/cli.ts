@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import fs from 'fs';
 import path from 'path';
-import { URL } from 'url';
 import { Command } from 'commander';
 import type { PackageJson } from 'type-fest';
 import { reportProcessError } from './utils/process.js';

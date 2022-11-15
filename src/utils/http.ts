@@ -1,7 +1,6 @@
 import http from 'http';
 import https from 'https';
 import { once } from 'events';
-import { URL } from 'url';
 
 export async function fetchText(url: string | URL, options: https.RequestOptions = {}): Promise<string> {
   const request = isSecureUrl(url) ? https.get(url, options) : http.get(url, options);
@@ -27,7 +26,7 @@ export async function readTextFromStream(
 }
 
 export function isSecureUrl(url: string | URL): boolean {
-  return url instanceof URL ? url.protocol === 'https' : url.startsWith('https://');
+  return url instanceof URL ? url.protocol === 'https:' : url.startsWith('https://');
 }
 
 export class FetchError extends Error {
