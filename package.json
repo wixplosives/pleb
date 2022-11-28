@@ -28,7 +28,7 @@
     "p-queue": "^7.3.0",
     "promise-assist": "^1.3.0",
     "semver": "^7.3.8",
-    "type-fest": "^3.2.0"
+    "type-fest": "^3.3.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
