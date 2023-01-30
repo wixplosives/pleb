@@ -11,13 +11,29 @@ import { normalizePinnedPackages, loadPlebConfig } from '../utils/config.js';
 
 const { gt, coerce } = semver;
 
+type RequiredRegistryApi = Pick<NpmRegistry, 'fetchDistTags' | 'dispose'>;
+
 export interface UpgradeOptions {
   directoryPath: string;
   dryRun?: boolean;
   registryUrl?: string;
+  createRegistry?: (url: string, token?: string) => RequiredRegistryApi;
+  log?: (message: unknown) => void;
+  logError?: (message: unknown) => void;
 }
 
-export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOptions): Promise<void> {
+function createDefaultRegistry(url: string, token?: string) {
+  return new NpmRegistry(url, token);
+}
+
+export async function upgrade({
+  directoryPath,
+  registryUrl,
+  dryRun,
+  createRegistry = createDefaultRegistry,
+  log = console.log,
+  logError = console.error,
+}: UpgradeOptions): Promise<void> {
   const directoryContext = resolveDirectoryContext(directoryPath, { ...fs, ...path });
   const packages = allPackagesFromContext(directoryContext);
   const plebConfig = await loadPlebConfig(directoryPath);
@@ -25,7 +41,7 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
   const resolvedRegistryUrl = registryUrl ?? npmConfig['registry'] ?? officialNpmRegistryUrl;
   const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
-  const registry = new NpmRegistry(resolvedRegistryUrl, token);
+  const registry = createRegistry(resolvedRegistryUrl, token);
 
   const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name!));
 
@@ -42,10 +58,11 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
     )
   );
 
-  console.log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
+  log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
   const packageNameToVersion = await fetchLatestPackageVersions({
     packageNames: externalPackageNames,
     registry,
+    logError,
   });
   registry.dispose();
 
@@ -116,36 +133,38 @@ export async function upgrade({ directoryPath, registryUrl, dryRun }: UpgradeOpt
     }
   }
   if (replacements.size) {
-    console.log('Changes:');
+    log('Changes:');
     const maxKeyLength = Array.from(replacements.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
     for (const [key, { originalValue, newValue }] of replacements) {
-      console.log(`  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}`);
+      log(`  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}`);
     }
   }
 
   if (skipped.size) {
-    console.log('Skipped:');
+    log('Skipped:');
     const maxKeyLength = Array.from(skipped.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
     for (const [key, { originalValue, reason, newValue }] of skipped) {
-      console.log(
+      log(
         `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}` + (reason ? ` (${reason})` : ``)
       );
     }
   }
 
   if (!replacements.size) {
-    console.log('Nothing to upgrade.');
+    log('Nothing to upgrade.');
   }
 }
 
 export interface IFetchLatestPackageVersionsOptions {
-  registry: NpmRegistry;
+  registry: RequiredRegistryApi;
   packageNames: Set<string>;
+  logError: (message: unknown) => void;
 }
 
 export async function fetchLatestPackageVersions({
   registry,
   packageNames,
+  logError,
 }: IFetchLatestPackageVersionsOptions): Promise<Map<string, string>> {
   const cliProgress = createCliProgressBar();
   const packageNameToVersion = new Map<string, string>();
@@ -162,7 +181,7 @@ export async function fetchLatestPackageVersions({
         }
         packageNameToVersion.set(packageName, latest);
       } catch (e) {
-        console.error((e as Error)?.message || e);
+        logError((e as Error)?.message || e);
       }
       cliProgress.update((packageNames.size - fetchQueue.size) / packageNames.size);
     });

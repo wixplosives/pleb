@@ -1,5 +1,8 @@
 {
   "name": "lerna-workspace-b",
   "version": "1.0.0",
-  "scripts": {}
+  "scripts": {},
+  "dependencies": {
+    "external-b": "^1.0.0"
+  }
 }

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {},
   "dependencies": {
-    "lerna-workspace-b": "^1.0.0"
+    "lerna-workspace-b": "^1.0.0",
+    "external-a": "^1.0.0"
   }
 }
