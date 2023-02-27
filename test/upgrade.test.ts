@@ -34,7 +34,6 @@ describe('pleb upgrade', () => {
     const newPackagePath = join(fixturesRoot, 'new-package');
     const { log, logError, output } = createMockOutput();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await upgrade({
       dryRun: true,
       directoryPath: newPackagePath,
@@ -54,7 +53,6 @@ describe('pleb upgrade', () => {
     const newPackagePath = join(fixturesRoot, 'dependencies');
     const { log, logError, output } = createMockOutput();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await upgrade({
       dryRun: true,
       directoryPath: newPackagePath,
@@ -79,7 +77,6 @@ describe('pleb upgrade', () => {
     const newPackagePath = join(fixturesRoot, 'dependencies');
     const { log, logError, output } = createMockOutput();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await upgrade({
       dryRun: true,
       directoryPath: newPackagePath,
@@ -106,7 +103,6 @@ describe('pleb upgrade', () => {
     const newPackagePath = join(fixturesRoot, 'dependencies-exact');
     const { log, logError, output } = createMockOutput();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await upgrade({
       dryRun: true,
       directoryPath: newPackagePath,
@@ -130,7 +126,6 @@ describe('pleb upgrade', () => {
     const newPackagePath = join(fixturesRoot, 'dependencies-file-ref');
     const { log, logError, output } = createMockOutput();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await upgrade({
       dryRun: true,
       directoryPath: newPackagePath,
@@ -154,7 +149,6 @@ describe('pleb upgrade', () => {
     const newPackagePath = join(fixturesRoot, 'yarn-workspace');
     const { log, logError, output } = createMockOutput();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await upgrade({
       dryRun: true,
       directoryPath: newPackagePath,
@@ -181,7 +175,6 @@ describe('pleb upgrade', () => {
     const newPackagePath = join(fixturesRoot, 'lerna-workspace');
     const { log, logError, output } = createMockOutput();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await upgrade({
       dryRun: true,
       directoryPath: newPackagePath,
@@ -208,7 +201,6 @@ describe('pleb upgrade', () => {
     const newPackagePath = join(fixturesRoot, 'dependencies-pinned');
     const { log, logError, output } = createMockOutput();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await upgrade({
       dryRun: true,
       directoryPath: newPackagePath,
