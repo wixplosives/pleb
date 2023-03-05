@@ -1,7 +1,7 @@
 {
   "name": "pleb",
   "description": "a casual publisher",
-  "version": "5.1.3",
+  "version": "5.1.4",
   "type": "module",
   "exports": {
     ".": "./dist/index.js"
