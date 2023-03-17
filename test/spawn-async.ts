@@ -1,4 +1,4 @@
-import { spawn, SpawnOptions } from 'child_process';
+import { spawn, type SpawnOptions } from 'child_process';
 import { once } from 'events';
 
 export interface ISpawnAsyncOptions extends SpawnOptions {

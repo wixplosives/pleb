@@ -2,7 +2,7 @@ import fs from 'fs';
 import type childProcess from 'child_process';
 import { retry } from 'promise-assist';
 import type { PackageJson } from 'type-fest';
-import { INpmPackage, isString, isPlainObject } from '@wixc3/resolve-directory-context';
+import { type INpmPackage, isString, isPlainObject } from '@wixc3/resolve-directory-context';
 import type { NpmRegistry } from './npm-registry.js';
 import { spawnSyncLogged } from './process.js';
 import { logWarn, log } from './log.js';
