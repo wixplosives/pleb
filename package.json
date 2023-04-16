@@ -24,7 +24,7 @@
   "dependencies": {
     "@wixc3/resolve-directory-context": "^3.0.5",
     "colorette": "^2.0.19",
-    "commander": "^10.0.0",
+    "commander": "^10.0.1",
     "p-queue": "^7.3.4",
     "promise-assist": "^2.0.1",
     "semver": "^7.4.0",
