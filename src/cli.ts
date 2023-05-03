@@ -46,4 +46,18 @@ program
     });
   });
 
+program
+  .command('version [minor|major|patch]')
+  .description('upgrade dependencies and devDependencies of all packages')
+  .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
+  .action(async (target: string | undefined, { dryRun }) => {
+    const { version } = await import('./commands/version.js');
+
+    await version({
+      directoryPath: process.cwd(),
+      dryRun,
+      target,
+    });
+  });
+
 program.version(version!, '-v, --version').description(description!).parseAsync().catch(reportProcessError);
