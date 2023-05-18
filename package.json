@@ -41,7 +41,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
     "mocha": "^10.2.0",
-    "rimraf": "^5.0.0",
+    "rimraf": "^5.0.1",
     "typescript": "~5.0.4"
   },
   "files": [
