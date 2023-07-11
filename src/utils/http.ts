@@ -20,7 +20,7 @@ export async function readTextFromStream(
   let text = '';
   readable.setEncoding(encoding);
   for await (const chunk of readable) {
-    text += chunk;
+    text += chunk as string;
   }
   return text;
 }
