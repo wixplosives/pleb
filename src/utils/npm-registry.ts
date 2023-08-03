@@ -13,7 +13,10 @@ export interface NpmRegistryDistTags {
 
 export class NpmRegistry {
   agent?: http.Agent | https.Agent;
-  constructor(public url: string, private token?: string) {}
+  constructor(
+    public url: string,
+    private token?: string,
+  ) {}
 
   public async fetchDistTags(packageName: string): Promise<NpmRegistryDistTags> {
     this.ensureAgent();

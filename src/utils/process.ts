@@ -6,8 +6,8 @@ export const spawnSyncSafe = ((...args: Parameters<typeof spawnSync>) => {
   if (spawnResult.status !== 0) {
     throw new Error(
       `Command "${args.filter((arg) => typeof arg === 'string').join(' ')}" failed with exit code ${String(
-        spawnResult.status
-      )}.`
+        spawnResult.status,
+      )}.`,
     );
   }
   return spawnResult;
@@ -17,7 +17,7 @@ export function spawnSyncLogged(
   command: string,
   args: string[],
   options: SpawnSyncOptions,
-  label = options.cwd || process.cwd()
+  label = options.cwd || process.cwd(),
 ): SpawnSyncReturns<string | Buffer> {
   log(`${label.toString()}: ${command} ${args.join(' ')}`);
   return spawnSyncSafe(command, args, options);

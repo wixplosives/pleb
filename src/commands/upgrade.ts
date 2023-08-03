@@ -44,10 +44,10 @@ export async function upgrade({
           ([packageName, packageVersion]) =>
             !internalPackageNames.has(packageName) &&
             !isFileColonRequest(packageVersion!) &&
-            !(packageName === '@types/node' && isPureNumericRequest(packageVersion!))
+            !(packageName === '@types/node' && isPureNumericRequest(packageVersion!)),
         )
-        .map(([packageName]) => packageName)
-    )
+        .map(([packageName]) => packageName),
+    ),
   );
 
   log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
@@ -137,7 +137,8 @@ export async function upgrade({
     const maxKeyLength = Array.from(skipped.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
     for (const [key, { originalValue, reason, newValue }] of skipped) {
       log(
-        `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}` + (reason ? ` (${reason})` : ``)
+        `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}` +
+          (reason ? ` (${reason})` : ``),
       );
     }
   }

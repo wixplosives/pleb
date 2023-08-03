@@ -75,7 +75,7 @@ export function executePrepublishScripts({ displayName, directoryPath, packageJs
 
 export async function removePrepublishScripts(
   packageJsonPath: string,
-  filesToRestore: Map<string, string>
+  filesToRestore: Map<string, string>,
 ): Promise<void> {
   const packageJsonContents = await fs.promises.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContents) as PackageJson;

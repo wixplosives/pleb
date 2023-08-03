@@ -35,6 +35,6 @@ export function normalizePinnedPackages(pinnedPackages: Configuration['pinnedPac
   return new Map(
     pinnedPackages.map((value) => {
       return isString(value) ? [value, ''] : [value.name, value.reason ?? ''];
-    })
+    }),
   );
 }
