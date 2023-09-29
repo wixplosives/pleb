@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { spawnAsync } from './spawn-async.js';
 
@@ -11,9 +12,7 @@ const runCli = async (cliArgs: string[] = []) =>
     pipeStreams: true,
   });
 
-describe('pleb publish', function () {
-  this.timeout(30_000);
-
+describe('pleb publish', { timeout: 30_000 }, function () {
   it('allows publishing new (not published) packages', async () => {
     const newPackagePath = join(fixturesRoot, 'new-package');
 

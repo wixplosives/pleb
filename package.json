@@ -16,7 +16,7 @@
     "build": "tsc --build",
     "pretest": "npm run lint && npm run build",
     "test": "npm run test:only",
-    "test:only": "mocha \"./dist/test/**/*.test.js\"",
+    "test:only": "node --test ./dist/test",
     "lint": "eslint .",
     "prepack": "npm run build",
     "prettify": "npx prettier . --write"
@@ -31,14 +31,12 @@
     "type-fest": "^4.3.2"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.2",
     "@types/node": "18",
     "@types/semver": "^7.5.3",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
-    "mocha": "^10.2.0",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
     "typescript": "~5.2.2"
