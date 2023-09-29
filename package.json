@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.2",
-    "@types/node": "16",
+    "@types/node": "18",
     "@types/semver": "^7.5.3",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "eslint": "^8.50.0",
@@ -51,7 +51,7 @@
     "!*/tsconfig.{json,tsbuildinfo}"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "keywords": [
     "publish",
