@@ -1,4 +1,4 @@
-import { spawnSync, type SpawnSyncOptions, type SpawnSyncReturns } from 'child_process';
+import { spawnSync, type SpawnSyncOptions, type SpawnSyncReturns } from 'node:child_process';
 import { log, logError } from './log.js';
 
 export const spawnSyncSafe = ((...args: Parameters<typeof spawnSync>) => {

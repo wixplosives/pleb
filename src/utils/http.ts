@@ -1,6 +1,6 @@
-import http from 'http';
-import https from 'https';
-import { once } from 'events';
+import http from 'node:http';
+import https from 'node:https';
+import { once } from 'node:events';
 
 export async function fetchText(url: string | URL, options: https.RequestOptions = {}): Promise<string> {
   const request = isSecureUrl(url) ? https.get(url, options) : http.get(url, options);

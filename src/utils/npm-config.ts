@@ -1,9 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
 import { findFileUpSync } from '@wixc3/resolve-directory-context';
-import { parseIni } from './ini.js';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { fileExists } from './fs.js';
+import { parseIni } from './ini.js';
 
 export interface LoadNpmConfigOptions {
   basePath?: string;
