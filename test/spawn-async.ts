@@ -1,5 +1,5 @@
-import { spawn, SpawnOptions } from 'child_process';
-import { once } from 'events';
+import { spawn, type SpawnOptions } from 'node:child_process';
+import { once } from 'node:events';
 
 export interface ISpawnAsyncOptions extends SpawnOptions {
   pipeStreams?: boolean;

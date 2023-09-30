@@ -1,6 +1,7 @@
-import { join } from 'path';
-import { fileURLToPath } from 'url';
-import { expect } from 'chai';
+import { describe, it } from 'node:test';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import assert from 'node:assert/strict';
 import { upgrade } from 'pleb';
 
 const fixturesRoot = fileURLToPath(new URL('../../test/fixtures', import.meta.url));
@@ -43,7 +44,7 @@ describe('pleb upgrade', () => {
       logError,
     });
 
-    expect(output).to.eql([
+    assert.deepEqual(output, [
       { type: 'log', message: 'Getting "latest" version for 0 dependencies...' },
       { type: 'log', message: 'Nothing to upgrade.' },
     ]);
@@ -67,7 +68,7 @@ describe('pleb upgrade', () => {
       logError,
     });
 
-    expect(output).to.eql([
+    assert.deepEqual(output, [
       { type: 'log', message: 'Getting "latest" version for 3 dependencies...' },
       { type: 'log', message: 'Nothing to upgrade.' },
     ]);
@@ -91,7 +92,7 @@ describe('pleb upgrade', () => {
       logError,
     });
 
-    expect(output).to.eql([
+    assert.deepEqual(output, [
       { type: 'log', message: 'Getting "latest" version for 3 dependencies...' },
       { type: 'log', message: 'Changes:' },
       { type: 'log', message: '  package-b     ~1.0.0 -> ~2.0.0' },
@@ -115,7 +116,7 @@ describe('pleb upgrade', () => {
       logError,
     });
 
-    expect(output).to.eql([
+    assert.deepEqual(output, [
       { type: 'log', message: 'Getting "latest" version for 1 dependencies...' },
       { type: 'log', message: 'Changes:' },
       { type: 'log', message: '  package-a      1.0.0 -> ^1.0.0' },
@@ -139,7 +140,7 @@ describe('pleb upgrade', () => {
       logError,
     });
 
-    expect(output).to.eql([
+    assert.deepEqual(output, [
       { type: 'log', message: 'Getting "latest" version for 1 dependencies...' },
       { type: 'log', message: 'Nothing to upgrade.' },
     ]);
@@ -163,7 +164,7 @@ describe('pleb upgrade', () => {
       logError,
     });
 
-    expect(output).to.eql([
+    assert.deepEqual(output, [
       { type: 'log', message: 'Getting "latest" version for 2 dependencies...' },
       { type: 'log', message: 'Changes:' },
       { type: 'log', message: '  external-b     ^1.0.0 -> ^2.0.0' },
@@ -189,7 +190,7 @@ describe('pleb upgrade', () => {
       logError,
     });
 
-    expect(output).to.eql([
+    assert.deepEqual(output, [
       { type: 'log', message: 'Getting "latest" version for 2 dependencies...' },
       { type: 'log', message: 'Changes:' },
       { type: 'log', message: '  external-b     ^1.0.0 -> ^2.0.0' },
@@ -214,7 +215,7 @@ describe('pleb upgrade', () => {
       logError,
     });
 
-    expect(output).to.eql([
+    assert.deepEqual(output, [
       { type: 'log', message: 'Getting "latest" version for 2 dependencies...' },
       { type: 'log', message: 'Changes:' },
       { type: 'log', message: '  package-a     ~1.0.0 -> ~2.0.0' },

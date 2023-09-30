@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import { pathToFileURL } from 'url';
 import { findFileUpSync, isPlainObject, isString } from '@wixc3/resolve-directory-context';
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 export type SkipConfiguration = string | { name: string; reason?: string };
 
@@ -35,6 +35,6 @@ export function normalizePinnedPackages(pinnedPackages: Configuration['pinnedPac
   return new Map(
     pinnedPackages.map((value) => {
       return isString(value) ? [value, ''] : [value.name, value.reason ?? ''];
-    })
+    }),
   );
 }

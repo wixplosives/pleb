@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 export async function fileExists(filePath: fs.PathLike): Promise<boolean> {
   try {

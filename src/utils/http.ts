@@ -1,6 +1,6 @@
-import http from 'http';
-import https from 'https';
-import { once } from 'events';
+import http from 'node:http';
+import https from 'node:https';
+import { once } from 'node:events';
 
 export async function fetchText(url: string | URL, options: https.RequestOptions = {}): Promise<string> {
   const request = isSecureUrl(url) ? https.get(url, options) : http.get(url, options);
@@ -15,12 +15,12 @@ export async function fetchText(url: string | URL, options: https.RequestOptions
 
 export async function readTextFromStream(
   readable: NodeJS.ReadableStream,
-  encoding: BufferEncoding = 'utf8'
+  encoding: BufferEncoding = 'utf8',
 ): Promise<string> {
   let text = '';
   readable.setEncoding(encoding);
   for await (const chunk of readable) {
-    text += chunk;
+    text += chunk as string;
   }
   return text;
 }
@@ -30,7 +30,10 @@ export function isSecureUrl(url: string | URL): boolean {
 }
 
 export class FetchError extends Error {
-  constructor(message?: string, public statusCode?: number) {
+  constructor(
+    message?: string,
+    public statusCode?: number,
+  ) {
     super(message);
     // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-2.html#support-for-newtarget
     Object.setPrototypeOf(this, new.target.prototype);

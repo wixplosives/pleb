@@ -1,11 +1,11 @@
-import fs from 'fs';
-import type childProcess from 'child_process';
+import { isPlainObject, isString, type INpmPackage } from '@wixc3/resolve-directory-context';
+import type childProcess from 'node:child_process';
+import fs from 'node:fs';
 import { retry } from 'promise-assist';
 import type { PackageJson } from 'type-fest';
-import { INpmPackage, isString, isPlainObject } from '@wixc3/resolve-directory-context';
+import { log, logWarn } from './log.js';
 import type { NpmRegistry } from './npm-registry.js';
 import { spawnSyncLogged } from './process.js';
-import { logWarn, log } from './log.js';
 
 export async function getPackagesToPublish(packages: INpmPackage[], registry: NpmRegistry): Promise<INpmPackage[]> {
   const packagesToPublish: INpmPackage[] = [];
@@ -75,7 +75,7 @@ export function executePrepublishScripts({ displayName, directoryPath, packageJs
 
 export async function removePrepublishScripts(
   packageJsonPath: string,
-  filesToRestore: Map<string, string>
+  filesToRestore: Map<string, string>,
 ): Promise<void> {
   const packageJsonContents = await fs.promises.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContents) as PackageJson;

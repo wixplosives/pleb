@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
-import fs from 'fs';
-import path from 'path';
+import { allPackagesFromContext, isString, resolveDirectoryContext } from '@wixc3/resolve-directory-context';
+import fs from 'node:fs';
+import path from 'node:path';
 import PromiseQueue from 'p-queue';
 import semver from 'semver';
-import { resolveDirectoryContext, allPackagesFromContext, isString } from '@wixc3/resolve-directory-context';
 import { createCliProgressBar } from '../utils/cli-progress-bar.js';
-import { uriToIdentifier, officialNpmRegistryUrl, NpmRegistry } from '../utils/npm-registry.js';
+import { loadPlebConfig, normalizePinnedPackages } from '../utils/config.js';
 import { loadEnvNpmConfig } from '../utils/npm-config.js';
-import { normalizePinnedPackages, loadPlebConfig } from '../utils/config.js';
+import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/npm-registry.js';
 
 const { gt, coerce } = semver;
 
@@ -52,10 +52,10 @@ export async function upgrade({
           ([packageName, packageVersion]) =>
             !internalPackageNames.has(packageName) &&
             !isFileColonRequest(packageVersion!) &&
-            !(packageName === '@types/node' && isPureNumericRequest(packageVersion!))
+            !(packageName === '@types/node' && isPureNumericRequest(packageVersion!)),
         )
-        .map(([packageName]) => packageName)
-    )
+        .map(([packageName]) => packageName),
+    ),
   );
 
   log(`Getting "latest" version for ${externalPackageNames.size} dependencies...`);
@@ -145,7 +145,8 @@ export async function upgrade({
     const maxKeyLength = Array.from(skipped.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
     for (const [key, { originalValue, reason, newValue }] of skipped) {
       log(
-        `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}` + (reason ? ` (${reason})` : ``)
+        `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}` +
+          (reason ? ` (${reason})` : ``),
       );
     }
   }

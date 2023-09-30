@@ -1,4 +1,4 @@
-import { spawnSync } from 'child_process';
+import { spawnSync } from 'node:child_process';
 
 export function currentGitCommitHash(cwd = process.cwd()): string | undefined {
   const { stdout, status } = spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8', cwd });

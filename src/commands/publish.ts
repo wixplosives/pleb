@@ -1,16 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-import type { SpawnSyncOptions } from 'child_process';
-import { resolveDirectoryContext, childPackagesFromContext } from '@wixc3/resolve-directory-context';
-import {
-  npmPublishArgs,
-  executePrepublishScripts,
-  removePrepublishScripts,
-  getPackagesToPublish,
-} from '../utils/npm-publish.js';
-import { uriToIdentifier, NpmRegistry, officialNpmRegistryUrl } from '../utils/npm-registry.js';
-import { loadEnvNpmConfig } from '../utils/npm-config.js';
+import { childPackagesFromContext, resolveDirectoryContext } from '@wixc3/resolve-directory-context';
+import type { SpawnSyncOptions } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 import { log } from '../utils/log.js';
+import { loadEnvNpmConfig } from '../utils/npm-config.js';
+import {
+  executePrepublishScripts,
+  getPackagesToPublish,
+  npmPublishArgs,
+  removePrepublishScripts,
+} from '../utils/npm-publish.js';
+import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/npm-registry.js';
 import { spawnSyncLogged } from '../utils/process.js';
 
 export interface PublishOptions {
