@@ -28,12 +28,12 @@
     "p-queue": "^7.4.1",
     "promise-assist": "^2.0.1",
     "semver": "^7.5.4",
-    "type-fest": "^4.6.0"
+    "type-fest": "^4.7.1"
   },
   "devDependencies": {
     "@types/node": "18",
     "@types/semver": "^7.5.5",
-    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
     "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
