@@ -25,7 +25,7 @@
     "@wixc3/resolve-directory-context": "^4.0.0",
     "colorette": "^2.0.20",
     "commander": "^11.1.0",
-    "p-queue": "^8.0.0",
+    "p-queue": "^8.0.1",
     "promise-assist": "^2.0.1",
     "semver": "^7.5.4",
     "type-fest": "^4.8.3"
