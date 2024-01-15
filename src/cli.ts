@@ -36,12 +36,14 @@ program
   .description('upgrade dependencies and devDependencies of all packages')
   .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
   .option('--registry <url>', 'npm registry to use')
-  .action(async (targetPath: string, { dryRun, registry }) => {
+  .option('--no-color', 'disable colored output', true)
+  .action(async (targetPath: string, { dryRun, registry, color }) => {
     const { upgrade } = await import('./commands/upgrade.js');
 
     await upgrade({
       directoryPath: path.resolve(targetPath || ''),
       dryRun,
+      color,
       registryUrl: registry,
     });
   });
