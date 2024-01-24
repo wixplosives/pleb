@@ -1,0 +1,8 @@
+{
+  "name": "pleb-dependencies-exact",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "package-a": "1.0.0"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "pleb-dependencies-file-ref",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "package-a": "file:./inner-dep"
+  }
+}

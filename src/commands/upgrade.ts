@@ -11,18 +11,26 @@ import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/n
 
 const { gt, coerce } = semver;
 
+type RequiredRegistryApi = Pick<NpmRegistry, 'fetchDistTags' | 'dispose'>;
+
 export interface UpgradeOptions {
   directoryPath: string;
   dryRun?: boolean;
   registryUrl?: string;
+  createRegistry?: (url: string, token?: string) => RequiredRegistryApi;
   log?: (message: unknown) => void;
   logError?: (message: unknown) => void;
+}
+
+function createDefaultRegistry(url: string, token?: string) {
+  return new NpmRegistry(url, token);
 }
 
 export async function upgrade({
   directoryPath,
   registryUrl,
   dryRun,
+  createRegistry = createDefaultRegistry,
   log = console.log,
   logError = console.error,
 }: UpgradeOptions): Promise<void> {
@@ -33,7 +41,7 @@ export async function upgrade({
   const npmConfig = await loadEnvNpmConfig({ basePath: directoryPath });
   const resolvedRegistryUrl = registryUrl ?? npmConfig['registry'] ?? officialNpmRegistryUrl;
   const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
-  const registry = new NpmRegistry(resolvedRegistryUrl, token);
+  const registry = createRegistry(resolvedRegistryUrl, token);
 
   const internalPackageNames = new Set<string>(packages.map(({ packageJson }) => packageJson.name!));
 
@@ -149,7 +157,7 @@ export async function upgrade({
 }
 
 export interface IFetchLatestPackageVersionsOptions {
-  registry: NpmRegistry;
+  registry: RequiredRegistryApi;
   packageNames: Set<string>;
   logError: (message: unknown) => void;
 }

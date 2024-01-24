@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "prepack": "echo \"prepack yarn-workspace-b\""
+  },
+  "dependencies": {
+    "external-b": "^1.0.0"
   }
 }
