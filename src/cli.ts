@@ -36,13 +36,16 @@ program
   .description('upgrade dependencies and devDependencies of all packages')
   .option('--dry-run', 'no actual upgrading (just the fetching process)', false)
   .option('--registry <url>', 'npm registry to use')
-  .action(async (targetPath: string, { dryRun, registry }) => {
+  .option('-m, --match <regex>', 'upgrade only packages matching the given JS Regexp')
+  .action(async (targetPath: string, { dryRun, registry, match }) => {
     const { upgrade } = await import('./commands/upgrade.js');
+    const _match = match ? new RegExp(match) : undefined;
 
     await upgrade({
       directoryPath: path.resolve(targetPath || ''),
       dryRun,
       registryUrl: registry,
+      match: _match,
     });
   });
 
