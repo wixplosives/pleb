@@ -39,7 +39,7 @@ program
   .option('-m, --match <regex>', 'upgrade only packages matching the given JS Regexp')
   .action(async (targetPath: string, { dryRun, registry, match }) => {
     const { upgrade } = await import('./commands/upgrade.js');
-    const _match = match ? new RegExp(match) : undefined;
+    const _match = typeof match === 'string' ? new RegExp(match) : undefined;
 
     await upgrade({
       directoryPath: path.resolve(targetPath || ''),
