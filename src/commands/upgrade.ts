@@ -15,6 +15,7 @@ export interface UpgradeOptions {
   directoryPath: string;
   dryRun?: boolean;
   registryUrl?: string;
+  match?: RegExp;
   log?: (message: unknown) => void;
   logError?: (message: unknown) => void;
 }
@@ -23,6 +24,7 @@ export async function upgrade({
   directoryPath,
   registryUrl,
   dryRun,
+  match,
   log = console.log,
   logError = console.error,
 }: UpgradeOptions): Promise<void> {
@@ -46,6 +48,7 @@ export async function upgrade({
             !isFileColonRequest(packageVersion!) &&
             !(packageName === '@types/node' && isPureNumericRequest(packageVersion!)),
         )
+        .filter(([packageName]) => !match || match.test(packageName))
         .map(([packageName]) => packageName),
     ),
   );
