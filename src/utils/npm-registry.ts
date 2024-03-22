@@ -1,7 +1,6 @@
 import { isPlainObject } from '@wixc3/resolve-directory-context';
 import http from 'node:http';
 import https from 'node:https';
-import url from 'node:url';
 import { FetchError, fetchText, isSecureUrl } from './http.js';
 
 export const officialNpmRegistryUrl = 'https://registry.npmjs.org/';
@@ -81,14 +80,11 @@ export class NpmRegistry {
   }
 }
 
-// https://github.com/npm/cli/blob/release-v6.14.8/lib/config/nerf-dart.js
+// https://github.com/npm/cli/blob/v10.5.0/workspaces/config/lib/nerf-dart.js
 export function uriToIdentifier(uri: string): string {
-  const parsed = url.parse(uri);
-  parsed.protocol = null;
-  parsed.auth = null;
-  parsed.query = null;
-  parsed.search = null;
-  parsed.hash = null;
-
-  return url.resolve(url.format(parsed), '.');
+  const parsed = new URL(uri);
+  const from = `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
+  const rel = new URL('.', from);
+  const res = `//${rel.host}${rel.pathname}`;
+  return res;
 }
