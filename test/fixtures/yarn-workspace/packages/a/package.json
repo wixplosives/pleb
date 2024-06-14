@@ -5,6 +5,7 @@
     "prepack": "echo \"prepack yarn-workspace-a\""
   },
   "dependencies": {
-    "yarn-workspace-b": "^1.0.0"
+    "yarn-workspace-b": "^1.0.0",
+    "external-a": "^1.0.0"
   }
 }
