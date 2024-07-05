@@ -1,8 +1,0 @@
-{
-  "name": "pleb-new-package",
-  "version": "1.0.0",
-  "scripts": {
-    "prepare": "node build.js"
-  },
-  "license": "MIT"
-}

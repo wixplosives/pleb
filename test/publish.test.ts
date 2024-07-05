@@ -41,17 +41,6 @@ describe('pleb publish', { timeout: 30_000 }, function () {
     assert.equal(exitCode, 0);
   });
 
-  it('allows specifying a custom dist directory', async () => {
-    const distDirFixturePath = join(fixturesRoot, 'dist-dir');
-
-    const { output, exitCode } = await runCli(['publish', distDirFixturePath, '--contents', 'npm']);
-
-    assert.match(output, /pleb-new-package: package was never published./);
-    assert.match(output, /total files:\s+2/);
-    assert.match(output, /pleb-new-package: done./);
-    assert.equal(exitCode, 0);
-  });
-
   it('publishes workspace packages in correct order (deps first)', async () => {
     const distDirFixturePath = join(fixturesRoot, 'yarn-workspace');
 
@@ -62,7 +51,7 @@ describe('pleb publish', { timeout: 30_000 }, function () {
     assert.match(output, /yarn-workspace-a: done./);
     assert.match(output, /yarn-workspace-b: done./);
     assert.ok(output.indexOf('prepack yarn-workspace-b') < output.indexOf('prepack yarn-workspace-a'));
-    assert.ok(output.indexOf('prepack yarn-workspace-a') < output.indexOf('yarn-workspace-b: done.'));
+    assert.ok(output.indexOf('yarn-workspace-b: done.') < output.indexOf('prepack yarn-workspace-a'));
     assert.ok(output.indexOf('yarn-workspace-b: done.') < output.indexOf('yarn-workspace-a: done.'));
     assert.equal(exitCode, 0);
   });

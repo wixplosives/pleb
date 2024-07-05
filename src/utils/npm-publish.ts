@@ -1,11 +1,7 @@
-import { isPlainObject, isString, type INpmPackage } from '@wixc3/resolve-directory-context';
-import type childProcess from 'node:child_process';
-import fs from 'node:fs';
+import { type INpmPackage } from '@wixc3/resolve-directory-context';
 import { retry } from 'promise-assist';
-import type { PackageJson } from 'type-fest';
 import { log, logWarn } from './log.js';
 import type { NpmRegistry } from './npm-registry.js';
-import { spawnSyncLogged } from './process.js';
 
 export async function getPackagesToPublish(packages: INpmPackage[], registry: NpmRegistry): Promise<INpmPackage[]> {
   const packagesToPublish: INpmPackage[] = [];
@@ -42,60 +38,4 @@ export async function getPackagesToPublish(packages: INpmPackage[], registry: Np
     }
   }
   return packagesToPublish;
-}
-
-export function npmPublishArgs(registry: NpmRegistry, dryRun: boolean, tag: string): string[] {
-  const publishArgs: string[] = ['publish', '--registry', registry.url];
-  if (dryRun) {
-    publishArgs.push('--dry-run');
-  }
-  if (tag !== 'latest') {
-    publishArgs.push('--tag', tag);
-  }
-  return publishArgs;
-}
-
-export function executePrepublishScripts({ displayName, directoryPath, packageJson }: INpmPackage): void {
-  const spawnOptions: childProcess.SpawnSyncOptions = {
-    cwd: directoryPath,
-    stdio: 'inherit',
-    shell: true,
-  };
-  const { scripts = {} } = packageJson;
-  if (isString(scripts.prepare)) {
-    spawnSyncLogged('npm', ['run', 'prepare'], spawnOptions, displayName);
-  }
-  if (isString(scripts.prepublishOnly)) {
-    spawnSyncLogged('npm', ['run', 'prepublishOnly'], spawnOptions, displayName);
-  }
-  if (isString(scripts.prepack)) {
-    spawnSyncLogged('npm', ['run', 'prepack'], spawnOptions, displayName);
-  }
-}
-
-export async function removePrepublishScripts(
-  packageJsonPath: string,
-  filesToRestore: Map<string, string>,
-): Promise<void> {
-  const packageJsonContents = await fs.promises.readFile(packageJsonPath, 'utf8');
-  const packageJson = JSON.parse(packageJsonContents) as PackageJson;
-  if (!isPlainObject(packageJson)) {
-    throw new Error(`${packageJsonPath} is not a valid json object.`);
-  }
-  const { scripts } = packageJson;
-  if (
-    scripts &&
-    (scripts.prepare !== undefined || scripts.prepublishOnly !== undefined || scripts.prepack !== undefined)
-  ) {
-    delete scripts.prepare;
-    delete scripts.prepublishOnly;
-    delete scripts.prepack;
-    // retain original EOL. JSON.stringify always outputs \n.
-    const newPackageJsonContent = JSON.stringify(packageJson, null, 2) + '\n';
-    const normalizedNewPackageJsonContent = packageJsonContents.includes('\r\n')
-      ? newPackageJsonContent.replace(/\n/g, '\r\n')
-      : newPackageJsonContent;
-    filesToRestore.set(packageJsonPath, packageJsonContents);
-    await fs.promises.writeFile(packageJsonPath, normalizedNewPackageJsonContent);
-  }
 }

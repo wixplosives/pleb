@@ -16,16 +16,14 @@ program
   .command('publish [target]')
   .description('publish unpublished packages')
   .option('--dry-run', 'no actual publishing (passed to npm as well)', false)
-  .option('--contents <name>', 'subdirectory to publish (similar to lerna publish --contents)', '.')
   .option('--registry <url>', 'npm registry to use')
   .option('--tag <tag>', 'tag to use for published version', 'latest')
-  .action(async (targetPath: string, { dryRun, contents, registry, tag }) => {
+  .action(async (targetPath: string, { dryRun, registry, tag }) => {
     const { publish } = await import('./commands/publish.js');
 
     await publish({
       directoryPath: path.resolve(targetPath || ''),
       dryRun,
-      distDir: contents,
       registryUrl: registry,
       tag,
     });
