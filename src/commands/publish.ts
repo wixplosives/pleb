@@ -4,12 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { log } from '../utils/log.js';
 import { loadEnvNpmConfig } from '../utils/npm-config.js';
-import {
-  executePrepublishScripts,
-  getPackagesToPublish,
-  npmPublishArgs,
-  removePrepublishScripts,
-} from '../utils/npm-publish.js';
+import { getPackagesToPublish } from '../utils/npm-publish.js';
 import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/npm-registry.js';
 import { spawnSyncLogged } from '../utils/process.js';
 
@@ -17,8 +12,6 @@ export interface PublishOptions {
   directoryPath: string;
   /** @default false */
   dryRun?: boolean;
-  /** @default '.' */
-  distDir?: string;
   /** @default .npmrc or official npm registry */
   registryUrl?: string;
   /** @default 'latest' */
@@ -28,7 +21,6 @@ export interface PublishOptions {
 export async function publish({
   directoryPath,
   dryRun = false,
-  distDir = '.',
   registryUrl,
   tag = 'latest',
 }: PublishOptions): Promise<void> {
@@ -39,24 +31,21 @@ export async function publish({
   const token = npmConfig[`${uriToIdentifier(resolvedRegistryUrl)}:_authToken`];
   const registry = new NpmRegistry(resolvedRegistryUrl, token);
 
-  const filesToRestore = new Map<string, string>();
   try {
     const packagesToPublish = await getPackagesToPublish(packages, registry);
 
     if (packagesToPublish.length) {
-      for (const npmPackage of packagesToPublish) {
-        executePrepublishScripts(npmPackage);
+      const publishArgs: string[] = ['publish', '--registry', registry.url];
+      if (dryRun) {
+        publishArgs.push('--dry-run');
       }
-
-      for (const npmPackage of packagesToPublish) {
-        await removePrepublishScripts(path.join(npmPackage.directoryPath, distDir, 'package.json'), filesToRestore);
+      if (tag !== 'latest') {
+        publishArgs.push('--tag', tag);
       }
-
-      const publishArgs = npmPublishArgs(registry, dryRun, tag);
 
       for (const npmPackage of packagesToPublish) {
         const spawnOptions: SpawnSyncOptions = {
-          cwd: path.join(npmPackage.directoryPath, distDir),
+          cwd: npmPackage.directoryPath,
           stdio: 'inherit',
           shell: true,
         };
@@ -67,10 +56,6 @@ export async function publish({
       log(`Nothing to publish.`);
     }
   } finally {
-    for (const [filePath, fileContents] of filesToRestore) {
-      await fs.promises.writeFile(filePath, fileContents);
-    }
-    filesToRestore.clear();
     registry.dispose();
   }
 }
