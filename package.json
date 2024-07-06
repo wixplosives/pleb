@@ -11,7 +11,7 @@
     "pleb": "bin/pleb.js"
   },
   "scripts": {
-    "clean": "rimraf ./dist",
+    "clean": "node -e \"fs.rmSync('./dist', { recursive: true, force: true })\"",
     "prebuild": "npm run clean",
     "build": "tsc --build",
     "pretest": "npm run lint && npm run build",
@@ -38,7 +38,6 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-no-only-tests": "^3.1.0",
     "prettier": "^3.3.2",
-    "rimraf": "^5.0.7",
     "typescript": "~5.5.3"
   },
   "files": [
