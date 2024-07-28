@@ -8,6 +8,7 @@ import { createCliProgressBar } from '../utils/cli-progress-bar.js';
 import { loadPlebConfig, normalizePinnedPackages } from '../utils/config.js';
 import { loadEnvNpmConfig } from '../utils/npm-config.js';
 import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/npm-registry.js';
+import { getChangeType, colorizeChangeType, type ChangeType, groupByChangeType } from '../utils/get-change-type.js';
 
 const { gt, coerce } = semver;
 
@@ -15,6 +16,7 @@ export interface UpgradeOptions {
   directoryPath: string;
   dryRun?: boolean;
   registryUrl?: string;
+  color?: boolean;
   log?: (message: unknown) => void;
   logError?: (message: unknown) => void;
 }
@@ -23,6 +25,7 @@ export async function upgrade({
   directoryPath,
   registryUrl,
   dryRun,
+  color = true,
   log = console.log,
   logError = console.error,
 }: UpgradeOptions): Promise<void> {
@@ -80,24 +83,32 @@ export async function upgrade({
     }
   };
 
-  const replacements = new Map<string, { originalValue: string; newValue: string }>();
-  const skipped = new Map<string, { originalValue: string; newValue: string; reason: string }>();
+  const replacements = new Map<string, { originalValue: string; newValue: string; changeType: ChangeType }>();
+  const skipped = new Map<
+    string,
+    { originalValue: string; newValue: string; reason: string; changeType: ChangeType }
+  >();
 
   function mapDependencies(obj: Partial<Record<string, string>>): Partial<Record<string, string>> {
     const newObj: Partial<Record<string, string>> = {};
     for (const [packageName, request] of Object.entries(obj)) {
       const newVersionRequest = getVersionRequest(packageName, request!);
       newObj[packageName] = request;
-
+      const changeType = getChangeType(request!, newVersionRequest);
       if (newVersionRequest !== request) {
         if (pinnedPackages.has(packageName)) {
           skipped.set(packageName, {
             originalValue: request!,
             newValue: newVersionRequest,
             reason: pinnedPackages.get(packageName)!,
+            changeType,
           });
         } else {
-          replacements.set(packageName, { originalValue: request!, newValue: newVersionRequest });
+          replacements.set(packageName, {
+            originalValue: request!,
+            newValue: newVersionRequest,
+            changeType,
+          });
           newObj[packageName] = newVersionRequest;
         }
       }
@@ -127,19 +138,32 @@ export async function upgrade({
   if (replacements.size) {
     log('Changes:');
     const maxKeyLength = Array.from(replacements.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
-    for (const [key, { originalValue, newValue }] of replacements) {
-      log(`  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}`);
+    for (const changeGroup of Object.values(groupByChangeType(replacements))) {
+      for (const [key, { originalValue, newValue, changeType }] of changeGroup) {
+        log(
+          colorizeChangeType(
+            color,
+            changeType,
+            `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}`,
+          ),
+        );
+      }
     }
   }
 
   if (skipped.size) {
     log('Skipped:');
     const maxKeyLength = Array.from(skipped.keys()).reduce((acc, key) => Math.max(acc, key.length), 0);
-    for (const [key, { originalValue, reason, newValue }] of skipped) {
-      log(
-        `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}` +
-          (reason ? ` (${reason})` : ``),
-      );
+    for (const skippedGroup of Object.values(groupByChangeType(skipped))) {
+      for (const [key, { originalValue, reason, newValue, changeType }] of skippedGroup) {
+        log(
+          colorizeChangeType(
+            color,
+            changeType,
+            `  ${key.padEnd(maxKeyLength + 2)} ${originalValue.padStart(8)} -> ${newValue}`,
+          ) + (reason ? ` (${reason})` : ``),
+        );
+      }
     }
   }
 
