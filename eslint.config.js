@@ -1,19 +1,25 @@
+import { fixupPluginRules } from '@eslint/compat';
 import pluginJs from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import configPrettier from 'eslint-config-prettier';
+import pluginNoOnlyTests from 'eslint-plugin-no-only-tests';
+import pluginTypescript from 'typescript-eslint';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   { ignores: ['dist/', '**/*.{js,mjs,cjs}'] },
   pluginJs.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+
+  ...pluginTypescript.configs.recommendedTypeChecked,
   { languageOptions: { parserOptions: { projectService: true } } },
-  { rules: { 'no-console': 'error', 'no-undef': 'off' } },
+
+  { plugins: { 'no-only-tests': fixupPluginRules(pluginNoOnlyTests) } },
+  configPrettier,
+
+  { rules: { 'no-console': 'error' } },
   {
     files: ['**/*.test.ts'],
     rules: {
       '@typescript-eslint/no-floating-promises': 'off',
     },
   },
-  configPrettier,
 ];
