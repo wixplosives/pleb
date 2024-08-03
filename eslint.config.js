@@ -15,7 +15,12 @@ export default [
   { plugins: { 'no-only-tests': fixupPluginRules(pluginNoOnlyTests) } },
   configPrettier,
 
-  { rules: { 'no-console': 'error' } },
+  {
+    rules: {
+      'no-console': 'error',
+      'no-only-tests/no-only-tests': 'error',
+    },
+  },
   {
     files: ['**/*.test.ts'],
     rules: {
