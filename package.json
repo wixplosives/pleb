@@ -31,13 +31,12 @@
     "type-fest": "^4.24.0"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.1.1",
     "@eslint/js": "^9.9.0",
     "@types/node": "20",
     "@types/semver": "^7.5.8",
     "eslint": "^9.9.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-no-only-tests": "^3.2.0",
+    "eslint-plugin-no-only-tests": "^3.3.0",
     "prettier": "^3.3.3",
     "typescript": "~5.5.4",
     "typescript-eslint": "^8.1.0"

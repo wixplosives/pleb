@@ -1,4 +1,3 @@
-import { fixupPluginRules } from '@eslint/compat';
 import pluginJs from '@eslint/js';
 import configPrettier from 'eslint-config-prettier';
 import pluginNoOnlyTests from 'eslint-plugin-no-only-tests';
@@ -12,7 +11,7 @@ for (const config of pluginTypescript.configs.recommendedTypeChecked) {
 export default [
   { ignores: ['dist/'] },
   pluginJs.configs.recommended,
-  { plugins: { 'no-only-tests': fixupPluginRules(pluginNoOnlyTests) } },
+  { plugins: { 'no-only-tests': pluginNoOnlyTests } },
   {
     rules: {
       'no-console': 'error',
