@@ -28,7 +28,7 @@
     "p-queue": "^8.0.1",
     "promise-assist": "^2.0.1",
     "semver": "^7.6.3",
-    "type-fest": "^4.26.0"
+    "type-fest": "^4.26.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",
