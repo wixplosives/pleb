@@ -31,10 +31,10 @@
     "type-fest": "^4.26.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.10.0",
+    "@eslint/js": "^9.11.0",
     "@types/node": "20",
     "@types/semver": "^7.5.8",
-    "eslint": "^9.10.0",
+    "eslint": "^9.11.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "prettier": "^3.3.3",
