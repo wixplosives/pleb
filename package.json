@@ -16,7 +16,7 @@
     "build": "tsc --build",
     "pretest": "npm run lint && npm run build",
     "test": "npm run test:only",
-    "test:only": "node --test --enable-source-maps ./dist/test",
+    "test:only": "node --test --enable-source-maps",
     "lint": "eslint",
     "prepack": "npm run build",
     "prettify": "npx prettier . --write"
