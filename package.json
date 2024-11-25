@@ -28,7 +28,7 @@
     "p-queue": "^8.0.1",
     "promise-assist": "^2.0.1",
     "semver": "^7.6.3",
-    "type-fest": "^4.27.0"
+    "type-fest": "^4.28.0"
   },
   "devDependencies": {
     "@types/node": "20",
@@ -38,7 +38,7 @@
     "eslint-plugin-no-only-tests": "^3.3.0",
     "prettier": "^3.3.3",
     "typescript": "~5.7.2",
-    "typescript-eslint": "^8.15.0"
+    "typescript-eslint": "^8.16.0"
   },
   "files": [
     "bin",
