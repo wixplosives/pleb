@@ -68,5 +68,8 @@
     "singleQuote": true
   },
   "license": "MIT",
-  "repository": "git@github.com:wixplosives/pleb.git"
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/wixplosives/pleb.git"
+  }
 }
