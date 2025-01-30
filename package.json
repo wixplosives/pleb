@@ -27,7 +27,7 @@
     "commander": "^13.1.0",
     "p-queue": "^8.1.0",
     "promise-assist": "^2.0.1",
-    "semver": "^7.6.3"
+    "semver": "^7.7.0"
   },
   "devDependencies": {
     "@types/node": "20",
