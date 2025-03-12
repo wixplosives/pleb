@@ -32,13 +32,13 @@
   "devDependencies": {
     "@types/node": "20",
     "@types/semver": "^7.5.8",
-    "eslint": "^9.21.0",
-    "eslint-config-prettier": "^10.0.2",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "prettier": "^3.5.3",
-    "type-fest": "^4.36.0",
+    "type-fest": "^4.37.0",
     "typescript": "~5.8.2",
-    "typescript-eslint": "^8.26.0"
+    "typescript-eslint": "^8.26.1"
   },
   "files": [
     "bin",
