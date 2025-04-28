@@ -22,7 +22,7 @@
     "prettify": "prettier . --write"
   },
   "dependencies": {
-    "@wixc3/resolve-directory-context": "^4.0.0",
+    "@wixc3/resolve-directory-context": "^5.0.0",
     "colorette": "^2.0.20",
     "commander": "^13.1.0",
     "p-queue": "^8.1.0",
@@ -48,7 +48,7 @@
     "!*/tsconfig.{json,tsbuildinfo}"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "keywords": [
     "publish",
