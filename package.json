@@ -70,6 +70,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/wixplosives/pleb.git"
+    "url": "git+https://github.com/wixplosives/pleb.git"
   }
 }
