@@ -27,7 +27,7 @@
     "commander": "^13.1.0",
     "p-queue": "^8.1.0",
     "promise-assist": "^2.0.1",
-    "semver": "^7.7.1"
+    "semver": "^7.7.2"
   },
   "devDependencies": {
     "@types/node": "20",
@@ -38,7 +38,7 @@
     "prettier": "^3.5.3",
     "type-fest": "^4.41.0",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.32.0"
+    "typescript-eslint": "^8.32.1"
   },
   "files": [
     "bin",
