@@ -38,7 +38,7 @@
     "prettier": "^3.5.3",
     "type-fest": "^4.41.0",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.33.0"
+    "typescript-eslint": "^8.33.1"
   },
   "files": [
     "bin",
