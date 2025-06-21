@@ -1,6 +1,5 @@
 # pleb
 
-[![Build Status](https://github.com/wixplosives/pleb/workflows/tests/badge.svg)](https://github.com/wixplosives/pleb/actions)
 [![npm version](https://badge.fury.io/js/pleb.svg)](https://badge.fury.io/js/pleb)
 
 CLI to automate several npm package tasks.
