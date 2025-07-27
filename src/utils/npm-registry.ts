@@ -1,7 +1,7 @@
 import { isPlainObject } from '@wixc3/resolve-directory-context';
 import http from 'node:http';
 import https from 'node:https';
-import { FetchError, fetchText, isSecureUrl } from './http.js';
+import { FetchError, fetchText, isSecureUrl } from './http.ts';
 
 export const officialNpmRegistryUrl = 'https://registry.npmjs.org/';
 
@@ -12,10 +12,12 @@ export interface NpmRegistryDistTags {
 
 export class NpmRegistry {
   agent?: http.Agent | https.Agent;
-  constructor(
-    public url: string,
-    private token?: string,
-  ) {}
+  public url;
+  private token;
+  constructor(url: string, token?: string) {
+    this.url = url;
+    this.token = token;
+  }
 
   public async fetchDistTags(packageName: string): Promise<NpmRegistryDistTags> {
     this.ensureAgent();

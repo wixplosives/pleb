@@ -1,7 +1,7 @@
 import { type INpmPackage } from '@wixc3/resolve-directory-context';
 import { retry } from 'promise-assist';
-import { log, logWarn } from './log.js';
-import type { NpmRegistry } from './npm-registry.js';
+import { log, logWarn } from './log.ts';
+import type { NpmRegistry } from './npm-registry.ts';
 
 export async function getPackagesToPublish(packages: INpmPackage[], registry: NpmRegistry): Promise<INpmPackage[]> {
   const packagesToPublish: INpmPackage[] = [];

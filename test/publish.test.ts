@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { spawnAsync } from './spawn-async.js';
+import { spawnAsync } from './spawn-async.ts';
 
 const fixturesRoot = fileURLToPath(new URL('../../test/fixtures', import.meta.url));
 const cliEntryPath = fileURLToPath(new URL('../../bin/pleb.js', import.meta.url));
