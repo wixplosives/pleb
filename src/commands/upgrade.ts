@@ -4,10 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import PromiseQueue from 'p-queue';
 import semver from 'semver';
-import { createCliProgressBar } from '../utils/cli-progress-bar.js';
-import { loadPlebConfig, normalizePinnedPackages } from '../utils/config.js';
-import { loadEnvNpmConfig } from '../utils/npm-config.js';
-import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/npm-registry.js';
+import { createCliProgressBar } from '../utils/cli-progress-bar.ts';
+import { loadPlebConfig, normalizePinnedPackages } from '../utils/config.ts';
+import { loadEnvNpmConfig } from '../utils/npm-config.ts';
+import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/npm-registry.ts';
 
 const { gt, coerce } = semver;
 

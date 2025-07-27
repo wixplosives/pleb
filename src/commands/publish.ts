@@ -2,11 +2,11 @@ import { childPackagesFromContext, resolveDirectoryContext } from '@wixc3/resolv
 import type { SpawnSyncOptions } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { log } from '../utils/log.js';
-import { loadEnvNpmConfig } from '../utils/npm-config.js';
-import { getPackagesToPublish } from '../utils/npm-publish.js';
-import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/npm-registry.js';
-import { spawnSyncLogged } from '../utils/process.js';
+import { log } from '../utils/log.ts';
+import { loadEnvNpmConfig } from '../utils/npm-config.ts';
+import { getPackagesToPublish } from '../utils/npm-publish.ts';
+import { NpmRegistry, officialNpmRegistryUrl, uriToIdentifier } from '../utils/npm-registry.ts';
+import { spawnSyncLogged } from '../utils/process.ts';
 
 export interface PublishOptions {
   directoryPath: string;
