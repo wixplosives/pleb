@@ -49,7 +49,7 @@ export async function publish({
           stdio: 'inherit',
           shell: true,
         };
-        spawnSyncLogged('npm', publishArgs, spawnOptions, npmPackage.displayName);
+        spawnSyncLogged(`npm ${publishArgs.join(' ')}`, spawnOptions, npmPackage.displayName);
         log(`${npmPackage.displayName}: done.`);
       }
     } else {

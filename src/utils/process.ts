@@ -15,12 +15,11 @@ export const spawnSyncSafe = ((...args: Parameters<typeof spawnSync>) => {
 
 export function spawnSyncLogged(
   command: string,
-  args: string[],
   options: SpawnSyncOptions,
   label = options.cwd || process.cwd(),
 ): SpawnSyncReturns<string | Buffer> {
-  log(`${label.toString()}: ${command} ${args.join(' ')}`);
-  return spawnSyncSafe(command, args, options);
+  log(`${label.toString()}: ${command}`);
+  return spawnSyncSafe(command, options);
 }
 
 export function reportProcessError(message: unknown): void {
