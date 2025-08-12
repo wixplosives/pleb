@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { PackageJson } from 'type-fest';
-import { reportProcessError } from './utils/process.js';
+import { reportProcessError } from './utils/process.ts';
 
 const packageJsonPath = new URL('../package.json', import.meta.url);
 const { name, version, description } = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as PackageJson;
